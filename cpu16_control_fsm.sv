@@ -1,4 +1,4 @@
-module cpu16_control_fsm ( //GPT generated
+module cpu16_control_fsm (
   input  logic        clk,
   input  logic        rst,
   input  logic [15:0] ir,
@@ -25,10 +25,12 @@ module cpu16_control_fsm ( //GPT generated
 
   import cpu16_isa::*;
 
+  // States. Note: S_IF1 is a wait state to absorb the 1-cycle SRAM read
+  // latency; S_IF2 is the cycle in which IR latches mem_rdata and PC bumps.
   typedef enum logic [4:0] {
-    S_RESET     = 5'd0,
-    S_IF0       = 5'd1,
-    S_IF1       = 5'd2,
+    S_IF0       = 5'd0,
+    S_IF1       = 5'd1,   // wait for SRAM read
+    S_IF2       = 5'd2,   // latch IR, increment PC
     S_ID        = 5'd3,
     S_EX_ALU    = 5'd4,
     S_EX_EA     = 5'd5,
@@ -49,13 +51,13 @@ module cpu16_control_fsm ( //GPT generated
   logic is_cmp;
 
   always_comb begin
-    d = decode(ir);
+    d       = decode(ir);
     is_cmp  = (d.op == OP_ALU1) && (d.funct == ALU1_CMP);
     take_br = (d.nzp_mask[2] & N) | (d.nzp_mask[1] & Z) | (d.nzp_mask[0] & P);
   end
 
   always_ff @(posedge clk) begin
-    if (rst) state <= S_RESET;
+    if (rst) state <= S_IF0;
     else     state <= state_n;
   end
 
@@ -79,37 +81,42 @@ module cpu16_control_fsm ( //GPT generated
     state_n = state;
 
     unique case (state)
-      S_RESET: begin
-        pc_we      = 1'b1;
-        pc_src_sel = 2'b00;
-        state_n    = S_IF0;
-      end
-
+      // ---------------- FETCH ----------------
       S_IF0: begin
+        // mar <- PC (SRAM will start reading mem[PC] next cycle)
         mar_we      = 1'b1;
         mar_src_sel = 2'b00;
         state_n     = S_IF1;
       end
 
       S_IF1: begin
+        // wait one cycle for SRAM read latency.
+        // mem_addr=PC is held stable because mar is unchanged.
+        state_n = S_IF2;
+      end
+
+      S_IF2: begin
+        // mem_rdata is now mem[PC]. Latch into IR and bump PC.
         ir_we      = 1'b1;
         pc_we      = 1'b1;
         pc_src_sel = 2'b01;
         state_n    = S_ID;
       end
 
+      // ---------------- DECODE ----------------
       S_ID: begin
         unique case (d.op)
           OP_ALU0, OP_ALU1, OP_ADDI, OP_ANDI, OP_LEA: state_n = S_EX_ALU;
-          OP_LD, OP_LDR, OP_ST, OP_STR:              state_n = S_EX_EA;
-          OP_BR:                                     state_n = S_EX_BR;
-          OP_JMP, OP_RET:                            state_n = S_EX_JMP;
-          OP_JSR:                                    state_n = S_EX_JSR;
-          OP_TRAP:                                   state_n = S_EX_TRAP;
-          default:                                   state_n = S_IF0;
+          OP_LD, OP_LDR, OP_ST, OP_STR:               state_n = S_EX_EA;
+          OP_BR:                                      state_n = S_EX_BR;
+          OP_JMP, OP_RET:                             state_n = S_EX_JMP;
+          OP_JSR:                                     state_n = S_EX_JSR;
+          OP_TRAP:                                    state_n = S_EX_TRAP;
+          default:                                    state_n = S_IF0;
         endcase
       end
 
+      // ---------------- ALU (incl. LEA) ----------------
       S_EX_ALU: begin
         reg_dst = d.dr;
         reg_we  = 1'b1;
@@ -131,11 +138,10 @@ module cpu16_control_fsm ( //GPT generated
             if (d.funct == ALU1_INC || d.funct == ALU1_DEC ||
                 d.funct == ALU1_LSL1 || d.funct == ALU1_LSR1 ||
                 d.funct == ALU1_ASR1) alu_b_sel = 3'b111;
+            // CMP runs as ALU1 funct 111 (a-b) and sets flags; just don't
+            // write the regfile.
             if (is_cmp) begin
-              reg_we    = 1'b0;
-              reg_dst   = 3'b000;
-              alu_op    = 3'b001;
-              alu_b_sel = 3'b000;
+              reg_we = 1'b0;
             end
           end
 
@@ -155,6 +161,7 @@ module cpu16_control_fsm ( //GPT generated
             alu_a_sel = 2'b01;
             alu_b_sel = 3'b011;
             alu_op    = 3'b000;
+            flag_we   = 1'b0;  // LEA does not touch flags
           end
 
           default: begin end
@@ -163,19 +170,20 @@ module cpu16_control_fsm ( //GPT generated
         state_n = S_IF0;
       end
 
+      // ---------------- EFFECTIVE ADDRESS ----------------
       S_EX_EA: begin
         mar_we      = 1'b1;
         mar_src_sel = 2'b01;
 
         unique case (d.op)
           OP_LD, OP_ST: begin
-            alu_a_sel = 2'b01;
-            alu_b_sel = 3'b011;
+            alu_a_sel = 2'b01;   // PC
+            alu_b_sel = 3'b011;  // sext9(off9)
             alu_op    = 3'b000;
           end
           OP_LDR, OP_STR: begin
-            alu_a_sel = 2'b00;
-            alu_b_sel = 3'b100;
+            alu_a_sel = 2'b00;   // rd0 = BaseR
+            alu_b_sel = 3'b100;  // sext6(off6)
             alu_op    = 3'b000;
           end
           default: begin end
@@ -185,7 +193,9 @@ module cpu16_control_fsm ( //GPT generated
         else                                  state_n = S_MEM_WR0;
       end
 
+      // ---------------- LOAD (3-cycle: latch MAR, wait, latch MDR) ----------------
       S_MEM_RD0: begin
+        // wait for SRAM read latency
         state_n = S_MEM_RD1;
       end
 
@@ -198,14 +208,17 @@ module cpu16_control_fsm ( //GPT generated
         reg_we  = 1'b1;
         reg_dst = d.dr;
         wb_sel  = 2'b01;
+        // Note: deliberately no flag_we — LD/LDR don't set flags in this ISA.
         state_n = S_IF0;
       end
 
+      // ---------------- STORE ----------------
       S_MEM_WR0: begin
         mem_we  = 1'b1;
         state_n = S_IF0;
       end
 
+      // ---------------- BRANCH ----------------
       S_EX_BR: begin
         if (take_br) begin
           pc_we      = 1'b1;
@@ -214,25 +227,30 @@ module cpu16_control_fsm ( //GPT generated
         state_n = S_IF0;
       end
 
+      // ---------------- JMP / RET ----------------
       S_EX_JMP: begin
         pc_we      = 1'b1;
-        pc_src_sel = 2'b11;
+        pc_src_sel = 2'b11;   // datapath picks rd2 (=R7) for RET, rd0 for JMP
         state_n    = S_IF0;
       end
 
+      // ---------------- JSR / JSRR ----------------
       S_EX_JSR: begin
+        // R7 <- inc(PC)
         reg_we  = 1'b1;
         reg_dst = 3'b111;
         wb_sel  = 2'b10;
 
         pc_we = 1'b1;
-        if (d.jsr_is_reg) pc_src_sel = 2'b11;
-        else              pc_src_sel = 2'b10;
+        if (d.jsr_is_reg) pc_src_sel = 2'b11;  // JSRR: PC <- rd0 (BaseR)
+        else              pc_src_sel = 2'b10;  // JSR:  PC <- PC + sext11
 
         state_n = S_IF0;
       end
 
+      // ---------------- TRAP ----------------
       S_EX_TRAP: begin
+        // R7 <- inc(PC); PC <- ZEXT(TrapVector12)
         reg_we  = 1'b1;
         reg_dst = 3'b111;
         wb_sel  = 2'b10;

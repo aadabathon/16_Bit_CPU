@@ -62,6 +62,9 @@ module cpu16_datapath (
     .we(reg_we), .wa(reg_dst), .wd(wb_data)
   );
 
+  // ra0 = SR1 / BaseR (always [8:6])
+  // ra1 = SR2          (always [5:3])
+  // ra2 = store data ([11:9]) for ST/STR, or R7 for RET
   always_comb begin
     ra0 = ir[8:6];
     ra1 = ir[5:3];
@@ -71,22 +74,23 @@ module cpu16_datapath (
 
   always_comb begin
     unique case (alu_a_sel)
-      2'b00: alu_a = rd0;
-      2'b01: alu_a = pc;
+      2'b00:   alu_a = rd0;
+      2'b01:   alu_a = pc;
       default: alu_a = 16'h0000;
     endcase
 
     unique case (alu_b_sel)
-      3'b000: alu_b = rd1;
-      3'b001: alu_b = sext6(imm6);
-      3'b010: alu_b = zext6(imm6);
-      3'b011: alu_b = sext9(off9);
-      3'b100: alu_b = sext6(imm6);
+      3'b000:  alu_b = rd1;
+      3'b001:  alu_b = sext6(imm6);
+      3'b010:  alu_b = zext6(imm6);
+      3'b011:  alu_b = sext9(off9);
+      3'b100:  alu_b = sext6(imm6);
       default: alu_b = 16'h0000;
     endcase
 
+    // CMP runs as ALU1 funct 111 (a - b). No special-case needed here;
+    // the FSM is responsible for clearing reg_we on CMP.
     alu1_mode = (op == OP_ALU1);
-    if (alu1_mode && (funct == ALU1_CMP)) alu1_mode = 1'b0;
   end
 
   cpu16_alu alu0(
@@ -99,9 +103,9 @@ module cpu16_datapath (
 
   always_comb begin
     unique case (wb_sel)
-      2'b00: wb_data = alu_y;
-      2'b01: wb_data = mdr;
-      2'b10: wb_data = pc;
+      2'b00:   wb_data = alu_y;
+      2'b01:   wb_data = mdr;
+      2'b10:   wb_data = pc;
       default: wb_data = 16'h0000;
     endcase
   end
@@ -121,8 +125,8 @@ module cpu16_datapath (
 
   always_comb begin
     unique case (mar_src_sel)
-      2'b00: mar_next = pc;
-      2'b01: mar_next = alu_y;
+      2'b00:   mar_next = pc;
+      2'b01:   mar_next = alu_y;
       default: mar_next = mar;
     endcase
   end
@@ -154,4 +158,3 @@ module cpu16_datapath (
   assign mem_wdata = rd2;
 
 endmodule
-  

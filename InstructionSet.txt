@@ -1,32 +1,38 @@
-Instruction Set: 3-bit register address. In general we have : ALU [15:12] + DR [11:9] + SR1[8:6] + SR2 [5:3] + Funct [2:0] -- All ALU Ops (0, 1) write the status register {N, Z, P} when applicable. 
-0000 + DR + SR1 + SR2 + 000 // Add the contents of SR1 plus SR2 into DR : DR <- SR1 + SR2 -- N = DR[15] ; Z = (DR == 0) ; P = (~N) & (~Z); flag_we = 1, D_we = 1
-0000 + DR + SR1 + SR2 + 001 // Subtract the contents of SR1 by SR2 and store it in DR : DR <- SR1 - SR2
-0000 + DR + SR1 + XXX + 010 // Not the contents of SR1 and store it in DR : DR <- Not(SR1)
-0000 + DR + SR1 + SR2 + 011 // And the contents of SR1 and SR2 and store it in DR : DR <- SR1 AND SR2
-0000 + DR + SR1 + SR2 + 100 // OR the contents of SR1 and SR2 and store it in DR : DR <- SR1 OR SR2
-0000 + DR + SR1 + SR2 + 101 // XOR the contents of SR1 and SR2 and store it in DR : DR <- SR1 XOR SR2 
-0000 + DR + SR1 + SR2 + 110 // Load the contents of SR1 into DR: DR <- SR1 
-0000 + DR + SR1 + XXX + 111 // Store the negative value of SR1 into DR : DR <- 0-SR1 
-0001 + DR + SR1 + SR2 + 000 // NAND the contents of SR1 and SR2 into DR : DR <- SR1 NAND SR2
-0001 + DR + SR1 + SR2 + 001 // NOR the contents of SR1 and SR2 into DR : DR <- SR1 NOR SR2
-0001 + DR + SR1 + SR2 + 010 // Increment the contents of SR1 into DR : DR <- SR1 + 1
-0001 + DR + SR1 + SR2 + 011 // Decrement the contents of SR1 into DR : DR <- SR1 - 1
-0001 + DR + SR1 + SR2 + 100 // LSL1 Left shift SR1 into DR : DR <- Ls(SR1)
-0001 + DR + SR1 + SR2 + 101 // LSR1 Right shift SR1 into DR and fill with 0 : DR <- LSR(SR1)
-0001 + DR + SR1 + SR2 + 110 // ASR1 Right shift SR1 into Dr and fill with MSB : DR <- ASR(SR1)
-0001 + DR + SR1 + SR2 + 111 // Compare SR1 and SR2 and write status register : D_we = 0;
-0010 + DR + SR1 + imm6      //ADDI SR1 with imm6 into DR : DR <- SR1 + SEXT(imm6)
-0011 + DR + SR1 + imm6      //ANDI SR1 with imm6 into DR : DR <- SR1 AND ZEXT(imm6)
-0100 + DR + Offset9         //LD SR : DR <- mem[inc(PC) + Offset9]
-0101 + SR1 + Offset9        //ST SR : mem[inc(PC) + Offset9] <- SR1
-0110 + BaseR + 000 000 000   //JMP; set PC to BaseR : PC <- BaseR
-0111 + 0 + PCjump11       //JSR : R7 <- inc(PC); PC <- inc(PC) + SEXT(PCjump11)
-0111 + 1 + BaseR + 0000 0000 //JSRR : temp <- inc(PC); PC <- BaseR; R7 <- temp
-1000 + 0000 0000 0000      //RET Come back from routine PC <- R7
-1001 + TrapVector12   // TRAP: call a specified system routine.
-1010 + DR + BaseR + Offset6   //LDR : DR <- mem[BaseR + Offset6]
-1011 + SR1 + BaseR + Offset6   //STR : mem[BaseR + Offset6] <- SR1
-1100 + DR + Offset9   //LEA : DR <- inc(PC) + SEXT(Offset9)
-1101 + nzp + Offset9  //BRx : If n, z, or p match NZP flags : PC <- inc(PC) + SEXT(Offset9)            
-1110                  //Undefined
-1111                  //Undefined
+Instruction Set: 3-bit register address. In general we have : ALU [15:12] + DR [11:9] + SR1[8:6] + SR2 [5:3] + Funct [2:0] -- All ALU Ops (0, 1) write the status register {N, Z, P} when applicable. BaseR is always at [8:6] (the SR1 slot) so the SR1 read port can be reused.
+0000 + DR + SR1 + SR2 + 000 // ADD : DR <- SR1 + SR2 ; N=DR[15], Z=(DR==0), P=(~N)&(~Z); flag_we=1, D_we=1
+0000 + DR + SR1 + SR2 + 001 // SUB : DR <- SR1 - SR2
+0000 + DR + SR1 + XXX + 010 // NOT : DR <- ~SR1
+0000 + DR + SR1 + SR2 + 011 // AND : DR <- SR1 & SR2
+0000 + DR + SR1 + SR2 + 100 // OR  : DR <- SR1 | SR2
+0000 + DR + SR1 + SR2 + 101 // XOR : DR <- SR1 ^ SR2
+0000 + DR + SR1 + XXX + 110 // MOV : DR <- SR1                  (was "LOAD" in original spec)
+0000 + DR + SR1 + XXX + 111 // NEG : DR <- 0 - SR1              (was "STORE" in original spec)
+0001 + DR + SR1 + SR2 + 000 // NAND: DR <- ~(SR1 & SR2)
+0001 + DR + SR1 + SR2 + 001 // NOR : DR <- ~(SR1 | SR2)
+0001 + DR + SR1 + XXX + 010 // INC : DR <- SR1 + 1
+0001 + DR + SR1 + XXX + 011 // DEC : DR <- SR1 - 1
+0001 + DR + SR1 + XXX + 100 // LSL1: DR <- SR1 << 1
+0001 + DR + SR1 + XXX + 101 // LSR1: DR <- SR1 >> 1             (fill 0)
+0001 + DR + SR1 + XXX + 110 // ASR1: DR <- SR1 >>> 1            (fill MSB)
+0001 + XXX+ SR1 + SR2 + 111 // CMP : flags <- SR1 - SR2 ; D_we = 0
+0010 + DR + SR1 + imm6      // ADDI: DR <- SR1 + SEXT(imm6)
+0011 + DR + SR1 + imm6      // ANDI: DR <- SR1 & ZEXT(imm6)
+0100 + DR + Offset9         // LD  : DR <- mem[inc(PC) + SEXT(Offset9)]
+0101 + SR + Offset9         // ST  : mem[inc(PC) + SEXT(Offset9)] <- SR   (SR is at [11:9])
+0110 + 000 + BaseR + 000000 // JMP : PC <- BaseR                          (BaseR at [8:6])
+0111 + 0 + PCoffset11       // JSR : R7 <- inc(PC); PC <- inc(PC) + SEXT(PCoffset11)
+0111 + 1 + 00 + BaseR + 000000 // JSRR: R7 <- inc(PC); PC <- BaseR        (BaseR at [8:6])
+1000 + 000000000000         // RET : PC <- R7
+1001 + TrapVector12         // TRAP: R7 <- inc(PC); PC <- ZEXT(TrapVector12)
+1010 + DR + BaseR + Offset6 // LDR : DR <- mem[BaseR + SEXT(Offset6)]     (BaseR at [8:6])
+1011 + SR + BaseR + Offset6 // STR : mem[BaseR + SEXT(Offset6)] <- SR     (SR at [11:9], BaseR at [8:6])
+1100 + DR + Offset9         // LEA : DR <- inc(PC) + SEXT(Offset9)
+1101 + nzp + Offset9        // BRx : if (n,z,p match flags) PC <- inc(PC) + SEXT(Offset9)
+1110                        // Undefined
+1111                        // Undefined
+
+Notes:
+- "inc(PC)" means PC after the fetch increment. Memory is word-addressed (each address = one 16-bit word).
+- Flags N, Z, P are written by ALU0/ALU1 ops that produce a result, and by CMP. They are NOT written by LD/LDR/LEA (deviation from LC-3 — intentional).
+- TRAP target is the value at ZEXT(TrapVector12); the spec previously left this ambiguous.
+- "RET" could be folded into JMP R7 to free an opcode, but is kept separate for clarity.
