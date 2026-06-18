@@ -344,6 +344,42 @@ module tb_cpu16;
     check_eq(reg_val(3), 16'd5, "R3 (after JMP)");
   endtask
 
+  // ------------------------------------------------------
+  // T12: array sum — LEA + LDR loop + CMP/BRp + ST
+  // sum mem[0x000B..0x000F] = 1+2+3+4+5 = 15; result → mem[0x0010]
+  // ------------------------------------------------------
+  task automatic test_sum_array();
+    current_test = "sum_array";
+    test_count++;
+    $display("\n[T%0d] %s", test_count, current_test);
+    clear_memory();
+
+    // Program
+    imem.mem[16'h0000] = 16'hC20A;  // LEA  R1, +10    ; R1 = 0x000B
+    imem.mem[16'h0001] = 16'h2405;  // ADDI R2, R0, 5  ; R2 = 5
+    imem.mem[16'h0002] = 16'h0606;  // MOV  R3, R0     ; R3 = 0
+    imem.mem[16'h0003] = 16'hA840;  // LDR  R4, R1, 0  ; R4 = mem[R1]
+    imem.mem[16'h0004] = 16'h06E0;  // ADD  R3, R3, R4 ; R3 += R4
+    imem.mem[16'h0005] = 16'h1242;  // INC  R1, R1
+    imem.mem[16'h0006] = 16'h1483;  // DEC  R2, R2
+    imem.mem[16'h0007] = 16'h1087;  // CMP  R2, R0
+    imem.mem[16'h0008] = 16'hD3FA;  // BRp  LOOP       ; offset -6 → 0x0003
+    imem.mem[16'h0009] = 16'h5606;  // ST   R3, +6     ; mem[0x0010] = R3
+    imem.mem[16'h000A] = 16'h9025;  // TRAP 0x025
+
+    // Data: [1, 2, 3, 4, 5]
+    imem.mem[16'h000B] = 16'h0001;
+    imem.mem[16'h000C] = 16'h0002;
+    imem.mem[16'h000D] = 16'h0003;
+    imem.mem[16'h000E] = 16'h0004;
+    imem.mem[16'h000F] = 16'h0005;
+
+    do_reset();
+    run_until_halt(500);
+    check_eq(reg_val(3),        16'd15, "R3 (sum = 1+2+3+4+5)");
+    check_eq(mem_val(16'h0010), 16'd15, "mem[0x0010] (stored result)");
+  endtask
+
   // =====================================================
   //  Main
   // =====================================================
@@ -372,6 +408,7 @@ module tb_cpu16;
     test_ld_st_pcrel();
     test_jsr_ret();
     test_jmp();
+    test_sum_array();
 
     $display("\n================================================");
     $display(" Summary: %0d/%0d checks passed   (%0d tests, %0d cycles)",

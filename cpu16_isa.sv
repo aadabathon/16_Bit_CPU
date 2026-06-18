@@ -2,7 +2,7 @@ package cpu16_isa;
 
   typedef logic [15:0] instr_t;
 
-  typedef enum logic [3:0] { //GPT generated
+  typedef enum logic [3:0] {
     OP_ALU0  = 4'h0,
     OP_ALU1  = 4'h1,
     OP_ADDI  = 4'h2,
