@@ -1,0 +1,72 @@
+#==============================================================
+#  Adam16 — Design Compiler synthesis script
+#  Run from inside dc_shell:  source adam16.dc
+#  Or from bash:              dc_shell -f adam16.dc | tee synth.log
+#==============================================================
+
+#--- 0. LIBRARY SETUP -----------------------------------------
+# One name to rule them all. This is BOTH the .db filename (minus .db)
+# AND the library's internal name (confirmed via get_libs). They match
+# for this kit, which is why a single variable works everywhere below.
+set LIBNAME  saed32rvt_ss0p95v125c
+set LIBDIR   /userspace/ashebani/RTL_sandbox/libraries
+set INV_CELL INVX2                         ;# plain inverter, mid drive strength
+set INV_PIN  A                             ;# <-- verify: get_lib_pins $LIBNAME/$INV_CELL/*
+
+set target_library "$LIBDIR/$LIBNAME.db"
+set link_library   "* $target_library"
+set search_path    "$search_path ../rtl"   ;# adjust to where your .sv files live
+
+# Sanity: make sure the .db actually loads (else you map to gtech = garbage)
+read_db "$LIBDIR/$LIBNAME.db"
+if {[llength [get_libs $LIBNAME]] == 0} {
+    echo "ERROR: library $LIBNAME did not load — check LIBDIR path"
+}
+
+#--- 1. READ RTL (package FIRST) ------------------------------
+analyze -format sverilog {
+    cpu16_isa.sv
+    cpu16_regfile.sv
+    cpu16_alu.sv
+    cpu16_datapath.sv
+    cpu16_control_fsm.sv
+    Sram.sv
+    cpu16_core.sv
+}
+elaborate cpu16_core
+current_design cpu16_core
+link                                        ;# CHECK LOG: unresolved refs = stop & fix
+
+#--- 2. CONSTRAINTS -------------------------------------------
+set inputs_no_clk [remove_from_collection [all_inputs] [get_ports clk]]
+
+create_clock -name clk -period 3.0 [get_ports clk]   ;# 3ns; tune for Fmax
+set_clock_uncertainty 0.15 [get_clocks clk]
+
+set_input_delay  0.5 -clock clk $inputs_no_clk
+set_output_delay 0.5 -clock clk [all_outputs]
+
+# drive / load — now using the real library + cell + pin
+set_driving_cell -lib_cell $INV_CELL $inputs_no_clk
+set_load [expr {5 * [load_of $LIBNAME/$INV_CELL/$INV_PIN]}] [all_outputs]
+
+check_timing                                ;# flags unconstrained endpoints
+
+#--- 3. COMPILE -----------------------------------------------
+compile_ultra
+
+#--- 4. REPORTS -----------------------------------------------
+report_timing -max_paths 5 -delay_type max   > reports/timing_setup.rpt
+report_timing -delay_type min                > reports/timing_hold.rpt
+report_area                                  > reports/area.rpt
+report_qor                                   > reports/qor.rpt
+report_constraint -all_violators             > reports/violators.rpt
+check_design                                 > reports/check.rpt
+
+#--- 5. WRITE OUTPUTS (ICC2 handoff) --------------------------
+write -format verilog -hierarchy -output netlist/cpu16_core.mapped.v
+write_sdc                                       netlist/cpu16_core.mapped.sdc
+write -format ddc -hierarchy -output            netlist/cpu16_core.ddc
+
+echo "=== synthesis complete — check reports/qor.rpt for slack & area ==="
+
