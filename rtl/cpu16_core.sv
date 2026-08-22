@@ -4,7 +4,14 @@ module cpu16_core (
   input  logic [15:0] mem_rdata,
   output logic [15:0] mem_addr,
   output logic [15:0] mem_wdata,
-  output logic        mem_we
+  output logic        mem_we,
+
+  output logic [15:0] dbg_pc,
+  output logic [15:0] dbg_ir,
+  output logic [15:0] dbg_alu_y,
+  output logic        dbg_n,
+  output logic        dbg_z,
+  output logic        dbg_p
 );
   logic pc_we, ir_we, mar_we, mdr_we, reg_we, flag_we;
   logic [2:0] reg_dst;
@@ -18,6 +25,7 @@ module cpu16_core (
   logic [15:0] ir;
   logic N, Z, P;
   logic [15:0] pc;
+  logic [15:0] alu_y_w;
 
   cpu16_control_fsm u_ctrl(
     .clk(clk),
@@ -65,6 +73,14 @@ module cpu16_core (
     .N(N),
     .Z(Z),
     .P(P),
-    .pc(pc)
+    .pc(pc),
+    .alu_y_o(alu_y_w)
   );
+
+  assign dbg_pc     = pc;
+  assign dbg_ir     = ir;
+  assign dbg_alu_y  = alu_y_w;
+  assign dbg_n      = N;
+  assign dbg_z      = Z;
+  assign dbg_p      = P;
 endmodule

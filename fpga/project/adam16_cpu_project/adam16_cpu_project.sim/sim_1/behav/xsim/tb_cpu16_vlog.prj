@@ -1,0 +1,16 @@
+# compile verilog/system verilog design source files
+sv xil_defaultlib  --include "D:/2025.2/Vivado/data/rsb/busdef" \
+"../../../../../../../rtl/Sram.sv" \
+"../../../../../../../rtl/cpu16_alu.sv" \
+"../../../../../../../rtl/cpu16_isa.sv" \
+"../../../../../../../rtl/cpu16_control_fsm.sv" \
+"../../../../../../../rtl/cpu16_core.sv" \
+"../../../../../../../rtl/cpu16_datapath.sv" \
+"../../../../../../../rtl/cpu16_regfile.sv" \
+"../../../../../../../tb/tb_cpu16.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

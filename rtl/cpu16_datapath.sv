@@ -24,7 +24,9 @@ module cpu16_datapath (
   output logic        N,
   output logic        Z,
   output logic        P,
-  output logic [15:0] pc
+  output logic [15:0] pc,
+
+  output logic [15:0] alu_y_o
 );
 
   import cpu16_isa::*;
@@ -156,5 +158,6 @@ module cpu16_datapath (
 
   assign mem_addr  = mar;
   assign mem_wdata = rd2;
+  assign alu_y_o    = alu_y;
 
 endmodule

@@ -1,0 +1,20 @@
+// cpu16_sum_array.mem — same program as tb_cpu16.sv:test_sum_array()
+// Sums mem[0x000B..0x000F] = 1+2+3+4+5 = 15, result -> R3 and mem[0x0010].
+@0000
+C20A  // LEA  R1, +10    ; R1 = 0x000B
+2405  // ADDI R2, R0, 5  ; R2 = 5
+0606  // MOV  R3, R0     ; R3 = 0
+A840  // LDR  R4, R1, 0  ; R4 = mem[R1]
+06E0  // ADD  R3, R3, R4 ; R3 += R4
+1242  // INC  R1, R1
+1483  // DEC  R2, R2
+1087  // CMP  R2, R0
+D3FA  // BRp  LOOP       ; offset -6 -> 0x0003
+5606  // ST   R3, +6     ; mem[0x0010] = R3
+9025  // TRAP 0x025
+@000B
+0001
+0002
+0003
+0004
+0005
