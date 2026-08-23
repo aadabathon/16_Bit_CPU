@@ -17,3 +17,18 @@ command.log
 *.db *.lib *.lef *.ndm *.ddc
 *.mapped.v *.gds *.spef
 
+# Vivado generated files/directories
+*.cache/
+*.gen/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
+
+# Vivado misc
+*.jou
+*.log
+*.str
+*.pb
+.Xil/
+
