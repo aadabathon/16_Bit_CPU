@@ -380,6 +380,26 @@ module tb_cpu16;
     check_eq(mem_val(16'h0010), 16'd15, "mem[0x0010] (stored result)");
   endtask
 
+  // ------------------------------------------------------
+  // T13: BRnzp as the first instruction after reset
+  // Flags reset to Z=1, so an unconditional branch must be taken even
+  // before any flag-setting instruction has run.
+  // ------------------------------------------------------
+  task automatic test_br_after_reset();
+    current_test = "br_after_reset";
+    test_count++;
+    $display("\n[T%0d] %s", test_count, current_test);
+    clear_memory();
+    imem.mem[0] = 16'hDE02;  // BRnzp +2       (taken -> addr 3)
+    imem.mem[1] = 16'h2619;  // ADDI R3, R0, 25 (FAIL path)
+    imem.mem[2] = 16'h9025;  // TRAP
+    imem.mem[3] = 16'h260B;  // ADDI R3, R0, 11 (SUCCESS path)
+    imem.mem[4] = 16'h9025;  // TRAP
+    do_reset();
+    run_until_halt(200);
+    check_eq(reg_val(3), 16'd11, "R3 (BRnzp taken from reset)");
+  endtask
+
   // =====================================================
   //  Main
   // =====================================================
@@ -409,6 +429,7 @@ module tb_cpu16;
     test_jsr_ret();
     test_jmp();
     test_sum_array();
+    test_br_after_reset();
 
     $display("\n================================================");
     $display(" Summary: %0d/%0d checks passed   (%0d tests, %0d cycles)",

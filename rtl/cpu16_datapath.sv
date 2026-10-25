@@ -139,8 +139,10 @@ module cpu16_datapath (
       ir  <= 16'h0000;
       mar <= 16'h0000;
       mdr <= 16'h0000;
+      // Flags reset to Z (as if the last result were 0) so exactly one of
+      // N/Z/P is always set and BRnzp is unconditional from the first fetch.
       N   <= 1'b0;
-      Z   <= 1'b0;
+      Z   <= 1'b1;
       P   <= 1'b0;
     end else begin
       if (pc_we)  pc  <= pc_next;
