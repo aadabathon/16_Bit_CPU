@@ -34,5 +34,6 @@ Instruction Set: 3-bit register address. In general we have : ALU [15:12] + DR [
 Notes:
 - "inc(PC)" means PC after the fetch increment. Memory is word-addressed (each address = one 16-bit word).
 - Flags N, Z, P are written by ALU0/ALU1 ops that produce a result, and by CMP. They are NOT written by LD/LDR/LEA (deviation from LC-3 — intentional).
-- TRAP target is the value at ZEXT(TrapVector12); the spec previously left this ambiguous.
+- TRAP is a direct jump: PC <- ZEXT(TrapVector12). The vector IS the handler address (no vector table
+  lookup as in LC-3), so handlers must live in 0x0000-0x0FFF. TRAP x025 is the HALT convention.
 - "RET" could be folded into JMP R7 to free an opcode, but is kept separate for clarity.

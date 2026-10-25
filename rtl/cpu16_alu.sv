@@ -1,14 +1,14 @@
+// op = {group, funct}: op[3]=0 selects ALU0 ops, op[3]=1 selects ALU1 ops.
 module cpu16_alu (
-  input  logic        alu1_mode,
-  input  logic [2:0]  op,
+  input  logic [3:0]  op,
   input  logic [15:0] a,
   input  logic [15:0] b,
   output logic [15:0] y
 );
   always_comb begin
     y = 16'h0000;
-    if (!alu1_mode) begin
-      unique case (op)
+    if (!op[3]) begin
+      unique case (op[2:0])
         3'b000: y = a + b;
         3'b001: y = a - b;
         3'b010: y = ~a;
@@ -20,7 +20,7 @@ module cpu16_alu (
         default: y = 16'h0000;
       endcase
     end else begin
-      unique case (op)
+      unique case (op[2:0])
         3'b000: y = ~(a & b);
         3'b001: y = ~(a | b);
         3'b010: y = a + 16'h0001;

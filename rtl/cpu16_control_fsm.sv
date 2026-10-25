@@ -15,11 +15,12 @@ module cpu16_control_fsm (
   output logic        mem_we,
 
   output logic [2:0]  reg_dst,
+  output logic        ra2_sel,
   output logic [1:0]  wb_sel,
-  output logic [2:0]  alu_op,
+  output logic [3:0]  alu_op,
   output logic [1:0]  alu_a_sel,
   output logic [2:0]  alu_b_sel,
-  output logic [1:0]  pc_src_sel,
+  output logic [2:0]  pc_src_sel,
   output logic [1:0]  mar_src_sel
 );
 
@@ -71,11 +72,12 @@ module cpu16_control_fsm (
     mem_we      = 1'b0;
 
     reg_dst     = 3'b000;
+    ra2_sel     = 1'b0;
     wb_sel      = 2'b00;
-    alu_op      = 3'b000;
+    alu_op      = 4'b0000;
     alu_a_sel   = 2'b00;
     alu_b_sel   = 3'b000;
-    pc_src_sel  = 2'b00;
+    pc_src_sel  = 3'b000;
     mar_src_sel = 2'b00;
 
     state_n = state;
@@ -99,7 +101,7 @@ module cpu16_control_fsm (
         // mem_rdata is now mem[PC]. Latch into IR and bump PC.
         ir_we      = 1'b1;
         pc_we      = 1'b1;
-        pc_src_sel = 2'b01;
+        pc_src_sel = 3'b000;  // PC + 1
         state_n    = S_ID;
       end
 
@@ -127,14 +129,14 @@ module cpu16_control_fsm (
           OP_ALU0: begin
             alu_a_sel = 2'b00;
             alu_b_sel = 3'b000;
-            alu_op    = d.funct;
+            alu_op    = {1'b0, d.funct};
             if (d.funct == ALU0_NOT || d.funct == ALU0_NEG) alu_b_sel = 3'b111;
           end
 
           OP_ALU1: begin
             alu_a_sel = 2'b00;
             alu_b_sel = 3'b000;
-            alu_op    = d.funct;
+            alu_op    = {1'b1, d.funct};
             if (d.funct == ALU1_INC || d.funct == ALU1_DEC ||
                 d.funct == ALU1_LSL1 || d.funct == ALU1_LSR1 ||
                 d.funct == ALU1_ASR1) alu_b_sel = 3'b111;
@@ -148,19 +150,19 @@ module cpu16_control_fsm (
           OP_ADDI: begin
             alu_a_sel = 2'b00;
             alu_b_sel = 3'b001;
-            alu_op    = 3'b000;
+            alu_op    = 4'b0000;  // ADD
           end
 
           OP_ANDI: begin
             alu_a_sel = 2'b00;
             alu_b_sel = 3'b010;
-            alu_op    = 3'b011;
+            alu_op    = 4'b0011;  // AND
           end
 
           OP_LEA: begin
             alu_a_sel = 2'b01;
             alu_b_sel = 3'b011;
-            alu_op    = 3'b000;
+            alu_op    = 4'b0000;  // ADD
             flag_we   = 1'b0;  // LEA does not touch flags
           end
 
@@ -179,12 +181,12 @@ module cpu16_control_fsm (
           OP_LD, OP_ST: begin
             alu_a_sel = 2'b01;   // PC
             alu_b_sel = 3'b011;  // sext9(off9)
-            alu_op    = 3'b000;
+            alu_op    = 4'b0000; // ADD
           end
           OP_LDR, OP_STR: begin
             alu_a_sel = 2'b00;   // rd0 = BaseR
             alu_b_sel = 3'b100;  // sext6(off6)
-            alu_op    = 3'b000;
+            alu_op    = 4'b0000; // ADD
           end
           default: begin end
         endcase
@@ -222,16 +224,21 @@ module cpu16_control_fsm (
       S_EX_BR: begin
         if (take_br) begin
           pc_we      = 1'b1;
-          pc_src_sel = 2'b10;
+          pc_src_sel = 3'b001;  // PC + sext9
         end
         state_n = S_IF0;
       end
 
       // ---------------- JMP / RET ----------------
       S_EX_JMP: begin
-        pc_we      = 1'b1;
-        pc_src_sel = 2'b11;   // datapath picks rd2 (=R7) for RET, rd0 for JMP
-        state_n    = S_IF0;
+        pc_we = 1'b1;
+        if (d.op == OP_RET) begin
+          ra2_sel    = 1'b1;    // read port 2 <- R7
+          pc_src_sel = 3'b100;  // RET: PC <- rd2
+        end else begin
+          pc_src_sel = 3'b011;  // JMP: PC <- rd0 (BaseR)
+        end
+        state_n = S_IF0;
       end
 
       // ---------------- JSR / JSRR ----------------
@@ -242,8 +249,8 @@ module cpu16_control_fsm (
         wb_sel  = 2'b10;
 
         pc_we = 1'b1;
-        if (d.jsr_is_reg) pc_src_sel = 2'b11;  // JSRR: PC <- rd0 (BaseR)
-        else              pc_src_sel = 2'b10;  // JSR:  PC <- PC + sext11
+        if (d.jsr_is_reg) pc_src_sel = 3'b011;  // JSRR: PC <- rd0 (BaseR)
+        else              pc_src_sel = 3'b010;  // JSR:  PC <- PC + sext11
 
         state_n = S_IF0;
       end
@@ -256,7 +263,7 @@ module cpu16_control_fsm (
         wb_sel  = 2'b10;
 
         pc_we      = 1'b1;
-        pc_src_sel = 2'b00;
+        pc_src_sel = 3'b101;  // ZEXT(trapvect12)
         state_n    = S_IF0;
       end
 

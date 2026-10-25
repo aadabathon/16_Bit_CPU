@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="396" height="282" viewBox="0 0 396 282">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1e293b"/></marker><marker id="arrc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c2410c"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<text x="198.0" y="32.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#1e293b" style="">cpu16_core</text>
+<rect x="68.0" y="44.0" width="260.0" height="204.0" rx="3" fill="#f8fafc" stroke="#1e293b" stroke-width="1.4"/>
+<polyline points="34.0,71.5 68.0,71.5" fill="none" stroke="#1e293b" stroke-width="1.4" stroke-linejoin="round"/>
+<polygon points="59.0,67.5 68.0,71.5 59.0,75.5" fill="#1e293b"/>
+<polygon points="68.0,65.5 77.0,71.5 68.0,77.5" fill="none" stroke="#1e293b" stroke-width="1.2"/>
+<text x="81.0" y="75.5" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">clk</text>
+<polyline points="34.0,90.5 68.0,90.5" fill="none" stroke="#1e293b" stroke-width="1.4" stroke-linejoin="round"/>
+<polygon points="59.0,86.5 68.0,90.5 59.0,94.5" fill="#1e293b"/>
+<text x="74.0" y="94.5" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">rst</text>
+<polyline points="34.0,109.5 68.0,109.5" fill="none" stroke="#1e293b" stroke-width="2.6" stroke-linejoin="round"/>
+<line x1="47.0" y1="114.5" x2="55.0" y2="104.5" stroke="#1e293b" stroke-width="1.2"/>
+<text x="51.0" y="102.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#64748b" style="">16</text>
+<polygon points="59.0,105.5 68.0,109.5 59.0,113.5" fill="#1e293b"/>
+<text x="74.0" y="113.5" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">mem_rdata</text>
+<text x="138.0" y="113.5" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#64748b" style="">[15:0]</text>
+<polyline points="328.0,71.5 362.0,71.5" fill="none" stroke="#1e293b" stroke-width="2.6" stroke-linejoin="round"/>
+<line x1="341.0" y1="76.5" x2="349.0" y2="66.5" stroke="#1e293b" stroke-width="1.2"/>
+<text x="345.0" y="64.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#64748b" style="">16</text>
+<polygon points="354.0,67.5 362.0,71.5 354.0,75.5" fill="#1e293b"/>
+<text x="322.0" y="75.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#64748b" style="">[15:0]</text>
+<text x="279.0" y="75.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">mem_addr</text>
+<polyline points="328.0,90.5 362.0,90.5" fill="none" stroke="#1e293b" stroke-width="2.6" stroke-linejoin="round"/>
+<line x1="341.0" y1="95.5" x2="349.0" y2="85.5" stroke="#1e293b" stroke-width="1.2"/>
+<text x="345.0" y="83.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#64748b" style="">16</text>
+<polygon points="354.0,86.5 362.0,90.5 354.0,94.5" fill="#1e293b"/>
+<text x="322.0" y="94.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#64748b" style="">[15:0]</text>
+<text x="279.0" y="94.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">mem_wdata</text>
+<polyline points="328.0,109.5 362.0,109.5" fill="none" stroke="#1e293b" stroke-width="1.4" stroke-linejoin="round"/>
+<polygon points="354.0,105.5 362.0,109.5 354.0,113.5" fill="#1e293b"/>
+<text x="322.0" y="113.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#64748b" style=""></text>
+<text x="322.0" y="113.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">mem_we</text>
+<polyline points="328.0,137.5 362.0,137.5" fill="none" stroke="#1e293b" stroke-width="2.6" stroke-linejoin="round"/>
+<line x1="341.0" y1="142.5" x2="349.0" y2="132.5" stroke="#1e293b" stroke-width="1.2"/>
+<text x="345.0" y="130.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#64748b" style="">16</text>
+<polygon points="354.0,133.5 362.0,137.5 354.0,141.5" fill="#1e293b"/>
+<text x="322.0" y="141.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#64748b" style="">[15:0]</text>
+<text x="279.0" y="141.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">dbg_pc</text>
+<polyline points="328.0,156.5 362.0,156.5" fill="none" stroke="#1e293b" stroke-width="2.6" stroke-linejoin="round"/>
+<line x1="341.0" y1="161.5" x2="349.0" y2="151.5" stroke="#1e293b" stroke-width="1.2"/>
+<text x="345.0" y="149.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#64748b" style="">16</text>
+<polygon points="354.0,152.5 362.0,156.5 354.0,160.5" fill="#1e293b"/>
+<text x="322.0" y="160.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#64748b" style="">[15:0]</text>
+<text x="279.0" y="160.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">dbg_ir</text>
+<polyline points="328.0,175.5 362.0,175.5" fill="none" stroke="#1e293b" stroke-width="2.6" stroke-linejoin="round"/>
+<line x1="341.0" y1="180.5" x2="349.0" y2="170.5" stroke="#1e293b" stroke-width="1.2"/>
+<text x="345.0" y="168.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#64748b" style="">16</text>
+<polygon points="354.0,171.5 362.0,175.5 354.0,179.5" fill="#1e293b"/>
+<text x="322.0" y="179.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#64748b" style="">[15:0]</text>
+<text x="279.0" y="179.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">dbg_alu_y</text>
+<polyline points="328.0,194.5 362.0,194.5" fill="none" stroke="#1e293b" stroke-width="1.4" stroke-linejoin="round"/>
+<polygon points="354.0,190.5 362.0,194.5 354.0,198.5" fill="#1e293b"/>
+<text x="322.0" y="198.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#64748b" style=""></text>
+<text x="322.0" y="198.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">dbg_n</text>
+<polyline points="328.0,213.5 362.0,213.5" fill="none" stroke="#1e293b" stroke-width="1.4" stroke-linejoin="round"/>
+<polygon points="354.0,209.5 362.0,213.5 354.0,217.5" fill="#1e293b"/>
+<text x="322.0" y="217.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#64748b" style=""></text>
+<text x="322.0" y="217.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">dbg_z</text>
+<polyline points="328.0,232.5 362.0,232.5" fill="none" stroke="#1e293b" stroke-width="1.4" stroke-linejoin="round"/>
+<polygon points="354.0,228.5 362.0,232.5 354.0,236.5" fill="#1e293b"/>
+<text x="322.0" y="236.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#64748b" style=""></text>
+<text x="322.0" y="236.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">dbg_p</text>
+<text x="198.0" y="268.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#64748b" style="">rtl/cpu16_core.sv</text>
+</svg>

@@ -1,6 +1,8 @@
 # cpu16
 
-A 16-bit soft-core processor written in SystemVerilog. Loosely inspired by LC-3 with several intentional departures: two ALU opcode groups giving 16 distinct ALU operations, flags not set by load instructions, and a TRAP mechanism for software-defined system calls. The design targets synchronous single-port SRAM and is controlled by a multi-cycle Moore FSM.
+A 16-bit soft-core processor written in SystemVerilog. Loosely inspired by LC-3 with several intentional departures: two ALU opcode groups giving 16 distinct ALU operations, flags not set by load instructions, and a TRAP mechanism for software-defined system calls. The design targets synchronous single-port SRAM and is controlled by a multi-cycle FSM.
+
+**Microarchitecture documentation** (block diagrams, per-module port interfaces, control bubble diagrams, timing diagrams) lives in [`docs/`](docs/README.md). `make -C docs check` proves the docs match the RTL.
 
 ---
 
@@ -25,7 +27,7 @@ A 16-bit soft-core processor written in SystemVerilog. Loosely inspired by LC-3 
 
 ```
 cpu16_core
-├── cpu16_control_fsm   (14-state Moore FSM; derives all control signals from IR + N/Z/P)
+├── cpu16_control_fsm   (14-state FSM; the only block that decodes the opcode)
 │   └── [imports] cpu16_isa
 └── cpu16_datapath      (PC, IR, MAR, MDR; ALU; register file wiring)
     ├── cpu16_regfile   (8 × 16-bit, 3 read ports / 1 write port)
@@ -142,6 +144,8 @@ All ALU1 operations that produce a result write condition flags. CMP writes flag
 | `RET`         | `1000` | PC ← R7 |
 | `TRAP tvect12`| `1001` | R7 ← PC† ; PC ← ZEXT(tvect12) |
 
+> **TRAP note:** TRAP is a *direct* jump — the vector is the handler address itself, not an index into a vector table as in LC-3. Handlers therefore live in `0x0000–0x0FFF`. `TRAP x025` is the HALT convention used by the testbench.
+
 **BRx condition codes** — IR[11:9] selects which flags trigger the branch:
 
 | Mnemonic | IR[11:9] | Branches when |
@@ -154,6 +158,8 @@ All ALU1 operations that produce a result write condition flags. CMP writes flag
 | `BRzp` | `011` | Z = 1 or P = 1 (result ≥ 0) |
 | `BR` / `BRnzp` | `111` | always (unconditional) |
 
+Reset leaves the flags at **Z = 1** (N = P = 0), so exactly one flag is always set and `BRnzp` is unconditional even before the first flag-setting instruction.
+
 ### Undefined Opcodes
 
 Opcodes `1110` and `1111` are reserved. The FSM silently returns to fetch on encountering them (equivalent to a NOP).
@@ -164,19 +170,11 @@ Opcodes `1110` and `1111` are reserved. The FSM silently returns to fetch on enc
 
 ### FSM State Diagram
 
-Every instruction begins at **S\_IF0**. The fetch phase takes exactly 3 cycles to absorb the synchronous SRAM read latency.
+Every instruction begins at **S\_IF0**. The fetch phase takes exactly 3 cycles to absorb the synchronous SRAM read latency. The full control-signal table is in [docs/03_control.md](docs/03_control.md).
 
-```
-                              ┌─────────────────────── S_EX_ALU  ──────────────────────────┐
-                              │  (ALU0/ALU1/ADDI/ANDI/LEA)                                  │
-S_IF0 → S_IF1 → S_IF2 → S_ID ┤                                                             ├→ S_IF0
-                              │  (LD/LDR)  ─ S_EX_EA → S_MEM_RD0 → S_MEM_RD1 → S_WB_LD ──┤
-                              │  (ST/STR)  ─ S_EX_EA → S_MEM_WR0 ────────────────────────┤
-                              │  (BRx)     ─ S_EX_BR ──────────────────────────────────────┤
-                              │  (JMP/RET) ─ S_EX_JMP ─────────────────────────────────────┤
-                              │  (JSR)     ─ S_EX_JSR ─────────────────────────────────────┤
-                              └  (TRAP)    ─ S_EX_TRAP ────────────────────────────────────┘
-```
+![Control FSM](docs/figures/fsm_overview.svg)
+
+Detailed *condition / output* bubble diagrams for every arc: [docs/03_control.md](docs/03_control.md#bubble-diagrams). Port interfaces for every module: [docs/interfaces](docs/interfaces/README.md).
 
 | Instruction class | Total cycles |
 |---|---|
@@ -186,8 +184,12 @@ S_IF0 → S_IF1 → S_IF2 → S_ID ┤                                          
 
 ### Datapath Highlights
 
-- **3-read-port register file**: SR1 / BaseR is always IR[8:6]; SR2 is IR[5:3]; the third port supplies store data (IR[11:9]) or R7 (RET).
-- **ALU B-side mux** (5 sources): SR2 register, SEXT(imm6), ZEXT(imm6), SEXT(off9), SEXT(off6).
+See [docs/02_datapath.md](docs/02_datapath.md) for the full diagram and every select code.
+
+- **No opcode decode in the datapath**: it only slices fixed IR fields; every opcode-dependent choice is a select from the FSM.
+- **3-read-port register file**: SR1 / BaseR is always IR[8:6]; SR2 is IR[5:3]; the third port supplies store data (IR[11:9]) or R7 (RET, `ra2_sel = 1`).
+- **PC mux** (6 sources, `pc_src_sel[2:0]`): PC+1, PC+SEXT(off9), PC+SEXT(off11), BaseR, R7, ZEXT(tvect12).
+- **ALU** (`alu_op[3:0] = {group, funct}`): A = SR1/BaseR or PC; B = SR2, SEXT(imm6), ZEXT(imm6), SEXT(off9), SEXT(off6) or 0.
 - **Writeback mux** (3 sources): ALU result, MDR (loads), PC (JSR / TRAP link address saved to R7).
 - Condition flags are written from the writeback data bus, so `flag_we` is combinationally valid in the same cycle as the writeback.
 
@@ -196,17 +198,26 @@ S_IF0 → S_IF1 → S_IF2 → S_ID ┤                                          
 ## File Structure
 
 ```
-16BitCpu/
-├── cpu16_isa.sv           — ISA package: opcode enum, dec_t, decode(), sext/zext helpers
-├── cpu16_alu.sv           — Combinational ALU (ALU0 and ALU1 groups, pure logic)
-├── cpu16_regfile.sv       — 8 × 16-bit synchronous register file (3R / 1W)
-├── cpu16_datapath.sv      — PC, IR, MAR, MDR; ALU and regfile interconnect
-├── cpu16_control_fsm.sv   — 14-state Moore FSM; all control signal generation
-├── cpu16_core.sv          — Top-level: wires control and datapath together
-├── Sram.sv                — Synchronous 65536 × 16-bit SRAM model (simulation only)
-├── InstructionSet.txt     — Informal ISA specification notes
-└── sim/
-    └── tb_cpu16.sv        — Directed testbench: 12 test programs
+16_Bit_CPU/
+├── rtl/
+│   ├── cpu16_isa.sv          — ISA package: opcode enum, dec_t, decode(), sext/zext helpers
+│   ├── cpu16_alu.sv          — Combinational ALU (ALU0 and ALU1 groups, pure logic)
+│   ├── cpu16_regfile.sv      — 8 × 16-bit register file (3R async / 1W sync)
+│   ├── cpu16_datapath.sv     — PC, IR, MAR, MDR, flags; ALU and regfile interconnect
+│   ├── cpu16_control_fsm.sv  — 14-state FSM; all decode and control signal generation
+│   ├── cpu16_core.sv         — Top-level: wires control and datapath together
+│   ├── Sram.sv               — SramSBC: synchronous 65536 × 16-bit memory
+│   ├── basys3_top.sv         — Basys3 wrapper: single-step clock, LED debug view
+│   └── debounce.sv           — Button synchronizer + debouncer
+├── tb/
+│   ├── tb_cpu16.sv           — Directed RTL testbench: 16 test programs
+│   ├── tb_cpu16_gate.sv      — Gate-level (post-synthesis) testbench
+│   └── tb_control_fsm_spec.sv — Control FSM vs. its documented spec (make -C docs check)
+├── docs/                     — Microarchitecture docs: interfaces/, bubble diagrams, figures, tools/
+├── fpga/                     — Vivado project, constraints, memory image
+├── scripts/                  — Design Compiler and gate-level sim scripts
+├── InstructionSet.txt        — Informal ISA specification notes
+└── demo.md                   — Basys3 hands-on demo walkthrough
 ```
 
 ---
@@ -215,20 +226,25 @@ S_IF0 → S_IF1 → S_IF2 → S_ID ┤                                          
 
 ### Icarus Verilog (iverilog)
 
-```bash
-iverilog -g2012 -o sim/cpu16_tb \
-    cpu16_isa.sv cpu16_alu.sv cpu16_regfile.sv \
-    cpu16_datapath.sv cpu16_control_fsm.sv cpu16_core.sv \
-    Sram.sv sim/tb_cpu16.sv
+From the repository root:
 
-vvp sim/cpu16_tb
+```bash
+mkdir -p build
+iverilog -g2012 -o build/cpu16_tb \
+    rtl/cpu16_isa.sv rtl/cpu16_alu.sv rtl/cpu16_regfile.sv \
+    rtl/cpu16_datapath.sv rtl/cpu16_control_fsm.sv rtl/cpu16_core.sv \
+    rtl/Sram.sv tb/tb_cpu16.sv
+
+vvp build/cpu16_tb
 ```
+
+Icarus prints a number of `sorry: constant selects in always_* processes` and `unique ... ignored` notes; they are harmless.
 
 To capture a VCD waveform for GTKWave:
 
 ```bash
-vvp sim/cpu16_tb +VCD=cpu16.vcd
-gtkwave cpu16.vcd
+vvp build/cpu16_tb +VCD=build/cpu16.vcd
+gtkwave build/cpu16.vcd
 ```
 
 ### Expected Output
@@ -243,11 +259,15 @@ gtkwave cpu16.vcd
     PASS  R2                             0x0007
     PASS  R3 = R1+R2                     0x000c
 ...
-[T12] sum_array
-    PASS  R3 (sum = 1+2+3+4+5)          0x000f
-    PASS  mem[0x0010] (stored result)    0x000f
+[T16] alu_remaining
+    PASS  R1 = -6                        0xfffa
+    PASS  R2 = 0-R1                      0x0006
+    PASS  R3 = R1>>1 (logical)           0x7ffd
+    PASS  R4 = R1>>>1 (arith)            0xfffd
+    PASS  R5 = R2                        0x0006
+
 ================================================
- Summary: 35/35 checks passed   (12 tests, N cycles)
+ Summary: 46/46 checks passed   (16 tests, 553 cycles)
  ALL TESTS PASSED
 ================================================
 ```
@@ -325,4 +345,4 @@ LOOP:
 
 ### Running This Example
 
-The example is already included as **T12** in `sim/tb_cpu16.sv`. Run the testbench with the commands above. To load the program onto a different simulator, initialize memory with the encoding table above (16 words starting at address `0x0000`).
+The example is already included as **T12** in `tb/tb_cpu16.sv`, and as a memory image in `fpga/mem/cpu16_sum_array.mem`. Run the testbench with the commands above. To load the program onto a different simulator, initialize memory with the encoding table above (16 words starting at address `0x0000`).

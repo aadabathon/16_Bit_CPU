@@ -15,11 +15,12 @@ module cpu16_core (
 );
   logic pc_we, ir_we, mar_we, mdr_we, reg_we, flag_we;
   logic [2:0] reg_dst;
+  logic       ra2_sel;
   logic [1:0] wb_sel;
-  logic [2:0] alu_op;
+  logic [3:0] alu_op;
   logic [1:0] alu_a_sel;
   logic [2:0] alu_b_sel;
-  logic [1:0] pc_src_sel;
+  logic [2:0] pc_src_sel;
   logic [1:0] mar_src_sel;
 
   logic [15:0] ir;
@@ -42,6 +43,7 @@ module cpu16_core (
     .flag_we(flag_we),
     .mem_we(mem_we),
     .reg_dst(reg_dst),
+    .ra2_sel(ra2_sel),
     .wb_sel(wb_sel),
     .alu_op(alu_op),
     .alu_a_sel(alu_a_sel),
@@ -63,6 +65,7 @@ module cpu16_core (
     .reg_we(reg_we),
     .flag_we(flag_we),
     .reg_dst(reg_dst),
+    .ra2_sel(ra2_sel),
     .wb_sel(wb_sel),
     .alu_op(alu_op),
     .alu_a_sel(alu_a_sel),

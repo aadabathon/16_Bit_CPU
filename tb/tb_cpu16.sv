@@ -11,10 +11,11 @@
 //    5. check_eq() — compare register / memory state against expected
 //
 //  Halt detection: hierarchical reference to the FSM state. S_EX_TRAP == 5'd13.
-//  Programs end with `TRAP x025`. The TB exits the run loop the instant the FSM
-//  transitions INTO S_EX_TRAP, which means the TRAP's own writes (R7 <- PC,
-//  PC <- vector) have not yet committed. That is intentional — it lets us
-//  observe the program's final register state without TRAP clobbering R7.
+//  Programs end with `TRAP x025` (the HALT convention). The TB exits the run
+//  loop the instant the FSM transitions INTO S_EX_TRAP with vector x025, which
+//  means the TRAP's own writes (R7 <- PC, PC <- vector) have not yet committed.
+//  That is intentional — it lets us observe the program's final register state
+//  without TRAP clobbering R7. TRAPs to any other vector execute normally.
 // =============================================================================
 
 module tb_cpu16;
@@ -48,9 +49,11 @@ module tb_cpu16;
   );
 
   // -- Halt detection (hierarchical) --
-  // S_EX_TRAP is 5'd13 in cpu16_control_fsm.
-  localparam logic [4:0] HALT_STATE = 5'd13;
-  wire halted = (dut.u_ctrl.state == HALT_STATE);
+  // S_EX_TRAP is 5'd13 in cpu16_control_fsm. Only TRAP x025 halts.
+  localparam logic [4:0]  HALT_STATE  = 5'd13;
+  localparam logic [11:0] HALT_VECTOR = 12'h025;
+  wire halted = (dut.u_ctrl.state == HALT_STATE) &&
+                (dut.u_dp.ir[11:0] == HALT_VECTOR);
 
   // -- Stats --
   int    pass_count    = 0;
@@ -380,6 +383,89 @@ module tb_cpu16;
     check_eq(mem_val(16'h0010), 16'd15, "mem[0x0010] (stored result)");
   endtask
 
+  // ------------------------------------------------------
+  // T13: BRnzp as the first instruction after reset
+  // Flags reset to Z=1, so an unconditional branch must be taken even
+  // before any flag-setting instruction has run.
+  // ------------------------------------------------------
+  task automatic test_br_after_reset();
+    current_test = "br_after_reset";
+    test_count++;
+    $display("\n[T%0d] %s", test_count, current_test);
+    clear_memory();
+    imem.mem[0] = 16'hDE02;  // BRnzp +2       (taken -> addr 3)
+    imem.mem[1] = 16'h2619;  // ADDI R3, R0, 25 (FAIL path)
+    imem.mem[2] = 16'h9025;  // TRAP
+    imem.mem[3] = 16'h260B;  // ADDI R3, R0, 11 (SUCCESS path)
+    imem.mem[4] = 16'h9025;  // TRAP
+    do_reset();
+    run_until_halt(200);
+    check_eq(reg_val(3), 16'd11, "R3 (BRnzp taken from reset)");
+  endtask
+
+  // ------------------------------------------------------
+  // T14: TRAP is a direct jump — PC <- ZEXT(vector), R7 <- inc(PC)
+  // ------------------------------------------------------
+  task automatic test_trap_vector();
+    current_test = "trap_vector";
+    test_count++;
+    $display("\n[T%0d] %s", test_count, current_test);
+    clear_memory();
+    imem.mem[16'h0000] = 16'h9010;  // TRAP x010      -> PC = 0x0010, R7 = 1
+    imem.mem[16'h0001] = 16'h2619;  // ADDI R3, R0, 25 (FAIL: TRAP fell through)
+    imem.mem[16'h0002] = 16'h9025;  // TRAP
+    imem.mem[16'h0010] = 16'h2607;  // ADDI R3, R0, 7  (handler at the vector)
+    imem.mem[16'h0011] = 16'h9025;  // TRAP
+    do_reset();
+    run_until_halt(200);
+    check_eq(reg_val(3), 16'd7,  "R3 (ran handler at x010)");
+    check_eq(reg_val(7), 16'd1,  "R7 (link = inc(PC))");
+  endtask
+
+  // ------------------------------------------------------
+  // T15: JSRR (register-indirect call) + RET
+  // ------------------------------------------------------
+  task automatic test_jsrr();
+    current_test = "jsrr";
+    test_count++;
+    $display("\n[T%0d] %s", test_count, current_test);
+    clear_memory();
+    imem.mem[0] = 16'h2205;  // ADDI R1, R0, 5
+    imem.mem[1] = 16'h7840;  // JSRR R1 -> PC = 5, R7 = 2
+    imem.mem[2] = 16'h2401;  // ADDI R2, R0, 1 (after return)
+    imem.mem[3] = 16'h9025;  // TRAP
+    imem.mem[5] = 16'h2609;  // ADDI R3, R0, 9 (subroutine)
+    imem.mem[6] = 16'h8000;  // RET -> PC = R7 = 2
+    do_reset();
+    run_until_halt(300);
+    check_eq(reg_val(3), 16'd9, "R3 (subroutine ran)");
+    check_eq(reg_val(2), 16'd1, "R2 (after return)");
+    check_eq(reg_val(7), 16'd2, "R7 (return addr saved)");
+  endtask
+
+  // ------------------------------------------------------
+  // T16: remaining ALU ops (NEG/LSR1/ASR1/MOV) on a negative value
+  // ------------------------------------------------------
+  task automatic test_alu_remaining();
+    current_test = "alu_remaining";
+    test_count++;
+    $display("\n[T%0d] %s", test_count, current_test);
+    clear_memory();
+    imem.mem[0] = 16'h223A;  // ADDI R1, R0, -6 -> 0xFFFA
+    imem.mem[1] = 16'h0447;  // NEG  R2, R1     -> 6
+    imem.mem[2] = 16'h1645;  // LSR1 R3, R1     -> 0x7FFD
+    imem.mem[3] = 16'h1846;  // ASR1 R4, R1     -> 0xFFFD
+    imem.mem[4] = 16'h0A86;  // MOV  R5, R2     -> 6
+    imem.mem[5] = 16'h9025;  // TRAP
+    do_reset();
+    run_until_halt(300);
+    check_eq(reg_val(1), 16'hFFFA, "R1 = -6");
+    check_eq(reg_val(2), 16'd6,    "R2 = 0-R1");
+    check_eq(reg_val(3), 16'h7FFD, "R3 = R1>>1 (logical)");
+    check_eq(reg_val(4), 16'hFFFD, "R4 = R1>>>1 (arith)");
+    check_eq(reg_val(5), 16'd6,    "R5 = R2");
+  endtask
+
   // =====================================================
   //  Main
   // =====================================================
@@ -409,6 +495,10 @@ module tb_cpu16;
     test_jsr_ret();
     test_jmp();
     test_sum_array();
+    test_br_after_reset();
+    test_trap_vector();
+    test_jsrr();
+    test_alu_remaining();
 
     $display("\n================================================");
     $display(" Summary: %0d/%0d checks passed   (%0d tests, %0d cycles)",

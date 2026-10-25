@@ -1,0 +1,32 @@
+{ "signal": [
+  { "name": "clk",        "wave": "p........" },
+  { "name": "cycle",      "wave": "=========", "data": ["15","16","17","18","19","20","21","22","23"] },
+  { "name": "state (S_*)",      "wave": "5========", "data": ["IF0","IF1","IF2","ID","EX_EA","MEM_RD0","MEM_RD1","WB_LD","IF0"] },
+  {},
+  [ "memory",
+    { "name": "mar_we",       "wave": "10..10..1" },
+    { "name": "mar_src_sel",  "wave": "=...==...", "data": ["0 (PC)","1 (alu_y)","0"] },
+    { "name": "mem_addr",     "wave": "==...=...", "data": ["0002","0003 (PC)","000B (EA)"], "node": ".a...c..." },
+    { "name": "mem_rdata",    "wave": "=.=...=..", "data": ["0606","A840 = LDR R4,R1,0","0001"], "node": "..b...d.." }
+  ],
+  {},
+  [ "fetch",
+    { "name": "ir_we",      "wave": "0.10....." },
+    { "name": "IR",         "wave": "=..=.....", "data": ["0606 (MOV)","A840 (LDR)"] },
+    { "name": "pc_we",      "wave": "0.10....." },
+    { "name": "PC",         "wave": "=..=.....", "data": ["0003","0004"] }
+  ],
+  {},
+  [ "load",
+    { "name": "alu_y (EA)", "wave": "x...=x...", "data": ["000B"] },
+    { "name": "mdr_we",     "wave": "0.....10." },
+    { "name": "MDR",        "wave": "=......=.", "data": ["0000","0001"] },
+    { "name": "reg_we",     "wave": "0......10" },
+    { "name": "R4",         "wave": "=.......=", "data": ["0000","0001"] }
+  ]
+  ],
+  "edge": ["a~>b 1-cycle SRAM read", "c~>d 1-cycle SRAM read"],
+  "head": { "text": "LDR R4, R1, #0 at PC = 0x0003 (sum_array, loop iteration 1): 8 cycles" },
+  "foot": { "text": "From RTL simulation. LD/LDR leave N/Z/P unchanged (flag_we = 0)." },
+  "config": { "hscale": 2 }
+}

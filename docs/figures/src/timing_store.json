@@ -1,0 +1,28 @@
+{ "signal": [
+  { "name": "clk",          "wave": "p......." },
+  { "name": "cycle",        "wave": "========", "data": ["180","181","182","183","184","185","186","187"] },
+  { "name": "state (S_*)",  "wave": "5=======", "data": ["IF0","IF1","IF2","ID","EX_EA","MEM_WR0","IF0","IF1"] },
+  {},
+  [ "memory",
+    { "name": "mar_we",     "wave": "10..1010" },
+    { "name": "mem_addr",   "wave": "==...=.=", "data": ["0008","0009 (PC)","0010 (EA)","000A"], "node": ".a...c.." },
+    { "name": "mem_rdata",  "wave": "=.=...x=", "data": ["D3FA","5606 = ST R3,#6","000F"], "node": "..b...de" },
+    { "name": "mem_we",     "wave": "0....10." },
+    { "name": "mem_wdata",  "wave": "=..=....", "data": ["R1 = 0010","R3 = 000F"] }
+  ],
+  {},
+  [ "fetch",
+    { "name": "IR",         "wave": "=..=....", "data": ["D3FA (BRp)","5606 (ST)"] },
+    { "name": "PC",         "wave": "=..=....", "data": ["0009","000A"] }
+  ],
+  {},
+  [ "store",
+    { "name": "alu_y (EA)", "wave": "x...=x..", "data": ["0010"] },
+    { "name": "M[0010]",    "wave": "x.....=.", "data": ["000F"] }
+  ]
+  ],
+  "edge": ["a~>b 1-cycle SRAM read", "c~>d old", "d~>e new"],
+  "head": { "text": "ST R3, #6 at PC = 0x0009 (sum_array, after the loop): 6 cycles" },
+  "foot": { "text": "From RTL simulation. mem_wdata = regfile port 2 every cycle; used only while mem_we = 1." },
+  "config": { "hscale": 2 }
+}
