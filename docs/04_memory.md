@@ -1,6 +1,6 @@
 # 4. Memory interface
 
-The core talks to one synchronous, single-port memory that holds both instructions and data, so it makes at most one access per cycle. The signals are listed in [port interfaces](01_system.md#cpu16_core).
+The core talks to one synchronous, single-port memory that holds both instructions and data, so it makes at most one access per cycle. The signals are listed in [port interfaces](interfaces/cpu16_core.md#ports).
 
 ## Protocol
 

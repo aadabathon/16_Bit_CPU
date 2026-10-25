@@ -1,0 +1,64 @@
+// debounce — state (bubble) diagram.
+// Render: neato -n2 -Tsvg debounce_fsm.dot   (positions are pinned, in points; make -C docs)
+// State = {stable, stable_d}; cnt is a counter register beside it.
+// Moore outputs are in the bubbles; arcs are `condition / counter action`.
+// s = sync[1], the button after the 2-flop synchronizer.
+// Checked against rtl/debounce.sv in simulation (CYCLES = 3, random bouncing input).
+digraph debounce {
+  graph [bgcolor="white", splines=true, pad=0.3, fontname="Helvetica", fontsize=13,
+         labelloc=t, label=<<b>debounce</b>  state diagram>];
+  node  [shape=circle, fixedsize=true, width=1.45, style=filled, color="#334155", penwidth=1.4,
+         fontname="Helvetica", fontsize=10.5];
+  edge  [color="#334155", arrowsize=0.75, penwidth=1.1];
+
+  // ---- states: a square, traversed clockwise -------------------------------
+  LOW  [pos="250,430!", fillcolor="#f5f7fb", label=<<b>LOW</b><br/><font point-size="9">stable=0 stable_d=0</font><br/><font face="Courier" point-size="9.5">clean=0 pulse=0</font>>];
+  RISE [pos="760,430!", fillcolor="#dcfce7", label=<<b>RISE</b><br/><font point-size="9">stable=1 stable_d=0</font><br/><font face="Courier" point-size="9.5">clean=1 <b>pulse=1</b></font>>];
+  HIGH [pos="760,130!", fillcolor="#f5f7fb", label=<<b>HIGH</b><br/><font point-size="9">stable=1 stable_d=1</font><br/><font face="Courier" point-size="9.5">clean=1 pulse=0</font>>];
+  FALL [pos="250,130!", fillcolor="#f5f7fb", label=<<b>FALL</b><br/><font point-size="9">stable=0 stable_d=1</font><br/><font face="Courier" point-size="9.5">clean=0 pulse=0</font>>];
+
+  pwr [pos="70,430!", shape=plaintext, style="", fixedsize=false, width=0, fontsize=10,
+       label="power-up\n(FPGA register init,\nno reset port)\ncnt = 0"];
+  pwr -> LOW [style=bold];
+
+  LOW  -> RISE;
+  RISE -> HIGH;
+  HIGH -> FALL;
+  FALL -> LOW;
+  LOW  -> LOW  [tailport=nw, headport=ne];
+  HIGH -> HIGH [pos="e,787,86 733,86 700,15 820,15 790,77"];   // hand-routed loop below HIGH
+
+  // ---- arc labels, placed by hand next to their arcs ------------------------
+  node [shape=plaintext, style="", fixedsize=false, width=0, fontsize=10];
+  l_lr [pos="505,470!", label=<<table border="0" cellspacing="0" cellpadding="1">
+    <tr><td align="left"><b>s = 1, cnt = CYCLES</b></td></tr>
+    <tr><td align="left"><font face="Courier">/ cnt ← 0</font></td></tr></table>>];
+  l_rh [pos="890,280!", label=<<table border="0" cellspacing="0" cellpadding="1">
+    <tr><td align="left"><b>s = 1</b>  <font face="Courier">/ cnt ← 0</font></td></tr>
+    <tr><td align="left"><b>s = 0</b>  <font face="Courier">/ cnt ← cnt+1</font></td></tr></table>>];
+  l_hf [pos="505,90!", label=<<table border="0" cellspacing="0" cellpadding="1">
+    <tr><td align="left"><b>s = 0, cnt = CYCLES</b></td></tr>
+    <tr><td align="left"><font face="Courier">/ cnt ← 0</font></td></tr></table>>];
+  l_fl [pos="120,280!", label=<<table border="0" cellspacing="0" cellpadding="1">
+    <tr><td align="left"><b>s = 0</b>  <font face="Courier">/ cnt ← 0</font></td></tr>
+    <tr><td align="left"><b>s = 1</b>  <font face="Courier">/ cnt ← cnt+1</font></td></tr></table>>];
+  l_ll [pos="250,535!", label=<<table border="0" cellspacing="0" cellpadding="1">
+    <tr><td align="left"><b>s = 0</b>  <font face="Courier">/ cnt ← 0</font></td></tr>
+    <tr><td align="left"><b>s = 1, cnt ≠ CYCLES</b>  <font face="Courier">/ cnt ← cnt+1</font></td></tr></table>>];
+  l_hh [pos="760,-12!", label=<<table border="0" cellspacing="0" cellpadding="1">
+    <tr><td align="left"><b>s = 1</b>  <font face="Courier">/ cnt ← 0</font></td></tr>
+    <tr><td align="left"><b>s = 0, cnt ≠ CYCLES</b>  <font face="Courier">/ cnt ← cnt+1</font></td></tr></table>>];
+
+  note [pos="505,280!", shape=box, style="rounded,dashed", color="#64748b", fontsize=9.5,
+        margin="0.15,0.08", label=<<table border="0" cellspacing="0" cellpadding="1">
+    <tr><td align="left"><b>Notation</b></td></tr>
+    <tr><td align="left">bubble: state bits, then Moore outputs</td></tr>
+    <tr><td align="left"><b>condition</b>  <font face="Courier">/ counter action</font></td></tr>
+    <tr><td align="left"><b>Inputs</b></td></tr>
+    <tr><td align="left">s = sync[1]  (btn_in after 2 flops)</td></tr>
+    <tr><td align="left">cnt: $clog2(CYCLES+1)-bit counter</td></tr>
+    <tr><td align="left"><b>Outputs</b></td></tr>
+    <tr><td align="left">clean = btn_clean = stable</td></tr>
+    <tr><td align="left">pulse = btn_pulse = stable &amp; !stable_d</td></tr>
+    <tr><td align="left">RISE and FALL last one cycle (CYCLES ≥ 1)</td></tr></table>>];
+}

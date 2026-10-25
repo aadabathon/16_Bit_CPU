@@ -1,7 +1,9 @@
-"""System / top-level block diagram -> ../top_level.svg
+"""System / top-level block diagram -> docs/figures/top_level.svg
 
-Run from this directory:  python3 top_level.py
+Run:  python3 docs/tools/gen_top_level.py  (or make -C docs)
 """
+
+import os
 
 from svgkit import Canvas, INK, MUTED, CTRL, REG_FILL
 
@@ -116,4 +118,4 @@ c.text(sel[0] + 6, 576, "sw[1:0]", anchor="start", size=9.5, family=MONO)
 c.wire([out, (1230, out[1])])
 c.text(1225, out[1] - 8, "led[15:0]", anchor="end", size=11, family=MONO)
 
-c.save("../top_level.svg")
+c.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "figures", "top_level.svg"))

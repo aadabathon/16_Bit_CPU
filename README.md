@@ -2,7 +2,7 @@
 
 A 16-bit soft-core processor written in SystemVerilog. Loosely inspired by LC-3 with several intentional departures: two ALU opcode groups giving 16 distinct ALU operations, flags not set by load instructions, and a TRAP mechanism for software-defined system calls. The design targets synchronous single-port SRAM and is controlled by a multi-cycle FSM.
 
-**Microarchitecture documentation** (block diagrams, port interfaces, control bubble diagram, timing diagrams) lives in [`docs/`](docs/README.md).
+**Microarchitecture documentation** (block diagrams, per-module port interfaces, control bubble diagrams, timing diagrams) lives in [`docs/`](docs/README.md). `make -C docs check` proves the docs match the RTL.
 
 ---
 
@@ -172,7 +172,9 @@ Opcodes `1110` and `1111` are reserved. The FSM silently returns to fetch on enc
 
 Every instruction begins at **S\_IF0**. The fetch phase takes exactly 3 cycles to absorb the synchronous SRAM read latency. The full control-signal table is in [docs/03_control.md](docs/03_control.md).
 
-![Control FSM](docs/figures/control_fsm.svg)
+![Control FSM](docs/figures/fsm_overview.svg)
+
+Detailed *condition / output* bubble diagrams for every arc: [docs/03_control.md](docs/03_control.md#bubble-diagrams). Port interfaces for every module: [docs/interfaces](docs/interfaces/README.md).
 
 | Instruction class | Total cycles |
 |---|---|
@@ -209,8 +211,9 @@ See [docs/02_datapath.md](docs/02_datapath.md) for the full diagram and every se
 │   └── debounce.sv           — Button synchronizer + debouncer
 ├── tb/
 │   ├── tb_cpu16.sv           — Directed RTL testbench: 16 test programs
-│   └── tb_cpu16_gate.sv      — Gate-level (post-synthesis) testbench
-├── docs/                     — Microarchitecture documentation and figures
+│   ├── tb_cpu16_gate.sv      — Gate-level (post-synthesis) testbench
+│   └── tb_control_fsm_spec.sv — Control FSM vs. its documented spec (make -C docs check)
+├── docs/                     — Microarchitecture docs: interfaces/, bubble diagrams, figures, tools/
 ├── fpga/                     — Vivado project, constraints, memory image
 ├── scripts/                  — Design Compiler and gate-level sim scripts
 ├── InstructionSet.txt        — Informal ISA specification notes

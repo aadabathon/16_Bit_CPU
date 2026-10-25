@@ -85,26 +85,7 @@ The other register addresses are fixed IR fields: `ra0 = IR[8:6]`, `ra1 = IR[5:3
 
 ## ALU: `alu_op[3:0]`
 
-The ALU is pure combinational logic. `alu_op = {group, funct}`. For ALU0/ALU1 instructions that is exactly `{IR[12], IR[2:0]}`, because the two opcodes differ only in bit 12.
-
-| `alu_op` | Name | `alu_y` | Instructions that use it |
-|---|---|---|---|
-| `0000` | ADD | `a + b` | ADD, ADDI, LEA, and every load/store address calculation |
-| `0001` | SUB | `a − b` | SUB |
-| `0010` | NOT | `~a` | NOT |
-| `0011` | AND | `a & b` | AND, ANDI |
-| `0100` | OR | `a \| b` | OR |
-| `0101` | XOR | `a ^ b` | XOR |
-| `0110` | PASS | `a` | MOV |
-| `0111` | NEG | `0 − a` | NEG |
-| `1000` | NAND | `~(a & b)` | NAND |
-| `1001` | NOR | `~(a \| b)` | NOR |
-| `1010` | INC | `a + 1` | INC |
-| `1011` | DEC | `a − 1` | DEC |
-| `1100` | LSL1 | `a << 1` | LSL1 |
-| `1101` | LSR1 | `a >> 1` (zero fill) | LSR1 |
-| `1110` | ASR1 | `a >>> 1` (sign fill) | ASR1 |
-| `1111` | SUB | `a − b` | CMP (the controller keeps `reg_we = 0`) |
+The ALU is pure combinational logic with 16 operations. `alu_op = {group, funct}`, which for ALU0/ALU1 instructions is exactly `{IR[12], IR[2:0]}`, because the two opcodes differ only in bit 12. Everything else uses ADD (`0000`), except ANDI, which uses AND (`0011`). The full operation table is on the [`cpu16_alu` interface page](interfaces/cpu16_alu.md#operations).
 
 There is no carry or overflow output. See [known issues](06_known_issues.md#1-cmp-gives-the-wrong-answer-when-the-subtraction-overflows) for what that means for CMP.
 
@@ -133,44 +114,4 @@ The flags are computed from `wb_data`, after the write-back mux, so they always 
 
 ## Port interfaces
 
-### `cpu16_datapath`
-
-| Port | Dir | Width | Description |
-|---|---|---|---|
-| `clk`, `rst` | in | 1 | Clock, synchronous reset |
-| `mem_rdata` | in | 16 | Memory read data → IR, MDR |
-| `mem_addr` | out | 16 | = MAR (registered) |
-| `mem_wdata` | out | 16 | = `rd2` (combinational) |
-| `pc_we`, `ir_we`, `mar_we`, `mdr_we` | in | 1 | Register enables |
-| `reg_we`, `flag_we` | in | 1 | Register-file and flag write enables |
-| `reg_dst` | in | 3 | Register-file write address |
-| `ra2_sel` | in | 1 | Read port 2 address select |
-| `wb_sel` | in | 2 | Write-back mux select |
-| `alu_op` | in | 4 | ALU operation `{group, funct}` |
-| `alu_a_sel` | in | 2 | ALU operand A select |
-| `alu_b_sel` | in | 3 | ALU operand B select |
-| `pc_src_sel` | in | 3 | PC mux select |
-| `mar_src_sel` | in | 2 | MAR mux select |
-| `ir` | out | 16 | IR (registered) → controller |
-| `N`, `Z`, `P` | out | 1 | Flags (registered) → controller |
-| `pc` | out | 16 | PC (registered), debug |
-| `alu_y_o` | out | 16 | ALU output (combinational), debug |
-
-### `cpu16_regfile`
-
-| Port | Dir | Width | Description |
-|---|---|---|---|
-| `clk`, `rst` | in | 1 | Clock; synchronous reset clears R0–R7 |
-| `ra0`, `ra1`, `ra2` | in | 3 | Read addresses |
-| `rd0`, `rd1`, `rd2` | out | 16 | Read data, combinational from the addresses |
-| `we` | in | 1 | Write enable |
-| `wa` | in | 3 | Write address |
-| `wd` | in | 16 | Write data, stored on the rising edge when `we = 1` |
-
-### `cpu16_alu`
-
-| Port | Dir | Width | Description |
-|---|---|---|---|
-| `op` | in | 4 | Operation (table above) |
-| `a`, `b` | in | 16 | Operands |
-| `y` | out | 16 | Result (combinational) |
+See the interface sheets: [`cpu16_datapath`](interfaces/cpu16_datapath.md), [`cpu16_regfile`](interfaces/cpu16_regfile.md), [`cpu16_alu`](interfaces/cpu16_alu.md).

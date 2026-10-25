@@ -1,10 +1,12 @@
-"""cpu16_datapath block diagram -> ../datapath.svg
+"""cpu16_datapath block diagram -> docs/figures/datapath.svg
 
-Run from this directory:  python3 datapath.py
+Run:  python3 docs/tools/gen_datapath.py   (or make -C docs)
 Conventions: wires connect only at dots; an italic name at a mux input
 connects to the net of the same name; dashed orange = control from the FSM;
 solid orange = status to the FSM.
 """
+
+import os
 
 from svgkit import Canvas, INK, MUTED, CTRL
 
@@ -209,4 +211,4 @@ c.dot(LX + 25, LY + 106)
 c.text(LX + 46, LY + 110, "wires connect only at dots;", anchor="start", size=10)
 c.text(LX + 46, LY + 123, "italic names connect by name", anchor="start", size=10, italic=True)
 
-c.save("../datapath.svg")
+c.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "figures", "datapath.svg"))

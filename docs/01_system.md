@@ -41,59 +41,16 @@ The address space is a single 64K-word space shared by instructions and data. Th
 
 ## Port interfaces
 
-*Kind* says how an output is produced. **reg** outputs come straight from a flip-flop. **comb** outputs pass through combinational logic, so they settle some time after the clock edge.
+Every module has its own interface sheet in [`interfaces/`](interfaces/README.md), with a schematic symbol, port table, timing notes and instantiation template.
 
-### `cpu16_core`
-
-| Port | Dir | Width | Kind | Description |
-|---|---|---|---|---|
-| `clk` | in | 1 | — | Clock; all state changes on the rising edge |
-| `rst` | in | 1 | — | Synchronous active-high reset (values above) |
-| `mem_rdata` | in | 16 | — | Memory read data. Must equal `M[mem_addr]` as it was during the *previous* cycle (1-cycle synchronous read) |
-| `mem_addr` | out | 16 | reg | Memory address = MAR |
-| `mem_wdata` | out | 16 | comb | Memory write data = register-file read port 2 (`R[IR[11:9]]`, or R7 when `ra2_sel = 1`). Valid every cycle, used only when `mem_we = 1` |
-| `mem_we` | out | 1 | comb | Memory write enable. Decoded from the FSM state register only: high in `S_MEM_WR0` |
-| `dbg_pc` | out | 16 | reg | PC |
-| `dbg_ir` | out | 16 | reg | IR |
-| `dbg_alu_y` | out | 16 | comb | ALU output. Only meaningful in `S_EX_ALU` / `S_EX_EA` |
-| `dbg_n`, `dbg_z`, `dbg_p` | out | 1 each | reg | Condition flags |
-
-The internal control and status buses between controller and datapath are listed in [Control → ports](03_control.md#port-interface-cpu16_control_fsm) and [Datapath → ports](02_datapath.md#port-interfaces).
-
-### `SramSBC` (simulation memory, inferred as block RAM on FPGA)
-
-| Port / parameter | Dir | Width | Description |
-|---|---|---|---|
-| `INIT_FILE` | param | string | `$readmemh` image loaded at time 0; `""` leaves memory uninitialised |
-| `clk` | in | 1 | Clock |
-| `we` | in | 1 | Write enable: `mem[addr] ← wdata` on the rising edge |
-| `addr` | in | 16 | Word address |
-| `wdata` | in | 16 | Write data |
-| `rdata` | out | 16 | **Registered** read data: `rdata ← mem[addr]` every rising edge. During a write it returns the *old* contents (read-first) |
-
-### `basys3_top` (FPGA wrapper)
-
-| Port | Dir | Width | Board pin | Description |
-|---|---|---|---|---|
-| `clk` | in | 1 | W5 | 100 MHz oscillator. Clocks only the debouncers |
-| `btn_rst` | in | 1 | U18 (btnC) | Reset button |
-| `btn_step` | in | 1 | T18 (btnU) | Single-step button: one core clock edge per press |
-| `sw` | in | 16 | V17 … R2 | `sw[1:0]` selects the LED view; `sw[15:2]` unused |
-| `led` | out | 16 | U16 … L1 | Debug word selected by `sw[1:0]` |
-
-| `sw[1:0]` | `led[15:0]` shows |
+| Module | Role |
 |---|---|
-| `00` | PC |
-| `01` | IR |
-| `10` | ALU output (combinational; valid in execute states) |
-| `11` | `{13'b0, N, Z, P}` |
-
-### `debounce`
-
-| Port / parameter | Dir | Width | Description |
-|---|---|---|---|
-| `CYCLES` | param | int | Cycles the input must stay stable before it is accepted (default 200 000 = 2 ms at 100 MHz) |
-| `clk` | in | 1 | 100 MHz clock |
-| `btn_in` | in | 1 | Raw, asynchronous button. Passed through a 2-flop synchronizer |
-| `btn_clean` | out | 1 | Debounced level |
-| `btn_pulse` | out | 1 | One-`clk` pulse on each debounced rising edge |
+| [`cpu16_core`](interfaces/cpu16_core.md) | The processor: memory port + debug outputs |
+| [`cpu16_control_fsm`](interfaces/cpu16_control_fsm.md) | Controller |
+| [`cpu16_datapath`](interfaces/cpu16_datapath.md) | Registers, muxes, flags |
+| [`cpu16_regfile`](interfaces/cpu16_regfile.md) | 8 × 16 register file |
+| [`cpu16_alu`](interfaces/cpu16_alu.md) | 16-operation ALU |
+| [`SramSBC`](interfaces/SramSBC.md) | 64K × 16 synchronous memory |
+| [`basys3_top`](interfaces/basys3_top.md) | Basys3 wrapper |
+| [`debounce`](interfaces/debounce.md) | Button synchronizer + debouncer |
+| [`cpu16_isa`](interfaces/cpu16_isa.md) | Package: encodings and helpers |
