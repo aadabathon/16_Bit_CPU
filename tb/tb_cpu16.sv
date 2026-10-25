@@ -422,6 +422,50 @@ module tb_cpu16;
     check_eq(reg_val(7), 16'd1,  "R7 (link = inc(PC))");
   endtask
 
+  // ------------------------------------------------------
+  // T15: JSRR (register-indirect call) + RET
+  // ------------------------------------------------------
+  task automatic test_jsrr();
+    current_test = "jsrr";
+    test_count++;
+    $display("\n[T%0d] %s", test_count, current_test);
+    clear_memory();
+    imem.mem[0] = 16'h2205;  // ADDI R1, R0, 5
+    imem.mem[1] = 16'h7840;  // JSRR R1 -> PC = 5, R7 = 2
+    imem.mem[2] = 16'h2401;  // ADDI R2, R0, 1 (after return)
+    imem.mem[3] = 16'h9025;  // TRAP
+    imem.mem[5] = 16'h2609;  // ADDI R3, R0, 9 (subroutine)
+    imem.mem[6] = 16'h8000;  // RET -> PC = R7 = 2
+    do_reset();
+    run_until_halt(300);
+    check_eq(reg_val(3), 16'd9, "R3 (subroutine ran)");
+    check_eq(reg_val(2), 16'd1, "R2 (after return)");
+    check_eq(reg_val(7), 16'd2, "R7 (return addr saved)");
+  endtask
+
+  // ------------------------------------------------------
+  // T16: remaining ALU ops (NEG/LSR1/ASR1/MOV) on a negative value
+  // ------------------------------------------------------
+  task automatic test_alu_remaining();
+    current_test = "alu_remaining";
+    test_count++;
+    $display("\n[T%0d] %s", test_count, current_test);
+    clear_memory();
+    imem.mem[0] = 16'h223A;  // ADDI R1, R0, -6 -> 0xFFFA
+    imem.mem[1] = 16'h0447;  // NEG  R2, R1     -> 6
+    imem.mem[2] = 16'h1645;  // LSR1 R3, R1     -> 0x7FFD
+    imem.mem[3] = 16'h1846;  // ASR1 R4, R1     -> 0xFFFD
+    imem.mem[4] = 16'h0A86;  // MOV  R5, R2     -> 6
+    imem.mem[5] = 16'h9025;  // TRAP
+    do_reset();
+    run_until_halt(300);
+    check_eq(reg_val(1), 16'hFFFA, "R1 = -6");
+    check_eq(reg_val(2), 16'd6,    "R2 = 0-R1");
+    check_eq(reg_val(3), 16'h7FFD, "R3 = R1>>1 (logical)");
+    check_eq(reg_val(4), 16'hFFFD, "R4 = R1>>>1 (arith)");
+    check_eq(reg_val(5), 16'd6,    "R5 = R2");
+  endtask
+
   // =====================================================
   //  Main
   // =====================================================
@@ -453,6 +497,8 @@ module tb_cpu16;
     test_sum_array();
     test_br_after_reset();
     test_trap_vector();
+    test_jsrr();
+    test_alu_remaining();
 
     $display("\n================================================");
     $display(" Summary: %0d/%0d checks passed   (%0d tests, %0d cycles)",

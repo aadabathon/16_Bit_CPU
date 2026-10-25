@@ -13,11 +13,12 @@ module cpu16_datapath (
   input  logic        reg_we,
   input  logic        flag_we,
   input  logic [2:0]  reg_dst,
+  input  logic        ra2_sel,
   input  logic [1:0]  wb_sel,
-  input  logic [2:0]  alu_op,
+  input  logic [3:0]  alu_op,
   input  logic [1:0]  alu_a_sel,
   input  logic [2:0]  alu_b_sel,
-  input  logic [1:0]  pc_src_sel,
+  input  logic [2:0]  pc_src_sel,
   input  logic [1:0]  mar_src_sel,
 
   output logic [15:0] ir,
@@ -37,21 +38,18 @@ module cpu16_datapath (
   logic [15:0] rd0, rd1, rd2;
 
   logic [15:0] alu_a, alu_b, alu_y;
-  logic        alu1_mode;
 
   logic [15:0] wb_data;
   logic [15:0] pc_next;
   logic [15:0] mar_next;
 
-  logic [3:0]  op;
-  logic [2:0]  funct;
+  // The datapath only slices fixed IR fields; it never looks at the opcode.
+  // Every opcode-dependent choice arrives as a select from the control FSM.
   logic [5:0]  imm6;
   logic [8:0]  off9;
   logic [10:0] pcoff11;
   logic [11:0] trapvect12;
 
-  assign op         = ir[15:12];
-  assign funct      = ir[2:0];
   assign imm6       = ir[5:0];
   assign off9       = ir[8:0];
   assign pcoff11    = ir[10:0];
@@ -66,12 +64,12 @@ module cpu16_datapath (
 
   // ra0 = SR1 / BaseR (always [8:6])
   // ra1 = SR2          (always [5:3])
-  // ra2 = store data ([11:9]) for ST/STR, or R7 for RET
+  // ra2 = store data ([11:9]) for ST/STR, or R7 for RET (ra2_sel=1)
   always_comb begin
     ra0 = ir[8:6];
     ra1 = ir[5:3];
-    if (op == OP_RET) ra2 = 3'b111;
-    else              ra2 = ir[11:9];
+    if (ra2_sel) ra2 = 3'b111;
+    else         ra2 = ir[11:9];
   end
 
   always_comb begin
@@ -89,14 +87,11 @@ module cpu16_datapath (
       3'b100:  alu_b = sext6(imm6);
       default: alu_b = 16'h0000;
     endcase
-
-    // CMP runs as ALU1 funct 111 (a - b). No special-case needed here;
-    // the FSM is responsible for clearing reg_we on CMP.
-    alu1_mode = (op == OP_ALU1);
   end
 
+  // CMP runs as ALU1 funct 111 (a - b). No special-case needed here;
+  // the FSM is responsible for clearing reg_we on CMP.
   cpu16_alu alu0(
-    .alu1_mode(alu1_mode),
     .op(alu_op),
     .a(alu_a),
     .b(alu_b),
@@ -114,13 +109,12 @@ module cpu16_datapath (
 
   always_comb begin
     unique case (pc_src_sel)
-      2'b00: pc_next = (op == OP_TRAP) ? {4'b0000, trapvect12} : 16'h0000;
-      2'b01: pc_next = pc + 16'h0001;
-      2'b10: begin
-        if ((op == OP_JSR) && (ir[11] == 1'b0)) pc_next = pc + sext11(pcoff11);
-        else                                     pc_next = pc + sext9(off9);
-      end
-      2'b11: pc_next = (op == OP_RET) ? rd2 : rd0;
+      3'b000:  pc_next = pc + 16'h0001;           // fetch increment
+      3'b001:  pc_next = pc + sext9(off9);        // BRx
+      3'b010:  pc_next = pc + sext11(pcoff11);    // JSR
+      3'b011:  pc_next = rd0;                     // JMP / JSRR (BaseR)
+      3'b100:  pc_next = rd2;                     // RET (ra2_sel=1 -> R7)
+      3'b101:  pc_next = {4'b0000, trapvect12};   // TRAP
       default: pc_next = pc;
     endcase
   end
