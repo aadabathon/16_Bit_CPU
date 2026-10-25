@@ -1,0 +1,32 @@
+{ "signal": [
+  { "name": "clk",        "wave": "p.....", "period": 1 },
+  { "name": "cycle",      "wave": "======", "data": ["23","24","25","26","27","28"] },
+  { "name": "state (S_*)",      "wave": "5=====", "data": ["IF0","IF1","IF2","ID","EX_ALU","IF0"] },
+  {},
+  [ "memory",
+    { "name": "mar_we",     "wave": "10...1" },
+    { "name": "mem_addr",   "wave": "==....", "data": ["000B","0004 (PC)"], "node": ".a...." },
+    { "name": "mem_rdata",  "wave": "=.=...", "data": ["0001","06E0 = ADD R3,R3,R4"], "node": "..b..." }
+  ],
+  {},
+  [ "fetch",
+    { "name": "ir_we",      "wave": "0.10.." },
+    { "name": "IR",         "wave": "=..=..", "data": ["A840 (LDR)","06E0 (ADD)"] },
+    { "name": "pc_we",      "wave": "0.10.." },
+    { "name": "PC",         "wave": "=..=..", "data": ["0004","0005"] }
+  ],
+  {},
+  [ "execute",
+    { "name": "reg_we",     "wave": "0...10" },
+    { "name": "flag_we",    "wave": "0...10" },
+    { "name": "reg_dst",    "wave": "x...=x", "data": ["3"] },
+    { "name": "wb_data",    "wave": "x...=x", "data": ["0001"] },
+    { "name": "R3",         "wave": "=....=", "data": ["0000","0001"] },
+    { "name": "N Z P",      "wave": "=....=", "data": ["0 1 0","0 0 1"] }
+  ]
+  ],
+  "edge": ["a~>b 1-cycle SRAM read"],
+  "head": { "text": "ADD R3, R3, R4 at PC = 0x0004 (sum_array, loop iteration 1): 5 cycles" },
+  "foot": { "text": "From RTL simulation. DR and N/Z/P update on the edge ending EX_ALU." },
+  "config": { "hscale": 2 }
+}

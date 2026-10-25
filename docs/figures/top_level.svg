@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="640" viewBox="0 0 1240 640">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1e293b"/></marker><marker id="arrc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c2410c"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<rect x="60.0" y="20.0" width="1080.0" height="600.0" rx="6" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="6,4"/>
+<text x="75.0" y="42.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#64748b" style="">basys3_top  (FPGA only; simulation instantiates cpu16_core + SramSBC directly)</text>
+<text x="8.0" y="89.0" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">clk</text>
+<text x="8.0" y="109.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#64748b" style="">W5, 100 MHz</text>
+<text x="8.0" y="169.0" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">btn_rst</text>
+<text x="8.0" y="189.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#64748b" style="">btnC</text>
+<text x="8.0" y="244.0" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">btn_step</text>
+<text x="8.0" y="264.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#64748b" style="">btnU</text>
+<text x="8.0" y="554.0" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">sw[15:0]</text>
+<polyline points="8.0,95.0 105.0,95.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round"/>
+<circle cx="105.0" cy="95.0" r="3.2" fill="#1e293b"/>
+<polyline points="105.0,95.0 105.0,165.0 120.0,165.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="105.0,165.0 105.0,240.0 120.0,240.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="8.0,175.0 120.0,175.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="8.0,250.0 120.0,250.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<rect x="120.0" y="150.0" width="120.0" height="50.0" rx="3" fill="#ffffff" stroke="#1e293b" stroke-width="1.4"/>
+<text x="180.0" y="170.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b" style="">debounce</text>
+<text x="180.0" y="186.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">db_rst  (~2 ms)</text>
+<rect x="120.0" y="225.0" width="120.0" height="50.0" rx="3" fill="#ffffff" stroke="#1e293b" stroke-width="1.4"/>
+<text x="180.0" y="245.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b" style="">debounce</text>
+<text x="180.0" y="261.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">db_step  (~2 ms)</text>
+<text x="124.0" y="168.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="8.5" font-weight="normal" fill="#64748b" style="">clk</text>
+<text x="124.0" y="243.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="8.5" font-weight="normal" fill="#64748b" style="">clk</text>
+<polyline points="240.0,160.0 395.0,160.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="300.0" y="154.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="font-style:italic;">rst_clean</text>
+<polyline points="240.0,188.0 275.0,188.0 275.0,206.0 300.0,206.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="243.0" y="183.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#1e293b" style="font-style:italic;">rst_pulse</text>
+<polyline points="240.0,255.0 275.0,255.0 275.0,226.0 300.0,226.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="243.0" y="268.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#1e293b" style="font-style:italic;">step_pulse</text>
+<path d="M300,198 Q315,216 300,234 Q330,234 345,216 Q330,198 300,198 Z" fill="white" stroke="#1e293b" stroke-width="1.4"/>
+<polyline points="345.0,216.0 395.0,216.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="370.0" y="209.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="font-style:italic;">core_clk</text>
+<circle cx="360.0" cy="216.0" r="3.2" fill="#1e293b"/>
+<polyline points="360.0,216.0 360.0,600.0 905.0,600.0 905.0,330.0 930.0,330.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="300.0" y="300.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#c2410c" style="">derived clock:</text>
+<text x="300.0" y="313.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#c2410c" style="">one edge per press</text>
+<text x="300.0" y="326.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#c2410c" style="">(see known issues)</text>
+<rect x="395.0" y="70.0" width="470.0" height="420.0" rx="6" fill="#f8fafc" stroke="#1e293b" stroke-width="1.4"/>
+<text x="410.0" y="92.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1e293b" style="">cpu16_core</text>
+<text x="399.0" y="164.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="">rst</text>
+<text x="399.0" y="220.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="">clk</text>
+<rect x="425.0" y="120.0" width="150.0" height="330.0" rx="4" fill="white" stroke="#1e293b" stroke-width="1.4"/>
+<text x="500.0" y="145.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#1e293b" style="">cpu16_control_fsm</text>
+<text x="500.0" y="162.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">14-state FSM</text>
+<rect x="445.0" y="180.0" width="110.0" height="34.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
+<text x="500.0" y="201.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="">state[4:0]</text>
+<text x="500.0" y="240.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">next-state logic</text>
+<text x="500.0" y="254.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">output logic</text>
+<text x="500.0" y="268.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9.5" font-weight="normal" fill="#64748b" style="">f(state, IR, N, Z, P)</text>
+<rect x="705.0" y="120.0" width="140.0" height="330.0" rx="4" fill="white" stroke="#1e293b" stroke-width="1.4"/>
+<text x="775.0" y="145.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#1e293b" style="">cpu16_datapath</text>
+<text x="775.0" y="175.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">PC  IR  MAR  MDR</text>
+<text x="775.0" y="193.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">regfile 8x16</text>
+<text x="775.0" y="211.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">ALU</text>
+<text x="775.0" y="229.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">N Z P flags</text>
+<polyline points="575.0,205.0 705.0,205.0" fill="none" stroke="#c2410c" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrc)"/>
+<text x="640.0" y="222.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">pc_we</text>
+<text x="640.0" y="234.5" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">ir_we</text>
+<text x="640.0" y="247.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">mar_we</text>
+<text x="640.0" y="259.5" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">mdr_we</text>
+<text x="640.0" y="272.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">reg_we</text>
+<text x="640.0" y="284.5" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">flag_we</text>
+<text x="640.0" y="297.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">reg_dst[2:0]</text>
+<text x="640.0" y="309.5" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">ra2_sel</text>
+<text x="640.0" y="322.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">wb_sel[1:0]</text>
+<text x="640.0" y="334.5" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">alu_op[3:0]</text>
+<text x="640.0" y="347.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">alu_a_sel[1:0]</text>
+<text x="640.0" y="359.5" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">alu_b_sel[2:0]</text>
+<text x="640.0" y="372.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">pc_src_sel[2:0]</text>
+<text x="640.0" y="384.5" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9" font-weight="normal" fill="#c2410c" style="">mar_src_sel[1:0]</text>
+<text x="640.0" y="199.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#c2410c" style="">control (14)</text>
+<polyline points="705.0,420.0 575.0,420.0" fill="none" stroke="#c2410c" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrc)"/>
+<text x="640.0" y="414.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#c2410c" style="">ir[15:0], N, Z, P</text>
+<rect x="930.0" y="120.0" width="170.0" height="230.0" rx="4" fill="#fefce8" stroke="#1e293b" stroke-width="1.4"/>
+<text x="1015.0" y="145.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1e293b" style="">SramSBC</text>
+<text x="1015.0" y="162.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">64K x 16, sync read</text>
+<text x="1015.0" y="176.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">INIT_FILE = .mem image</text>
+<text x="936.0" y="209.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">addr</text>
+<text x="936.0" y="244.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">wdata</text>
+<text x="936.0" y="279.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">we</text>
+<text x="936.0" y="309.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">rdata</text>
+<text x="936.0" y="334.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">clk</text>
+<polyline points="845.0,205.0 930.0,205.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="887.0" y="199.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">mem_addr</text>
+<polyline points="845.0,240.0 930.0,240.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="887.0" y="234.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">mem_wdata</text>
+<polyline points="500.0,120.0 500.0,100.0 885.0,100.0 885.0,275.0 930.0,275.0" fill="none" stroke="#c2410c" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arrc)"/>
+<text x="700.0" y="94.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#c2410c" style="">mem_we (from FSM)</text>
+<polyline points="930.0,305.0 845.0,305.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="887.0" y="299.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">mem_rdata</text>
+<text x="775.0" y="505.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="font-style:italic;">dbg_pc, dbg_ir, dbg_alu_y, dbg_n/z/p</text>
+<polygon points="990.0,405.0 1086.0,421.0 1086.0,529.0 990.0,545.0" fill="#f1f5f9" stroke="#1e293b" stroke-width="1.4"/>
+<text x="994.0" y="426.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">00  PC</text>
+<text x="994.0" y="461.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">01  IR</text>
+<text x="994.0" y="496.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">10  alu_y</text>
+<text x="994.0" y="531.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">11  {0,N,Z,P}</text>
+<polyline points="775.0,450.0 775.0,475.0 960.0,475.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round"/>
+<circle cx="960.0" cy="475.0" r="3.2" fill="#1e293b"/>
+<polyline points="960.0,422.5 960.0,527.5" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round"/>
+<polyline points="960.0,422.5 990.0,422.5" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="960.0,457.5 990.0,457.5" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="960.0,492.5 990.0,492.5" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="960.0,527.5 990.0,527.5" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="870.0" y="469.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">dbg_* bus</text>
+<polyline points="8.0,560.0 1038.0,560.0 1038.0,539.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="1044.0" y="576.0" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="9.5" font-weight="normal" fill="#1e293b" style="">sw[1:0]</text>
+<polyline points="1086.0,475.0 1230.0,475.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="1225.0" y="467.0" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">led[15:0]</text>
+</svg>
