@@ -11,10 +11,11 @@
 //    5. check_eq() — compare register / memory state against expected
 //
 //  Halt detection: hierarchical reference to the FSM state. S_EX_TRAP == 5'd13.
-//  Programs end with `TRAP x025`. The TB exits the run loop the instant the FSM
-//  transitions INTO S_EX_TRAP, which means the TRAP's own writes (R7 <- PC,
-//  PC <- vector) have not yet committed. That is intentional — it lets us
-//  observe the program's final register state without TRAP clobbering R7.
+//  Programs end with `TRAP x025` (the HALT convention). The TB exits the run
+//  loop the instant the FSM transitions INTO S_EX_TRAP with vector x025, which
+//  means the TRAP's own writes (R7 <- PC, PC <- vector) have not yet committed.
+//  That is intentional — it lets us observe the program's final register state
+//  without TRAP clobbering R7. TRAPs to any other vector execute normally.
 // =============================================================================
 
 module tb_cpu16;
@@ -48,9 +49,11 @@ module tb_cpu16;
   );
 
   // -- Halt detection (hierarchical) --
-  // S_EX_TRAP is 5'd13 in cpu16_control_fsm.
-  localparam logic [4:0] HALT_STATE = 5'd13;
-  wire halted = (dut.u_ctrl.state == HALT_STATE);
+  // S_EX_TRAP is 5'd13 in cpu16_control_fsm. Only TRAP x025 halts.
+  localparam logic [4:0]  HALT_STATE  = 5'd13;
+  localparam logic [11:0] HALT_VECTOR = 12'h025;
+  wire halted = (dut.u_ctrl.state == HALT_STATE) &&
+                (dut.u_dp.ir[11:0] == HALT_VECTOR);
 
   // -- Stats --
   int    pass_count    = 0;
@@ -400,6 +403,25 @@ module tb_cpu16;
     check_eq(reg_val(3), 16'd11, "R3 (BRnzp taken from reset)");
   endtask
 
+  // ------------------------------------------------------
+  // T14: TRAP is a direct jump — PC <- ZEXT(vector), R7 <- inc(PC)
+  // ------------------------------------------------------
+  task automatic test_trap_vector();
+    current_test = "trap_vector";
+    test_count++;
+    $display("\n[T%0d] %s", test_count, current_test);
+    clear_memory();
+    imem.mem[16'h0000] = 16'h9010;  // TRAP x010      -> PC = 0x0010, R7 = 1
+    imem.mem[16'h0001] = 16'h2619;  // ADDI R3, R0, 25 (FAIL: TRAP fell through)
+    imem.mem[16'h0002] = 16'h9025;  // TRAP
+    imem.mem[16'h0010] = 16'h2607;  // ADDI R3, R0, 7  (handler at the vector)
+    imem.mem[16'h0011] = 16'h9025;  // TRAP
+    do_reset();
+    run_until_halt(200);
+    check_eq(reg_val(3), 16'd7,  "R3 (ran handler at x010)");
+    check_eq(reg_val(7), 16'd1,  "R7 (link = inc(PC))");
+  endtask
+
   // =====================================================
   //  Main
   // =====================================================
@@ -430,6 +452,7 @@ module tb_cpu16;
     test_jmp();
     test_sum_array();
     test_br_after_reset();
+    test_trap_vector();
 
     $display("\n================================================");
     $display(" Summary: %0d/%0d checks passed   (%0d tests, %0d cycles)",

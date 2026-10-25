@@ -142,6 +142,8 @@ All ALU1 operations that produce a result write condition flags. CMP writes flag
 | `RET`         | `1000` | PC ← R7 |
 | `TRAP tvect12`| `1001` | R7 ← PC† ; PC ← ZEXT(tvect12) |
 
+> **TRAP note:** TRAP is a *direct* jump — the vector is the handler address itself, not an index into a vector table as in LC-3. Handlers therefore live in `0x0000–0x0FFF`. `TRAP x025` is the HALT convention used by the testbench.
+
 **BRx condition codes** — IR[11:9] selects which flags trigger the branch:
 
 | Mnemonic | IR[11:9] | Branches when |
@@ -153,6 +155,8 @@ All ALU1 operations that produce a result write condition flags. CMP writes flag
 | `BRnp` | `101` | N = 1 or P = 1 (result ≠ 0) |
 | `BRzp` | `011` | Z = 1 or P = 1 (result ≥ 0) |
 | `BR` / `BRnzp` | `111` | always (unconditional) |
+
+Reset leaves the flags at **Z = 1** (N = P = 0), so exactly one flag is always set and `BRnzp` is unconditional even before the first flag-setting instruction.
 
 ### Undefined Opcodes
 
