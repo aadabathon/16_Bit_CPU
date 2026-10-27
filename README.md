@@ -1,5 +1,7 @@
 # cpu16
 
+[![CI](https://github.com/aadabathon/16_Bit_CPU/actions/workflows/ci.yml/badge.svg)](https://github.com/aadabathon/16_Bit_CPU/actions/workflows/ci.yml)
+
 A 16-bit soft-core processor written in SystemVerilog. Loosely inspired by LC-3 with several intentional departures: two ALU opcode groups giving 16 distinct ALU operations, flags not set by load instructions, and a TRAP mechanism for software-defined system calls. The design targets synchronous single-port SRAM and is controlled by a multi-cycle FSM.
 
 **Microarchitecture documentation** (block diagrams, per-module port interfaces, control bubble diagrams, timing diagrams) lives in [`docs/`](docs/README.md). `make -C docs check` proves the docs match the RTL.
@@ -216,36 +218,30 @@ See [docs/02_datapath.md](docs/02_datapath.md) for the full diagram and every se
 ├── docs/                     — Microarchitecture docs: interfaces/, bubble diagrams, figures, tools/
 ├── fpga/                     — Vivado project, constraints, memory image
 ├── scripts/                  — Design Compiler and gate-level sim scripts
+├── .github/workflows/ci.yml  — CI: make check on every push / PR
+├── Makefile                  — make test / lint / check / wave / docs
+├── ROADMAP.md                — What comes next: v1 release, pipelined core
 ├── InstructionSet.txt        — Informal ISA specification notes
 └── demo.md                   — Basys3 hands-on demo walkthrough
 ```
 
 ---
 
-## Running the Testbench
+## Building and Testing
 
-### Icarus Verilog (iverilog)
+You need Icarus Verilog, Verilator, Python 3 and Graphviz. On Ubuntu: `sudo apt install iverilog verilator graphviz`. From the repository root:
 
-From the repository root:
+| Command | What it does |
+|---|---|
+| `make test` | RTL testbench (`tb/tb_cpu16.sv`) under Icarus Verilog |
+| `make lint` | Verilator lint with all warnings enabled |
+| `make check` | Everything CI runs: `test`, `lint`, and the documentation checks |
+| `make wave` | Testbench with a VCD dump at `build/cpu16.vcd`, for GTKWave |
+| `make docs` | Regenerate the documentation figures and tables (also needs the WaveDrom CLI) |
 
-```bash
-mkdir -p build
-iverilog -g2012 -o build/cpu16_tb \
-    rtl/cpu16_isa.sv rtl/cpu16_alu.sv rtl/cpu16_regfile.sv \
-    rtl/cpu16_datapath.sv rtl/cpu16_control_fsm.sv rtl/cpu16_core.sv \
-    rtl/Sram.sv tb/tb_cpu16.sv
+CI runs `make check` on every push and pull request. Icarus prints some `sorry: constant selects in always_* processes` notes while compiling; they are harmless, and the Makefile filters them out.
 
-vvp build/cpu16_tb
-```
-
-Icarus prints a number of `sorry: constant selects in always_* processes` and `unique ... ignored` notes; they are harmless.
-
-To capture a VCD waveform for GTKWave:
-
-```bash
-vvp build/cpu16_tb +VCD=build/cpu16.vcd
-gtkwave build/cpu16.vcd
-```
+Where this project is going next: [ROADMAP.md](ROADMAP.md).
 
 ### Expected Output
 
@@ -345,4 +341,4 @@ LOOP:
 
 ### Running This Example
 
-The example is already included as **T12** in `tb/tb_cpu16.sv`, and as a memory image in `fpga/mem/cpu16_sum_array.mem`. Run the testbench with the commands above. To load the program onto a different simulator, initialize memory with the encoding table above (16 words starting at address `0x0000`).
+The example is already included as **T12** in `tb/tb_cpu16.sv`, and as a memory image in `fpga/mem/cpu16_sum_array.mem`. Run it with `make test`. To load the program onto a different simulator, initialize memory with the encoding table above (16 words starting at address `0x0000`).

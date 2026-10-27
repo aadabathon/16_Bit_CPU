@@ -36,3 +36,8 @@ command.log
 # Local simulation output and figure-generator caches
 build/
 __pycache__/
+
+# Editor swap files
+*.swp
+*.swo
+*~

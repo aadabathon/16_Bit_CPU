@@ -1,0 +1,30 @@
+# Runs on every push and pull request: RTL testbench, Verilator lint, and the
+# documentation checks (port tables, generated blocks, FSM spec vs RTL, links).
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends iverilog verilator graphviz
+          iverilog -V | head -1
+          verilator --version
+
+      - name: make check
+        run: make check
+
+      - name: Keep logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: build/
