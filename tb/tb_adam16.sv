@@ -33,6 +33,7 @@ module tb_adam16;
   adam16_core dut (
     .clk      (clk),
     .rst      (rst),
+    .ce       (1'b1),
     .mem_rdata(mem_rdata),
     .mem_addr (mem_addr),
     .mem_wdata(mem_wdata),
@@ -42,6 +43,7 @@ module tb_adam16;
   // -- Memory --
   adam16_sram imem (
     .clk  (clk),
+    .en   (1'b1),
     .we   (mem_we),
     .addr (mem_addr),
     .wdata(mem_wdata),
@@ -466,6 +468,42 @@ module tb_adam16;
     check_eq(reg_val(5), 16'd6,    "R5 = R2");
   endtask
 
+  // ------------------------------------------------------
+  // T17: CMP is a signed comparison, correct even where SR1 - SR2 overflows
+  // Five compares; each one that sets the expected flag increments R3.
+  // ------------------------------------------------------
+  task automatic test_cmp_signed();
+    current_test = "cmp_signed";
+    test_count++;
+    $display("\n[T%0d] %s", test_count, current_test);
+    clear_memory();
+    imem.mem[ 0] = 16'h421F;  // LD   R1, x20      ; R1 = 0x7FFF ( 32767)
+    imem.mem[ 1] = 16'h441F;  // LD   R2, x21      ; R2 = 0x8000 (-32768)
+    imem.mem[ 2] = 16'h2A01;  // ADDI R5, R0, 1    ; R5 = 1
+    imem.mem[ 3] = 16'h2C3F;  // ADDI R6, R0, -1   ; R6 = -1
+    imem.mem[ 4] = 16'h1057;  // CMP  R1, R2       ; 32767 vs -32768 -> P
+    imem.mem[ 5] = 16'hDC01;  // BRnz +1           ; skip the INC unless P
+    imem.mem[ 6] = 16'h16C2;  // INC  R3, R3
+    imem.mem[ 7] = 16'h108F;  // CMP  R2, R1       ; -32768 vs 32767 -> N
+    imem.mem[ 8] = 16'hD601;  // BRzp +1
+    imem.mem[ 9] = 16'h16C2;  // INC  R3, R3
+    imem.mem[10] = 16'h1097;  // CMP  R2, R2       ; equal -> Z
+    imem.mem[11] = 16'hDA01;  // BRnp +1
+    imem.mem[12] = 16'h16C2;  // INC  R3, R3
+    imem.mem[13] = 16'h11AF;  // CMP  R6, R5       ; -1 vs 1 -> N
+    imem.mem[14] = 16'hD601;  // BRzp +1
+    imem.mem[15] = 16'h16C2;  // INC  R3, R3
+    imem.mem[16] = 16'h10AF;  // CMP  R2, R5       ; -32768 vs 1 -> N (R2 - R5 overflows)
+    imem.mem[17] = 16'hD601;  // BRzp +1
+    imem.mem[18] = 16'h16C2;  // INC  R3, R3
+    imem.mem[19] = 16'h9025;  // TRAP
+    imem.mem[16'h20] = 16'h7FFF;
+    imem.mem[16'h21] = 16'h8000;
+    do_reset();
+    run_until_halt(400);
+    check_eq(reg_val(3), 16'd5, "R3 (all 5 compares correct)");
+  endtask
+
   // =====================================================
   //  Main
   // =====================================================
@@ -499,6 +537,7 @@ module tb_adam16;
     test_trap_vector();
     test_jsrr();
     test_alu_remaining();
+    test_cmp_signed();
 
     $display("\n================================================");
     $display(" Summary: %0d/%0d checks passed   (%0d tests, %0d cycles)",

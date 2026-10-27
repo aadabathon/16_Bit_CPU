@@ -38,7 +38,7 @@ c.ctrl_in(msel[0], msel[1], "mar_src_sel", side="below", length=18)
 
 # ---------------------------------------------------------------- mem_wdata
 c.wire([(226, 430), (140, 430)])
-c.net(229, 430, "rd2", anchor="start")
+c.net(229, 430, "rd1", anchor="start")
 c.text(176, 424, "mem_wdata", anchor="start", size=9.5, color=MUTED)
 
 # ---------------------------------------------------------------- mem_rdata -> IR, MDR
@@ -85,23 +85,23 @@ for y, lab, net in fields:
 RF_X, RF_Y, RF_W, RF_H = 640, 460, 130, 240
 c.rect(RF_X, RF_Y, RF_W, RF_H, fill="#eef2ff")
 c.text(RF_X + RF_W / 2, RF_Y + 20, "adam16_regfile", size=12, weight="bold")
-c.text(RF_X + RF_W / 2, RF_Y + 35, "8 x 16, 3R / 1W", size=9.5, color=MUTED)
+c.text(RF_X + RF_W / 2, RF_Y + 35, "8 x 16, 2R / 1W", size=9.5, color=MUTED)
 c.text(RF_X + RF_W / 2, RF_Y + 48, "async read, sync write", size=9.5, color=MUTED)
 c.text(RF_X + RF_W / 2, RF_Y + RF_H - 34, "rst: R0-R7 = 0", size=9.5, color=MUTED)
-for y, nm in [(490, "ra0"), (520, "ra1"), (560, "ra2"), (650, "wd")]:
+RA1_Y = 505 + 85 / 2          # ra1 mux output
+for y, nm in [(490, "ra0"), (RA1_Y, "ra1"), (650, "wd")]:
     c.text(RF_X + 6, y + 3.5, nm, anchor="start", size=10)
 for y, nm in [(520, "rd0"), (560, "rd1")]:
     c.text(RF_X + RF_W - 6, y + 3.5, nm, anchor="end", size=10)
 c.text(RF_X + 35, RF_Y + RF_H - 8, "wa", size=10)
-c.text(RF_X + RF_W - 30, RF_Y + RF_H - 8, "rd2", size=10)
 c.wire([(EX_X + EX_W, 490), (RF_X, 490)])
-c.wire([(EX_X + EX_W, 520), (RF_X, 520)])
-# ra2 mux
-rys, rout, rsel = c.mux(578, 535, 22, 50, ["0", "1"])
-c.wire([(EX_X + EX_W, 548), (578, 548)])
-c.text(574, rys[1] + 3.5, "3'b111", anchor="end", size=9.5, family="Menlo, Consolas, monospace")
+# ra1 mux: SR2, store source, or R7
+rys, rout, rsel = c.mux(578, 505, 22, 85, ["0", "1", "2"])
+c.wire([(EX_X + EX_W, 520), (560, 520), (560, rys[0]), (578, rys[0])])
+c.wire([(EX_X + EX_W, 548), (566, 548), (566, rys[1]), (578, rys[1])])
+c.text(574, rys[2] + 3.5, "3'b111", anchor="end", size=9.5, family="Menlo, Consolas, monospace")
 c.wire([rout, (RF_X, rout[1])])
-c.ctrl_in(rsel[0], rsel[1], "ra2_sel", side="below", length=16)
+c.ctrl_in(rsel[0], rsel[1], "ra1_sel", side="below", length=14)
 c.ctrl_in(RF_X + 35, RF_Y + RF_H, "reg_dst", side="below", length=20)
 c.ctrl_in(RF_X + RF_W / 2, RF_Y, "reg_we", side="above", length=20)
 
@@ -116,9 +116,8 @@ c.text(806, ays[2] + 3.5, "16'h0", anchor="end", size=9.5, family="Menlo, Consol
 c.wire([(RF_X + RF_W, 560), (795, 560), (795, bys[0]), (810, bys[0])])
 for y, nm in zip(bys[1:], ["sext6", "zext6", "sext9", "sext6", "16'h0"]):
     c.net(806, y, nm)
-# rd2 out (to mem_wdata and PC mux input 4)
-c.wire([(RF_X + RF_W - 30, RF_Y + RF_H), (RF_X + RF_W - 30, RF_Y + RF_H + 30)], arrow=False)
-c.net(RF_X + RF_W - 30, RF_Y + RF_H + 42, "rd2", anchor="middle")
+# rd1 also feeds mem_wdata and PC mux input 4 (by name)
+c.net(774, 553, "rd1", anchor="start", size=9.5)
 c.ctrl_in(asel[0], 445 + 3, "alu_a_sel", side="above", length=20)
 c.ctrl_in(bsel[0], bsel[1], "alu_b_sel", side="below", length=16)
 
@@ -180,7 +179,7 @@ for y, lab in zip(pys[:3], ["PC + 1", "PC + sext9", "PC + sext11"]):
     c.rect(440, y - 11, 100, 22, rx=3)
     c.text(490, y + 4, lab, size=10, family="Menlo, Consolas, monospace")
     c.wire([(540, y), (580, y)])
-for y, nm in zip(pys[3:], ["rd0", "rd2", "zext12"]):
+for y, nm in zip(pys[3:], ["rd0", "rd1", "zext12"]):
     c.net(576, y, nm)
 c.reg(650, pout[1] - 20, 80, 40, "PC", "rst 0000")
 c.wire([pout, (650, pout[1])])

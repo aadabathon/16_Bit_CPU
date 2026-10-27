@@ -10,17 +10,18 @@ A 64K × 16 single-port memory with a registered (synchronous) read. In simulati
 
 | Name | Type | Default | Description |
 |---|---|---|---|
-| `INIT_FILE` | string | `""` | Hex image loaded with `$readmemh` at time 0 (simulation) or at configuration (FPGA). `""` loads nothing. `basys3_top` passes an absolute path ([known issues](../06_known_issues.md#4-repository-housekeeping)) |
+| `INIT_FILE` | string | `""` | Hex image loaded with `$readmemh` at time 0 (simulation) or at configuration (FPGA). `""` loads nothing. `basys3_top` passes an absolute path ([known issues](../06_known_issues.md#2-repository-housekeeping)) |
 
 ## Ports
 
 | Signal | Dir | Width | Type | Reset | Description |
 |---|---|---|---|---|---|
 | `clk` | in | 1 | clock | — | Read and write clock |
-| `we` | in | 1 | data | — | Write enable: `mem[addr] ← wdata` on the rising edge |
+| `en` | in | 1 | data | — | Enable: nothing happens on an edge unless `en = 1`. Connect to the core's `ce` |
+| `we` | in | 1 | data | — | Write enable: `mem[addr] ← wdata` on the rising edge (when `en = 1`) |
 | `addr` | in | 16 | data | — | Word address, sampled on every rising edge |
 | `wdata` | in | 16 | data | — | Write data |
-| `rdata` | out | 16 | reg | not reset | `rdata ← mem[addr]` on **every** rising edge, whether or not `we` is set |
+| `rdata` | out | 16 | reg | not reset | `rdata ← mem[addr]` on every rising edge with `en = 1`, whether or not `we` is set |
 
 ## Timing
 
@@ -36,6 +37,7 @@ adam16_sram #(
   .INIT_FILE ("")
 ) u_adam16_sram (
   .clk   (clk),    // in   1
+  .en    (en),     // in   1
   .we    (we),     // in   1
   .addr  (addr),   // in  16
   .wdata (wdata),  // in  16

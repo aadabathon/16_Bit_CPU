@@ -38,9 +38,9 @@ For ALU0/ALU1 instructions the controller drives `op = {IR[12], IR[2:0]}`, becau
 | `1100` | LSL1 | `a << 1` | LSL1 |
 | `1101` | LSR1 | `a >> 1`, zero fill | LSR1 |
 | `1110` | ASR1 | `a >>> 1`, sign fill | ASR1 |
-| `1111` | SUB | `a − b` | CMP (the controller suppresses the register write) |
+| `1111` | CMP | signed compare: `−1` if a < b, `0` if a = b, `+1` if a > b | CMP (the controller suppresses the register write; the flags see the result) |
 
-Arithmetic wraps modulo 2<sup>16</sup>. There is no carry or overflow output ([known issues](../06_known_issues.md#1-cmp-gives-the-wrong-answer-when-the-subtraction-overflows)).
+Arithmetic wraps modulo 2<sup>16</sup>, and there is no carry or overflow output. CMP doesn't need one: it compares rather than subtracts, so it is correct for every pair of 16-bit signed values, including the ones where `a − b` would overflow (`0x7FFF` vs `0x8000`, `0x8000` vs `0x0001`).
 
 ## Instantiation
 

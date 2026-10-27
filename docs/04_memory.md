@@ -6,7 +6,7 @@ The core talks to one synchronous, single-port memory that holds both instructio
 
 1. **The address comes from a register.** `mem_addr` is MAR, so it changes only on a clock edge and is stable for the whole cycle.
 2. **Reads take one cycle.** `mem_rdata` during cycle *t + 1* equals `M[mem_addr during cycle t]`. Memory samples the address on every edge whether or not the core wants the data. The core picks the cycles in which it latches `mem_rdata` (into IR or MDR) and ignores it otherwise.
-3. **Writes happen on the closing edge.** If `mem_we = 1` during a cycle, `M[mem_addr] ← mem_wdata` on the edge that ends it. That only happens in `S_MEM_WR0`. The address was loaded into MAR one edge earlier, and `mem_wdata` is `R[IR[11:9]]`, which has been stable since IR was loaded. So both are valid for the whole write cycle.
+3. **Writes happen on the closing edge.** If `mem_we = 1` during a cycle, `M[mem_addr] ← mem_wdata` on the edge that ends it. That only happens in `S_MEM_WR0`. The address was loaded into MAR one edge earlier, and in that state `mem_wdata` is `R[IR[11:9]]`, read combinationally from registers. So both are valid for the whole write cycle.
 4. **Read-during-write doesn't matter.** `adam16_sram` returns the *old* contents during a write (read-first). The core never uses `mem_rdata` in the cycle after a write: `S_MEM_WR0` is always followed by `S_IF0`, which ignores it. So a replacement memory can use read-first, write-first or no-change behaviour.
 5. **Exactly one cycle of latency is required.** A memory with an extra output register (two-cycle read, for example block RAM with its output register enabled) needs one more wait state in fetch (`S_IF1`) and in loads (`S_MEM_RD0`).
 
@@ -48,8 +48,8 @@ All three come from RTL simulation of the `sum_array` program (`fpga/mem/adam16_
 
 ![ST timing](figures/timing_store.svg)
 
-- **Cycles 180–182.** Fetch. `mem_wdata` is just register-file read port 2, so it follows whatever register `IR[11:9]` names: R1 while IR still holds the previous BRp, then R3 once the ST is in IR (cycle 183).
+- **Cycles 180–184.** Fetch, decode and address. `mem_wdata` is just register-file read port 1, which by default reads `R[IR[5:3]]`. That happens to be 0 here (R7, then R0), and nothing uses it.
 - **Cycle 184 (`S_EX_EA`).** PC† + 6 = `0x0010` is loaded into MAR.
-- **Cycle 185 (`S_MEM_WR0`).** `mem_we = 1`, so the closing edge writes `0x000F` to `M[0x0010]`.
+- **Cycle 185 (`S_MEM_WR0`).** The controller sets `ra1_sel = 01`, so `mem_wdata` becomes the store source R3 = `0x000F`; with `mem_we = 1` the closing edge writes it to `M[0x0010]`.
 - **Cycle 186 (`S_IF0`).** `mem_rdata` shows the read-first behaviour. The read sampled during the write cycle returns the *old* `M[0x0010]`, which was never initialised (X in simulation).
 - **Cycle 187.** The new value `0x000F` appears, one cycle later. Nothing in the core consumes either of these reads.

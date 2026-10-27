@@ -26,7 +26,7 @@ module tb_control_fsm_spec;
 
   logic        pc_we, ir_we, mar_we, mdr_we, reg_we, flag_we, mem_we;
   logic [2:0]  reg_dst;
-  logic        ra2_sel;
+  logic [1:0]  ra1_sel;
   logic [1:0]  wb_sel;
   logic [3:0]  alu_op;
   logic [1:0]  alu_a_sel;
@@ -35,17 +35,17 @@ module tb_control_fsm_spec;
   logic [1:0]  mar_src_sel;
 
   adam16_control_fsm dut (
-    .clk(clk), .rst(rst), .ir(ir), .N(N), .Z(Z), .P(P),
+    .clk(clk), .rst(rst), .ce(1'b1), .ir(ir), .N(N), .Z(Z), .P(P),
     .pc_we(pc_we), .ir_we(ir_we), .mar_we(mar_we), .mdr_we(mdr_we),
     .reg_we(reg_we), .flag_we(flag_we), .mem_we(mem_we),
-    .reg_dst(reg_dst), .ra2_sel(ra2_sel), .wb_sel(wb_sel), .alu_op(alu_op),
+    .reg_dst(reg_dst), .ra1_sel(ra1_sel), .wb_sel(wb_sel), .alu_op(alu_op),
     .alu_a_sel(alu_a_sel), .alu_b_sel(alu_b_sel),
     .pc_src_sel(pc_src_sel), .mar_src_sel(mar_src_sel)
   );
 
   // Packing order must match OUTPUTS in docs/tools/fsm_spec.py (MSB first).
-  wire [26:0] outs = {pc_we, ir_we, mar_we, mdr_we, reg_we, flag_we, mem_we,
-                      reg_dst, ra2_sel, wb_sel, alu_op, alu_a_sel, alu_b_sel,
+  wire [27:0] outs = {pc_we, ir_we, mar_we, mdr_we, reg_we, flag_we, mem_we,
+                      reg_dst, ra1_sel, wb_sel, alu_op, alu_a_sel, alu_b_sel,
                       pc_src_sel, mar_src_sel};
 
   task automatic tick();
@@ -53,11 +53,11 @@ module tb_control_fsm_spec;
     #5 clk = 0;
   endtask
 
-  task automatic show_fields(input string tag, input logic [26:0] o);
+  task automatic show_fields(input string tag, input logic [27:0] o);
     $display("      %s pc_we=%b ir_we=%b mar_we=%b mdr_we=%b reg_we=%b flag_we=%b mem_we=%b",
-             tag, o[26], o[25], o[24], o[23], o[22], o[21], o[20]);
-    $display("      %s reg_dst=%b ra2_sel=%b wb_sel=%b alu_op=%b alu_a_sel=%b alu_b_sel=%b pc_src_sel=%b mar_src_sel=%b",
-             tag, o[19:17], o[16], o[15:14], o[13:10], o[9:8], o[7:5], o[4:2], o[1:0]);
+             tag, o[27], o[26], o[25], o[24], o[23], o[22], o[21]);
+    $display("      %s reg_dst=%b ra1_sel=%b wb_sel=%b alu_op=%b alu_a_sel=%b alu_b_sel=%b pc_src_sel=%b mar_src_sel=%b",
+             tag, o[20:18], o[17:16], o[15:14], o[13:10], o[9:8], o[7:5], o[4:2], o[1:0]);
   endtask
 
   initial begin
@@ -66,7 +66,7 @@ module tb_control_fsm_spec;
     logic [15:0] v_ir;
     logic [2:0]  v_nzp;
     int          v_cyc, v_state;
-    logic [26:0] v_outs;
+    logic [27:0] v_outs;
 
     n_cycles = 0; n_instr = 0; n_fail = 0;
     if (!$value$plusargs("VECTORS=%s", path)) path = "build/fsm_vectors.txt";

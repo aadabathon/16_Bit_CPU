@@ -94,10 +94,23 @@ def connections(mod, mods):
     return "\n".join(rows)
 
 
+def module_index(mods):
+    """The module table on docs/interfaces/README.md."""
+    rows = ["| Module | File | Clocked | In / out | Page |", "|---|---|---|---|---|"]
+    for name, mod in sorted(mods.items(), key=lambda kv: kv[1].file):
+        ins = sum(p.dir == "in" for p in mod.ports)
+        outs = len(mod.ports) - ins
+        clocked = "yes" if any(p.name == "clk" for p in mod.ports) else "no"
+        rows.append(f"| `{name}` | `{mod.file}` | {clocked} | {ins} / {outs} | [{name}]({name}.md) |")
+    return "\n".join(rows)
+
+
 def main():
     check = "--check" in sys.argv
     mods = load_all()
     stale = []
+    if not mdblocks.update(os.path.join(PAGES, "README.md"), {"module-index": module_index(mods)}, check):
+        stale.append("README")
     for name, mod in mods.items():
         path = os.path.join(PAGES, name + ".md")
         if not os.path.exists(path):

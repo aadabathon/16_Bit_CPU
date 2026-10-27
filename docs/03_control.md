@@ -38,13 +38,13 @@ States and next-state conditions only. A `*` marks a state whose outputs depend 
 
 ### ALU, immediate and LEA
 
-One state, eight cases. The cases differ in the ALU operation, the B operand, and whether the register file and the flags are written. CMP writes the flags but not DR, and LEA writes DR but not the flags.
+One state, eight cases. The cases differ in the ALU operation, the B operand, and whether the register file and the flags are written. CMP writes the flags but not DR (its ALU result is a signed −1/0/+1 compare), and LEA writes DR but not the flags.
 
 ![S_EX_ALU detail](figures/fsm_alu.svg)
 
 ### Loads and stores
 
-`S_EX_EA` computes the address in the ALU and loads it into MAR: PC-relative for LD/ST, base + offset for LDR/STR. Loads then wait a cycle for the memory, latch MDR, and write the register. A store writes memory in one cycle; its data is register-file port 2, `R[IR[11:9]]`.
+`S_EX_EA` computes the address in the ALU and loads it into MAR: PC-relative for LD/ST, base + offset for LDR/STR. Loads then wait a cycle for the memory, latch MDR, and write the register. A store writes memory in one cycle; its data comes from register-file port 1, which `ra1_sel = 01` points at `R[IR[11:9]]`.
 
 ![Load/store detail](figures/fsm_mem.svg)
 
@@ -109,7 +109,7 @@ The same information as the detail diagrams, one row per arc. Codes match the [d
 - `DR` = `IR[11:9]`; `{0,fn}` = `{1'b0, IR[2:0]}`.
 
 <!-- BEGIN GENERATED: fsm-control-table -->
-| State | Case | `pc_we` | `ir_we` | `mar_we` | `mdr_we` | `reg_we` | `flag_we` | `mem_we` | `reg_dst` | `ra2_sel` | `wb_sel` | `alu_op` | `alu_a_sel` | `alu_b_sel` | `pc_src_sel` | `mar_src_sel` | Next |
+| State | Case | `pc_we` | `ir_we` | `mar_we` | `mdr_we` | `reg_we` | `flag_we` | `mem_we` | `reg_dst` | `ra1_sel` | `wb_sel` | `alu_op` | `alu_a_sel` | `alu_b_sel` | `pc_src_sel` | `mar_src_sel` | Next |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | `S_IF0` |  | · | · | 1 | · | · | · | · | · | · | · | · | · | · | · | `00` | `S_IF1` |
 | `S_IF1` |  | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | `S_IF2` |
@@ -121,11 +121,11 @@ The same information as the detail diagrams, one row per arc. Codes match the [d
 |  | op = JSR | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | `S_EX_JSR` |
 |  | op = TRAP | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | `S_EX_TRAP` |
 |  | op ∈ {xE, xF} | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | `S_IF0` |
-| `S_EX_ALU` | op = ALU0, fn ∈ {ADD, SUB, AND, OR, XOR, MOV} | · | · | · | · | 1 | 1 | · | `DR` | · | `00` | `{0,fn}` | `00` | `000` | · | · | `S_IF0` |
+| `S_EX_ALU` | op = ALU0, fn ∈ {ADD, SUB, AND, OR, XOR, MOV} | · | · | · | · | 1 | 1 | · | `DR` | `00` | `00` | `{0,fn}` | `00` | `000` | · | · | `S_IF0` |
 |  | op = ALU0, fn ∈ {NOT, NEG} | · | · | · | · | 1 | 1 | · | `DR` | · | `00` | `{0,fn}` | `00` | `111` | · | · | `S_IF0` |
-|  | op = ALU1, fn ∈ {NAND, NOR} | · | · | · | · | 1 | 1 | · | `DR` | · | `00` | `{1,fn}` | `00` | `000` | · | · | `S_IF0` |
+|  | op = ALU1, fn ∈ {NAND, NOR} | · | · | · | · | 1 | 1 | · | `DR` | `00` | `00` | `{1,fn}` | `00` | `000` | · | · | `S_IF0` |
 |  | op = ALU1, fn ∈ {INC, DEC, LSL1, LSR1, ASR1} | · | · | · | · | 1 | 1 | · | `DR` | · | `00` | `{1,fn}` | `00` | `111` | · | · | `S_IF0` |
-|  | op = ALU1, fn = CMP | · | · | · | · | · | 1 | · | `DR` | · | `00` | `1111` | `00` | `000` | · | · | `S_IF0` |
+|  | op = ALU1, fn = CMP | · | · | · | · | · | 1 | · | `DR` | `00` | `00` | `1111` | `00` | `000` | · | · | `S_IF0` |
 |  | op = ADDI | · | · | · | · | 1 | 1 | · | `DR` | · | `00` | `0000` | `00` | `001` | · | · | `S_IF0` |
 |  | op = ANDI | · | · | · | · | 1 | 1 | · | `DR` | · | `00` | `0011` | `00` | `010` | · | · | `S_IF0` |
 |  | op = LEA | · | · | · | · | 1 | · | · | `DR` | · | `00` | `0000` | `01` | `011` | · | · | `S_IF0` |
@@ -136,11 +136,11 @@ The same information as the detail diagrams, one row per arc. Codes match the [d
 | `S_MEM_RD0` |  | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | `S_MEM_RD1` |
 | `S_MEM_RD1` |  | · | · | · | 1 | · | · | · | · | · | · | · | · | · | · | · | `S_WB_LD` |
 | `S_WB_LD` |  | · | · | · | · | 1 | · | · | `DR` | · | `01` | · | · | · | · | · | `S_IF0` |
-| `S_MEM_WR0` |  | · | · | · | · | · | · | 1 | · | 0 | · | · | · | · | · | · | `S_IF0` |
+| `S_MEM_WR0` |  | · | · | · | · | · | · | 1 | · | `01` | · | · | · | · | · | · | `S_IF0` |
 | `S_EX_BR` | take_br | 1 | · | · | · | · | · | · | · | · | · | · | · | · | `001` | · | `S_IF0` |
 |  | !take_br | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | `S_IF0` |
 | `S_EX_JMP` | op = JMP | 1 | · | · | · | · | · | · | · | · | · | · | · | · | `011` | · | `S_IF0` |
-|  | op = RET | 1 | · | · | · | · | · | · | · | 1 | · | · | · | · | `100` | · | `S_IF0` |
+|  | op = RET | 1 | · | · | · | · | · | · | · | `10` | · | · | · | · | `100` | · | `S_IF0` |
 | `S_EX_JSR` | j = 0  (JSR) | 1 | · | · | · | 1 | · | · | `111` | · | `10` | · | · | · | `010` | · | `S_IF0` |
 |  | j = 1  (JSRR) | 1 | · | · | · | 1 | · | · | `111` | · | `10` | · | · | · | `011` | · | `S_IF0` |
 | `S_EX_TRAP` |  | 1 | · | · | · | 1 | · | · | `111` | · | `10` | · | · | · | `101` | · | `S_IF0` |

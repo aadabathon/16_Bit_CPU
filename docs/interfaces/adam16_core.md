@@ -2,7 +2,7 @@
 
 **Source:** `rtl/adam16_core.sv` · **Instantiated in:** `basys3_top` (as `u_cpu`), `tb_adam16`, `tb_adam16_gate` · **Contains:** `adam16_control_fsm` (`u_ctrl`), `adam16_datapath` (`u_dp`)
 
-The processor. It has a single memory port: synchronous, word-addressed, with a one-cycle read latency, shared by instruction fetch and data access. It also has a set of debug outputs. Inside, it only wires the controller to the datapath and taps the debug signals; there is no logic of its own.
+The multicycle processor (5–8 cycles per instruction). It has a single memory port: synchronous, word-addressed, with a one-cycle read latency, shared by instruction fetch and data access. It also has a set of debug outputs. Inside, it only wires the controller to the datapath and taps the debug signals; there is no logic of its own.
 
 ![adam16_core symbol](../figures/symbols/adam16_core.svg)
 
@@ -11,10 +11,11 @@ The processor. It has a single memory port: synchronous, word-addressed, with a 
 | Signal | Dir | Width | Type | Reset | Description |
 |---|---|---|---|---|---|
 | `clk` | in | 1 | clock | — | Core clock. Every register in the core updates on the rising edge |
-| `rst` | in | 1 | reset | — | One rising edge with `rst = 1`: FSM → `S_IF0`; PC, IR, MAR, MDR, R0–R7 → `0x0000`; N Z P → `0 1 0` |
+| `rst` | in | 1 | reset | — | One rising edge with `rst = 1` (`ce` is ignored): FSM → `S_IF0`; PC, IR, MAR, MDR, R0–R7 → `0x0000`; N Z P → `0 1 0` |
+| `ce` | in | 1 | data | — | Clock enable. The core advances one cycle on each rising edge with `ce = 1` and holds otherwise. Drive the memory's `en` from the same signal. Tie to 1 to run at full speed; `basys3_top` drives it from the step button |
 | `mem_rdata` | in | 16 | data | — | Read data. Must equal `M[mem_addr]` as presented during the *previous* cycle. Latched into IR in `S_IF2` and into MDR in `S_MEM_RD1`; ignored in every other state |
 | `mem_addr` | out | 16 | reg | `0x0000` | Memory address (= MAR). Changes only on edges that end `S_IF0` or `S_EX_EA` |
-| `mem_wdata` | out | 16 | comb | — | Write data = register-file read port 2: `R[IR[11:9]]`, or R7 while `ra2_sel = 1`. Only meaningful while `mem_we = 1` |
+| `mem_wdata` | out | 16 | comb | — | Write data = register-file read port 1, which the controller points at the store source `R[IR[11:9]]` in `S_MEM_WR0`. Only meaningful while `mem_we = 1` |
 | `mem_we` | out | 1 | comb | — | Write enable: 1 only in `S_MEM_WR0`. Decoded from the state register alone. Memory writes `M[mem_addr] ← mem_wdata` on the edge that ends that cycle |
 | `dbg_pc` | out | 16 | reg | `0x0000` | PC (= PC† from `S_ID` onward) |
 | `dbg_ir` | out | 16 | reg | `0x0000` | IR |
@@ -38,6 +39,7 @@ Every port and every internal net, with the instance pin or logic that drives it
 |---|---|---|---|
 | `clk` | 1 | port `clk` | `u_ctrl.clk`, `u_dp.clk` |
 | `rst` | 1 | port `rst` | `u_ctrl.rst`, `u_dp.rst` |
+| `ce` | 1 | port `ce` | `u_ctrl.ce`, `u_dp.ce` |
 | `mem_rdata` | 16 | port `mem_rdata` | `u_dp.mem_rdata` |
 | `mem_addr` | 16 | `u_dp.mem_addr` | port `mem_addr` |
 | `mem_wdata` | 16 | `u_dp.mem_wdata` | port `mem_wdata` |
@@ -59,7 +61,7 @@ Every port and every internal net, with the instance pin or logic that drives it
 | `reg_we` | 1 | `u_ctrl.reg_we` | `u_dp.reg_we` |
 | `flag_we` | 1 | `u_ctrl.flag_we` | `u_dp.flag_we` |
 | `reg_dst` | 3 | `u_ctrl.reg_dst` | `u_dp.reg_dst` |
-| `ra2_sel` | 1 | `u_ctrl.ra2_sel` | `u_dp.ra2_sel` |
+| `ra1_sel` | 2 | `u_ctrl.ra1_sel` | `u_dp.ra1_sel` |
 | `wb_sel` | 2 | `u_ctrl.wb_sel` | `u_dp.wb_sel` |
 | `alu_op` | 4 | `u_ctrl.alu_op` | `u_dp.alu_op` |
 | `alu_a_sel` | 2 | `u_ctrl.alu_a_sel` | `u_dp.alu_a_sel` |
@@ -77,6 +79,7 @@ Every port and every internal net, with the instance pin or logic that drives it
 adam16_core u_adam16_core (
   .clk       (clk),        // in   1
   .rst       (rst),        // in   1
+  .ce        (ce),         // in   1
   .mem_rdata (mem_rdata),  // in  16
   .mem_addr  (mem_addr),   // out 16
   .mem_wdata (mem_wdata),  // out 16

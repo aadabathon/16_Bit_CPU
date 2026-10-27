@@ -1,6 +1,7 @@
 module adam16_datapath (
   input  logic        clk,
   input  logic        rst,
+  input  logic        ce,
 
   input  logic [15:0] mem_rdata,
   output logic [15:0] mem_addr,
@@ -13,7 +14,7 @@ module adam16_datapath (
   input  logic        reg_we,
   input  logic        flag_we,
   input  logic [2:0]  reg_dst,
-  input  logic        ra2_sel,
+  input  logic [1:0]  ra1_sel,
   input  logic [1:0]  wb_sel,
   input  logic [3:0]  alu_op,
   input  logic [1:0]  alu_a_sel,
@@ -34,8 +35,8 @@ module adam16_datapath (
 
   logic [15:0] mar, mdr;
 
-  logic [2:0]  ra0, ra1, ra2;
-  logic [15:0] rd0, rd1, rd2;
+  logic [2:0]  ra0, ra1;
+  logic [15:0] rd0, rd1;
 
   logic [15:0] alu_a, alu_b, alu_y;
 
@@ -56,20 +57,21 @@ module adam16_datapath (
   assign trapvect12 = ir[11:0];
 
   adam16_regfile rf(
-    .clk(clk), .rst(rst),
-    .ra0(ra0), .ra1(ra1), .ra2(ra2),
-    .rd0(rd0), .rd1(rd1), .rd2(rd2),
+    .clk(clk), .rst(rst), .ce(ce),
+    .ra0(ra0), .ra1(ra1),
+    .rd0(rd0), .rd1(rd1),
     .we(reg_we), .wa(reg_dst), .wd(wb_data)
   );
 
-  // ra0 = SR1 / BaseR (always [8:6])
-  // ra1 = SR2          (always [5:3])
-  // ra2 = store data ([11:9]) for ST/STR, or R7 for RET (ra2_sel=1)
+  // ra0 = SR1 / BaseR, always IR[8:6]
+  // ra1 = SR2 (IR[5:3]), store source (IR[11:9]) or R7 for RET, by ra1_sel
   always_comb begin
     ra0 = ir[8:6];
-    ra1 = ir[5:3];
-    if (ra2_sel) ra2 = 3'b111;
-    else         ra2 = ir[11:9];
+    unique case (ra1_sel)
+      2'b01:   ra1 = ir[11:9];
+      2'b10:   ra1 = 3'b111;
+      default: ra1 = ir[5:3];
+    endcase
   end
 
   always_comb begin
@@ -113,7 +115,7 @@ module adam16_datapath (
       3'b001:  pc_next = pc + sext9(off9);        // BRx
       3'b010:  pc_next = pc + sext11(pcoff11);    // JSR
       3'b011:  pc_next = rd0;                     // JMP / JSRR (BaseR)
-      3'b100:  pc_next = rd2;                     // RET (ra2_sel=1 -> R7)
+      3'b100:  pc_next = rd1;                     // RET (ra1_sel=10 -> R7)
       3'b101:  pc_next = {4'b0000, trapvect12};   // TRAP
       default: pc_next = pc;
     endcase
@@ -138,7 +140,7 @@ module adam16_datapath (
       N   <= 1'b0;
       Z   <= 1'b1;
       P   <= 1'b0;
-    end else begin
+    end else if (ce) begin
       if (pc_we)  pc  <= pc_next;
       if (ir_we)  ir  <= mem_rdata;
       if (mar_we) mar <= mar_next;
@@ -153,7 +155,7 @@ module adam16_datapath (
   end
 
   assign mem_addr  = mar;
-  assign mem_wdata = rd2;
+  assign mem_wdata = rd1;
   assign alu_y_o    = alu_y;
 
 endmodule

@@ -15,7 +15,7 @@ Every register below updates on the rising clock edge when its enable is high, a
 | MAR | 16 | `0x0000` | `mar_we` | `mar_next` (MAR mux) | `mem_addr` |
 | MDR | 16 | `0x0000` | `mdr_we` | `mem_rdata` | write-back mux 1 |
 | N, Z, P | 1 each | `0, 1, 0` | `flag_we` | from `wb_data` (below) | controller, `dbg_n/z/p` |
-| R0–R7 | 8 × 16 | `0x0000` | `reg_we` | `R[reg_dst] ← wb_data` | read ports `rd0`, `rd1`, `rd2` |
+| R0–R7 | 8 × 16 | `0x0000` | `reg_we` | `R[reg_dst] ← wb_data` | read ports `rd0`, `rd1` |
 
 ## Muxes and select codes
 
@@ -31,7 +31,7 @@ When these are selected, PC already holds PC†, because PC was incremented in `
 | `001` | `PC + SEXT(IR[8:0])` | `S_EX_BR` when the branch is taken |
 | `010` | `PC + SEXT(IR[10:0])` | `S_EX_JSR`, JSR form (`IR[11] = 0`) |
 | `011` | `rd0` = `R[IR[8:6]]` | `S_EX_JMP` (JMP), `S_EX_JSR` JSRR form (`IR[11] = 1`) |
-| `100` | `rd2` = R7 (with `ra2_sel = 1`) | `S_EX_JMP` (RET) |
+| `100` | `rd1` = R7 (with `ra1_sel = 10`) | `S_EX_JMP` (RET) |
 | `101` | `ZEXT(IR[11:0])` | `S_EX_TRAP` |
 | `110`, `111` | `PC` (hold) | unused |
 
@@ -74,20 +74,22 @@ When these are selected, PC already holds PC†, because PC was incremented in `
 | `10` | `PC` (= PC†, the return address) | `S_EX_JSR`, `S_EX_TRAP` (written to R7) |
 | `11` | `16'h0000` | unused |
 
-### Register-file read port 2: `ra2_sel`
+### Register-file read port 1: `ra1_sel`
 
-| Value | `ra2` | Used for |
+| Code | `ra1` | Used for |
 |---|---|---|
-| `0` | `IR[11:9]` | default. ST/STR source register, which drives `mem_wdata` |
-| `1` | `3'b111` (R7) | `S_EX_JMP` when the opcode is RET |
+| `00` | `IR[5:3]` | default. SR2 for two-operand ALU ops and CMP |
+| `01` | `IR[11:9]` | `S_MEM_WR0`: the ST/STR source register, which drives `mem_wdata` |
+| `10` | `3'b111` (R7) | `S_EX_JMP` when the opcode is RET |
+| `11` | `IR[5:3]` | unused |
 
-The other register addresses are fixed IR fields: `ra0 = IR[8:6]`, `ra1 = IR[5:3]`. The write address `wa = reg_dst` comes from the controller (`IR[11:9]` or `3'b111`).
+Port 0's address is always `ra0 = IR[8:6]` (SR1 / BaseR). The write address `wa = reg_dst` comes from the controller (`IR[11:9]` or `3'b111`).
 
 ## ALU: `alu_op[3:0]`
 
 The ALU is pure combinational logic with 16 operations. `alu_op = {group, funct}`, which for ALU0/ALU1 instructions is exactly `{IR[12], IR[2:0]}`, because the two opcodes differ only in bit 12. Everything else uses ADD (`0000`), except ANDI, which uses AND (`0011`). The full operation table is on the [`adam16_alu` interface page](interfaces/adam16_alu.md#operations).
 
-There is no carry or overflow output. See [known issues](06_known_issues.md#1-cmp-gives-the-wrong-answer-when-the-subtraction-overflows) for what that means for CMP.
+**CMP** (`1111`) is a signed three-way compare: the ALU returns `−1`, `0` or `+1`, so the ordinary flag logic below sets exactly N, Z or P for SR1 < SR2, SR1 = SR2 or SR1 > SR2. Because it compares instead of subtracting, it is right even where `SR1 − SR2` would overflow (for example `0x7FFF` vs `0x8000`). There is no carry or overflow output.
 
 ## Condition flags
 
@@ -101,9 +103,9 @@ The flags are computed from `wb_data`, after the write-back mux, so they always 
 
 ## Register file
 
-`adam16_regfile` is 8 × 16 bits, with three asynchronous (combinational) read ports and one synchronous write port.
+`adam16_regfile` is 8 × 16 bits, with two asynchronous (combinational) read ports and one synchronous write port. No state ever needs more than two reads at once.
 
-- **No write-to-read bypass.** A read of the register being written in the same cycle returns the *old* value. In this multi-cycle design that never matters, because the next instruction's first read is at least four cycles after the write. It *would* matter in a pipeline (see [execution timing](05_timing.md#toward-a-pipeline)).
+- **No write-to-read bypass here (`BYPASS = 0`).** A read of the register being written in the same cycle returns the *old* value. In this multicycle design that never matters, because the next instruction's first read is at least four cycles after the write. The pipelined core instantiates the same register file with `BYPASS = 1`.
 - **JSRR R7 works.** `S_EX_JSR` reads R7 through `rd0` for the new PC while writing the return address into R7. Both happen on the same clock edge, so PC gets the *old* R7, which is correct.
 - **R0 is an ordinary register.** It is cleared by reset but not hard-wired to zero. Programs that use it as a zero source (the `sum_array` example does) depend on nobody writing it.
 

@@ -34,6 +34,7 @@ module tb_adam16_gate;
   adam16_core dut (
     .clk      (clk),
     .rst      (rst),
+    .ce       (1'b1),
     .mem_rdata(mem_rdata),
     .mem_addr (mem_addr),
     .mem_wdata(mem_wdata),
@@ -43,6 +44,7 @@ module tb_adam16_gate;
   // -- Memory (external; fully observable) --
   adam16_sram imem (
     .clk  (clk),
+    .en   (1'b1),
     .we   (mem_we),
     .addr (mem_addr),
     .wdata(mem_wdata),

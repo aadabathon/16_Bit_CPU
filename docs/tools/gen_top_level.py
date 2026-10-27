@@ -76,7 +76,7 @@ for i, nm in enumerate(["PC  IR  MAR  MDR", "regfile 8x16", "ALU", "N Z P flags"
 
 # control bus FSM -> datapath
 ctrl = ["pc_we", "ir_we", "mar_we", "mdr_we", "reg_we", "flag_we", "reg_dst[2:0]",
-        "ra2_sel", "wb_sel[1:0]", "alu_op[3:0]", "alu_a_sel[1:0]", "alu_b_sel[2:0]",
+        "ra1_sel[1:0]", "wb_sel[1:0]", "alu_op[3:0]", "alu_a_sel[1:0]", "alu_b_sel[2:0]",
         "pc_src_sel[2:0]", "mar_src_sel[1:0]"]
 c.wire([(575, 205), (705, 205)], color=CTRL, sw=3)
 for i, nm in enumerate(ctrl):

@@ -1,6 +1,7 @@
 module adam16_control_fsm (
   input  logic        clk,
   input  logic        rst,
+  input  logic        ce,
   input  logic [15:0] ir,
   input  logic        N,
   input  logic        Z,
@@ -15,7 +16,7 @@ module adam16_control_fsm (
   output logic        mem_we,
 
   output logic [2:0]  reg_dst,
-  output logic        ra2_sel,
+  output logic [1:0]  ra1_sel,
   output logic [1:0]  wb_sel,
   output logic [3:0]  alu_op,
   output logic [1:0]  alu_a_sel,
@@ -63,7 +64,7 @@ module adam16_control_fsm (
 
   always_ff @(posedge clk) begin
     if (rst) state <= S_IF0;
-    else     state <= state_n;
+    else if (ce) state <= state_n;
   end
 
   always_comb begin
@@ -76,7 +77,7 @@ module adam16_control_fsm (
     mem_we      = 1'b0;
 
     reg_dst     = 3'b000;
-    ra2_sel     = 1'b0;
+    ra1_sel     = 2'b00;
     wb_sel      = 2'b00;
     alu_op      = 4'b0000;
     alu_a_sel   = 2'b00;
@@ -221,6 +222,7 @@ module adam16_control_fsm (
       // ---------------- STORE ----------------
       S_MEM_WR0: begin
         mem_we  = 1'b1;
+        ra1_sel = 2'b01;   // read port 1 <- IR[11:9], the store source -> mem_wdata
         state_n = S_IF0;
       end
 
@@ -237,7 +239,7 @@ module adam16_control_fsm (
       S_EX_JMP: begin
         pc_we = 1'b1;
         if (d.op == OP_RET) begin
-          ra2_sel    = 1'b1;    // read port 2 <- R7
+          ra1_sel    = 2'b10;   // read port 1 <- R7
           pc_src_sel = 3'b100;  // RET: PC <- rd2
         end else begin
           pc_src_sel = 3'b011;  // JMP: PC <- rd0 (BaseR)

@@ -28,7 +28,7 @@
 <polyline points="360.0,441.7 360.0,425.7" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
 <text x="360.0" y="452.7" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">mar_src_sel</text>
 <polyline points="226.0,430.0 140.0,430.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
-<text x="229.0" y="433.5" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">rd2</text>
+<text x="229.0" y="433.5" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">rd1</text>
 <text x="176.0" y="424.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">mem_wdata</text>
 <polyline points="140.0,520.0 190.0,520.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round"/>
 <text x="176.0" y="512.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">mem_rdata</text>
@@ -74,27 +74,26 @@
 <text x="547.0" y="731.5" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="9.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">zext12</text>
 <rect x="640.0" y="460.0" width="130.0" height="240.0" rx="0" fill="#eef2ff" stroke="#1e293b" stroke-width="1.4"/>
 <text x="705.0" y="480.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1e293b" style="">adam16_regfile</text>
-<text x="705.0" y="495.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">8 x 16, 3R / 1W</text>
+<text x="705.0" y="495.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">8 x 16, 2R / 1W</text>
 <text x="705.0" y="508.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">async read, sync write</text>
 <text x="705.0" y="666.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">rst: R0-R7 = 0</text>
 <text x="646.0" y="493.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">ra0</text>
-<text x="646.0" y="523.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">ra1</text>
-<text x="646.0" y="563.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">ra2</text>
+<text x="646.0" y="551.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">ra1</text>
 <text x="646.0" y="653.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">wd</text>
 <text x="764.0" y="523.5" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">rd0</text>
 <text x="764.0" y="563.5" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">rd1</text>
 <text x="675.0" y="692.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">wa</text>
-<text x="740.0" y="692.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">rd2</text>
 <polyline points="530.0,490.0 640.0,490.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
-<polyline points="530.0,520.0 640.0,520.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
-<polygon points="578.0,535.0 600.0,544.0 600.0,576.0 578.0,585.0" fill="#f1f5f9" stroke="#1e293b" stroke-width="1.4"/>
-<text x="582.0" y="551.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">0</text>
-<text x="582.0" y="576.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">1</text>
-<polyline points="530.0,548.0 578.0,548.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
-<text x="574.0" y="576.0" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="9.5" font-weight="normal" fill="#1e293b" style="">3'b111</text>
-<polyline points="600.0,560.0 640.0,560.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
-<polyline points="589.0,596.5 589.0,582.5" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
-<text x="589.0" y="607.5" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">ra2_sel</text>
+<polygon points="578.0,505.0 600.0,520.3 600.0,574.7 578.0,590.0" fill="#f1f5f9" stroke="#1e293b" stroke-width="1.4"/>
+<text x="582.0" y="522.7" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">0</text>
+<text x="582.0" y="551.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">1</text>
+<text x="582.0" y="579.3" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">2</text>
+<polyline points="530.0,520.0 560.0,520.0 560.0,519.2 578.0,519.2" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="530.0,548.0 566.0,548.0 566.0,547.5 578.0,547.5" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="574.0" y="579.3" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="9.5" font-weight="normal" fill="#1e293b" style="">3'b111</text>
+<polyline points="600.0,547.5 640.0,547.5" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="589.0,596.4 589.0,584.4" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="589.0" y="607.4" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">ra1_sel</text>
 <polyline points="675.0,720.0 675.0,702.0" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
 <text x="675.0" y="731.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">reg_dst</text>
 <polyline points="705.0,440.0 705.0,458.0" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
@@ -119,8 +118,7 @@
 <text x="806.0" y="659.8" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">sext9</text>
 <text x="806.0" y="687.2" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">sext6</text>
 <text x="806.0" y="714.8" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">16'h0</text>
-<polyline points="740.0,700.0 740.0,730.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round"/>
-<text x="740.0" y="745.5" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">rd2</text>
+<text x="774.0" y="556.5" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="9.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">rd1</text>
 <polyline points="825.0,428.0 825.0,446.0" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
 <text x="825.0" y="424.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">alu_a_sel</text>
 <polyline points="825.0,733.0 825.0,719.0" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
@@ -182,7 +180,7 @@
 <text x="490.0" y="149.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#1e293b" style="">PC + sext11</text>
 <polyline points="540.0,145.0 580.0,145.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
 <text x="576.0" y="178.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">rd0</text>
-<text x="576.0" y="208.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">rd2</text>
+<text x="576.0" y="208.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">rd1</text>
 <text x="576.0" y="238.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">zext12</text>
 <rect x="650.0" y="140.0" width="80.0" height="40.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
 <polygon points="683.0,180.0 690.0,172.0 697.0,180.0" fill="none" stroke="#1e293b" stroke-width="1.4"/>

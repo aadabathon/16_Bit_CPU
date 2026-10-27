@@ -31,6 +31,7 @@ module basys3_top (
   adam16_core u_cpu (
     .clk      (core_clk),
     .rst      (rst_clean),
+    .ce       (1'b1),
     .mem_rdata(mem_rdata),
     .mem_addr (mem_addr),
     .mem_wdata(mem_wdata),
@@ -47,6 +48,7 @@ module basys3_top (
     .INIT_FILE("C:/Users/adams/Projects/16_Bit_CPU/fpga/mem/adam16_sum_array.mem")
   ) imem (
     .clk  (core_clk),
+    .en   (1'b1),
     .we   (mem_we),
     .addr (mem_addr),
     .wdata(mem_wdata),

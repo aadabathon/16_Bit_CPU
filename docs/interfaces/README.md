@@ -15,17 +15,20 @@ basys3_top .............................. FPGA wrapper (Basys3 board)
 adam16_isa  (package)                     opcode / funct enums, decode(), sign/zero extend
 ```
 
+<!-- BEGIN GENERATED: module-index -->
 | Module | File | Clocked | In / out | Page |
 |---|---|---|---|---|
-| `adam16_core` | `rtl/adam16_core.sv` | yes | 3 / 9 | [adam16_core](adam16_core.md) |
-| `adam16_control_fsm` | `rtl/adam16_control_fsm.sv` | yes | 6 / 15 | [adam16_control_fsm](adam16_control_fsm.md) |
-| `adam16_datapath` | `rtl/adam16_datapath.sv` | yes | 17 / 8 | [adam16_datapath](adam16_datapath.md) |
-| `adam16_regfile` | `rtl/adam16_regfile.sv` | yes | 8 / 3 | [adam16_regfile](adam16_regfile.md) |
 | `adam16_alu` | `rtl/adam16_alu.sv` | no | 3 / 1 | [adam16_alu](adam16_alu.md) |
-| `adam16_sram` | `rtl/adam16_sram.sv` | yes | 4 / 1 | [adam16_sram](adam16_sram.md) |
+| `adam16_control_fsm` | `rtl/adam16_control_fsm.sv` | yes | 7 / 15 | [adam16_control_fsm](adam16_control_fsm.md) |
+| `adam16_core` | `rtl/adam16_core.sv` | yes | 4 / 9 | [adam16_core](adam16_core.md) |
+| `adam16_datapath` | `rtl/adam16_datapath.sv` | yes | 18 / 8 | [adam16_datapath](adam16_datapath.md) |
+| `adam16_regfile` | `rtl/adam16_regfile.sv` | yes | 8 / 2 | [adam16_regfile](adam16_regfile.md) |
+| `adam16_sram` | `rtl/adam16_sram.sv` | yes | 5 / 1 | [adam16_sram](adam16_sram.md) |
 | `basys3_top` | `rtl/basys3_top.sv` | yes | 4 / 1 | [basys3_top](basys3_top.md) |
 | `debounce` | `rtl/debounce.sv` | yes | 2 / 2 | [debounce](debounce.md) |
-| `adam16_isa` | `rtl/adam16_isa.sv` | package | — | [adam16_isa](adam16_isa.md) |
+<!-- END GENERATED: module-index -->
+
+Package: [`adam16_isa`](adam16_isa.md) (`rtl/adam16_isa.sv`): opcode and funct enums, `decode()`, sign/zero extend.
 
 ## How to read a port table
 

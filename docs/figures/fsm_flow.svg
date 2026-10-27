@@ -97,9 +97,9 @@
 <title>S_EX_JMP&#45;&gt;out3</title>
 <path fill="none" stroke="#334155" stroke-width="1.1" d="M529.03,-414.61C591.74,-412.86 698.74,-409.86 758.11,-408.2"/>
 <polygon fill="#334155" stroke="#334155" stroke-width="1.1" points="758.39,-410.82 765.81,-407.98 758.24,-405.57 758.39,-410.82"/>
-<text text-anchor="start" x="584.5" y="-443.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">op = RET</text>
-<text text-anchor="start" x="584.5" y="-429.5" font-family="Courier,monospace" font-size="10.00">/ pc_we, ra2_sel</text>
-<text text-anchor="start" x="584.5" y="-416.5" font-family="Courier,monospace" font-size="10.00"> &#160;pc_src_sel=100 (R7)</text>
+<text text-anchor="start" x="575.5" y="-443.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">op = RET</text>
+<text text-anchor="start" x="575.5" y="-429.5" font-family="Courier,monospace" font-size="10.00">/ pc_we, ra1_sel=10 (R7)</text>
+<text text-anchor="start" x="575.5" y="-416.5" font-family="Courier,monospace" font-size="10.00"> &#160;pc_src_sel=100 (R7)</text>
 </g>
 <!-- S_EX_JSR -->
 <g id="node4" class="node">

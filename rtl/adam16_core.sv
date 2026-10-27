@@ -1,6 +1,7 @@
 module adam16_core (
   input  logic        clk,
   input  logic        rst,
+  input  logic        ce,          // clock enable: 1 = advance on this edge
   input  logic [15:0] mem_rdata,
   output logic [15:0] mem_addr,
   output logic [15:0] mem_wdata,
@@ -15,7 +16,7 @@ module adam16_core (
 );
   logic pc_we, ir_we, mar_we, mdr_we, reg_we, flag_we;
   logic [2:0] reg_dst;
-  logic       ra2_sel;
+  logic [1:0] ra1_sel;
   logic [1:0] wb_sel;
   logic [3:0] alu_op;
   logic [1:0] alu_a_sel;
@@ -31,6 +32,7 @@ module adam16_core (
   adam16_control_fsm u_ctrl(
     .clk(clk),
     .rst(rst),
+    .ce(ce),
     .ir(ir),
     .N(N),
     .Z(Z),
@@ -43,7 +45,7 @@ module adam16_core (
     .flag_we(flag_we),
     .mem_we(mem_we),
     .reg_dst(reg_dst),
-    .ra2_sel(ra2_sel),
+    .ra1_sel(ra1_sel),
     .wb_sel(wb_sel),
     .alu_op(alu_op),
     .alu_a_sel(alu_a_sel),
@@ -55,6 +57,7 @@ module adam16_core (
   adam16_datapath u_dp(
     .clk(clk),
     .rst(rst),
+    .ce(ce),
     .mem_rdata(mem_rdata),
     .mem_addr(mem_addr),
     .mem_wdata(mem_wdata),
@@ -65,7 +68,7 @@ module adam16_core (
     .reg_we(reg_we),
     .flag_we(flag_we),
     .reg_dst(reg_dst),
-    .ra2_sel(ra2_sel),
+    .ra1_sel(ra1_sel),
     .wb_sel(wb_sel),
     .alu_op(alu_op),
     .alu_a_sel(alu_a_sel),

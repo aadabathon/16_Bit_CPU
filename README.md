@@ -32,7 +32,7 @@ adam16_core
 ├── adam16_control_fsm   (14-state FSM; the only block that decodes the opcode)
 │   └── [imports] adam16_isa
 └── adam16_datapath      (PC, IR, MAR, MDR; ALU; register file wiring)
-    ├── adam16_regfile   (8 × 16-bit, 3 read ports / 1 write port)
+    ├── adam16_regfile   (8 × 16-bit, 2 read ports / 1 write port)
     └── adam16_alu       (combinational; two-group operation select)
     └── [imports] adam16_isa
 
@@ -101,7 +101,7 @@ All ALU0 operations write condition flags {N, Z, P}.
 
 ### ALU Group 1 — opcode `0001`
 
-All ALU1 operations that produce a result write condition flags. CMP writes flags only (no register writeback).
+All ALU1 operations that produce a result write condition flags. CMP writes flags only (no register writeback). It is a true signed comparison, so it is correct even where `SR1 − SR2` would overflow (e.g. `0x7FFF` vs `0x8000` gives P).
 
 | Mnemonic | funct | Operation |
 |---|---|---|
@@ -112,7 +112,7 @@ All ALU1 operations that produce a result write condition flags. CMP writes flag
 | `LSL1 DR, SR1` | `100` | DR ← SR1 << 1 |
 | `LSR1 DR, SR1` | `101` | DR ← SR1 >> 1 (logical, fills 0) |
 | `ASR1 DR, SR1` | `110` | DR ← SR1 >>> 1 (arithmetic, fills MSB) |
-| `CMP  SR1, SR2` | `111` | flags ← sign(SR1 − SR2) ; no writeback |
+| `CMP  SR1, SR2` | `111` | signed compare: N if SR1 < SR2, Z if equal, P if SR1 > SR2 ; no writeback |
 
 ### Immediate Instructions
 
@@ -189,7 +189,7 @@ Detailed *condition / output* bubble diagrams for every arc: [docs/03_control.md
 See [docs/02_datapath.md](docs/02_datapath.md) for the full diagram and every select code.
 
 - **No opcode decode in the datapath**: it only slices fixed IR fields; every opcode-dependent choice is a select from the FSM.
-- **3-read-port register file**: SR1 / BaseR is always IR[8:6]; SR2 is IR[5:3]; the third port supplies store data (IR[11:9]) or R7 (RET, `ra2_sel = 1`).
+- **2-read-port register file**: port 0 is always SR1 / BaseR (IR[8:6]); port 1 reads SR2 (IR[5:3]), the store source (IR[11:9]) or R7 (RET), chosen by `ra1_sel`.
 - **PC mux** (6 sources, `pc_src_sel[2:0]`): PC+1, PC+SEXT(off9), PC+SEXT(off11), BaseR, R7, ZEXT(tvect12).
 - **ALU** (`alu_op[3:0] = {group, funct}`): A = SR1/BaseR or PC; B = SR2, SEXT(imm6), ZEXT(imm6), SEXT(off9), SEXT(off6) or 0.
 - **Writeback mux** (3 sources): ALU result, MDR (loads), PC (JSR / TRAP link address saved to R7).
@@ -294,7 +294,7 @@ LOOP:
         ADD  R3, R3, R4    ; 0x0004 — R3 += R4
         INC  R1, R1        ; 0x0005 — R1++
         DEC  R2, R2        ; 0x0006 — R2--
-        CMP  R2, R0        ; 0x0007 — flags ← sign(R2 − 0)
+        CMP  R2, R0        ; 0x0007 — flags ← compare(R2, 0)
         BRp  LOOP          ; 0x0008 — if R2 > 0, jump to LOOP
         ST   R3, +6        ; 0x0009 — mem[PC†(0xA) + 6] = mem[0x0010] = R3
         TRAP 0x025         ; 0x000A — halt
