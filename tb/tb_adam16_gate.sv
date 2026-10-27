@@ -1,12 +1,12 @@
 `timescale 1ns/1ps
 
 // =============================================================================
-//  tb_cpu16_gate — POST-SYNTHESIS (gate-level) testbench for the 16-bit core.
+//  tb_adam16_gate — POST-SYNTHESIS (gate-level) testbench for the 16-bit core.
 //
-//  Difference from the RTL testbench (tb_cpu16.sv):
+//  Difference from the RTL testbench (tb_adam16.sv):
 //  Synthesis FLATTENS the design — the module hierarchy (u_dp, u_ctrl, rf) and
 //  the register-file array (rf.r[]) do not survive as navigable objects. Only
-//  signals declared at the top level of cpu16_core survive as flat references
+//  signals declared at the top level of adam16_core survive as flat references
 //  (pc, ir, and the FSM state). The register file is gone as an array.
 //
 //  Consequently this TB validates BLACK-BOX: every test program writes its
@@ -19,7 +19,7 @@
 //  If `state` did not survive as a flat bus, see the ALT halt block below.
 // =============================================================================
 
-module tb_cpu16_gate;
+module tb_adam16_gate;
 
   // -- Clock and reset --
   logic clk = 0;
@@ -31,7 +31,7 @@ module tb_cpu16_gate;
   logic        mem_we;
 
   // -- DUT (flattened gate netlist) --
-  cpu16_core dut (
+  adam16_core dut (
     .clk      (clk),
     .rst      (rst),
     .mem_rdata(mem_rdata),
@@ -41,7 +41,7 @@ module tb_cpu16_gate;
   );
 
   // -- Memory (external; fully observable) --
-  SramSBC imem (
+  adam16_sram imem (
     .clk  (clk),
     .we   (mem_we),
     .addr (mem_addr),
@@ -223,7 +223,7 @@ module tb_cpu16_gate;
   // =====================================================
   initial begin
     $display("================================================");
-    $display(" CPU16 POST-SYNTH testbench (black-box / memory)");
+    $display(" adam16 POST-SYNTH testbench (black-box / memory)");
     $display("================================================");
 
     rst = 1;

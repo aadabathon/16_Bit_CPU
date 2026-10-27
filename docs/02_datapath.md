@@ -1,6 +1,6 @@
 # 2. Datapath
 
-![cpu16_datapath block diagram](figures/datapath.svg)
+![adam16_datapath block diagram](figures/datapath.svg)
 
 How to read the diagram: wires connect only at dots. An *italic* name at a mux input connects to the net with the same name (`PC`, `rd0`, `rd2`, `sext9`, …). Dashed orange lines are control inputs from the FSM, and solid orange arrows are status outputs back to it.
 
@@ -19,7 +19,7 @@ Every register below updates on the rising clock edge when its enable is high, a
 
 ## Muxes and select codes
 
-These tables are the encoding contract between `cpu16_control_fsm` and `cpu16_datapath`. The *Used in* column lists every state that selects that input. In any other state the select sits at its default of 0, and its value doesn't matter because the register it feeds isn't enabled.
+These tables are the encoding contract between `adam16_control_fsm` and `adam16_datapath`. The *Used in* column lists every state that selects that input. In any other state the select sits at its default of 0, and its value doesn't matter because the register it feeds isn't enabled.
 
 ### PC mux: `pc_src_sel[2:0]` → `pc_next`
 
@@ -85,7 +85,7 @@ The other register addresses are fixed IR fields: `ra0 = IR[8:6]`, `ra1 = IR[5:3
 
 ## ALU: `alu_op[3:0]`
 
-The ALU is pure combinational logic with 16 operations. `alu_op = {group, funct}`, which for ALU0/ALU1 instructions is exactly `{IR[12], IR[2:0]}`, because the two opcodes differ only in bit 12. Everything else uses ADD (`0000`), except ANDI, which uses AND (`0011`). The full operation table is on the [`cpu16_alu` interface page](interfaces/cpu16_alu.md#operations).
+The ALU is pure combinational logic with 16 operations. `alu_op = {group, funct}`, which for ALU0/ALU1 instructions is exactly `{IR[12], IR[2:0]}`, because the two opcodes differ only in bit 12. Everything else uses ADD (`0000`), except ANDI, which uses AND (`0011`). The full operation table is on the [`adam16_alu` interface page](interfaces/adam16_alu.md#operations).
 
 There is no carry or overflow output. See [known issues](06_known_issues.md#1-cmp-gives-the-wrong-answer-when-the-subtraction-overflows) for what that means for CMP.
 
@@ -101,7 +101,7 @@ The flags are computed from `wb_data`, after the write-back mux, so they always 
 
 ## Register file
 
-`cpu16_regfile` is 8 × 16 bits, with three asynchronous (combinational) read ports and one synchronous write port.
+`adam16_regfile` is 8 × 16 bits, with three asynchronous (combinational) read ports and one synchronous write port.
 
 - **No write-to-read bypass.** A read of the register being written in the same cycle returns the *old* value. In this multi-cycle design that never matters, because the next instruction's first read is at least four cycles after the write. It *would* matter in a pipeline (see [execution timing](05_timing.md#toward-a-pipeline)).
 - **JSRR R7 works.** `S_EX_JSR` reads R7 through `rd0` for the new PC while writing the return address into R7. Both happen on the same clock edge, so PC gets the *old* R7, which is correct.
@@ -114,4 +114,4 @@ The flags are computed from `wb_data`, after the write-back mux, so they always 
 
 ## Port interfaces
 
-See the interface sheets: [`cpu16_datapath`](interfaces/cpu16_datapath.md), [`cpu16_regfile`](interfaces/cpu16_regfile.md), [`cpu16_alu`](interfaces/cpu16_alu.md).
+See the interface sheets: [`adam16_datapath`](interfaces/adam16_datapath.md), [`adam16_regfile`](interfaces/adam16_regfile.md), [`adam16_alu`](interfaces/adam16_alu.md).

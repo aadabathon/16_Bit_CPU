@@ -1,4 +1,4 @@
-package cpu16_isa;
+package adam16_isa;
 
   typedef logic [15:0] instr_t;
 

@@ -25,16 +25,16 @@ if {[llength [get_libs $LIBNAME]] == 0} {
 
 #--- 1. READ RTL (package FIRST) ------------------------------
 analyze -format sverilog {
-    cpu16_isa.sv
-    cpu16_regfile.sv
-    cpu16_alu.sv
-    cpu16_datapath.sv
-    cpu16_control_fsm.sv
-    Sram.sv
-    cpu16_core.sv
+    adam16_isa.sv
+    adam16_regfile.sv
+    adam16_alu.sv
+    adam16_datapath.sv
+    adam16_control_fsm.sv
+    adam16_sram.sv
+    adam16_core.sv
 }
-elaborate cpu16_core
-current_design cpu16_core
+elaborate adam16_core
+current_design adam16_core
 link                                        ;# CHECK LOG: unresolved refs = stop & fix
 
 #--- 2. CONSTRAINTS -------------------------------------------
@@ -64,9 +64,9 @@ report_constraint -all_violators             > reports/violators.rpt
 check_design                                 > reports/check.rpt
 
 #--- 5. WRITE OUTPUTS (ICC2 handoff) --------------------------
-write -format verilog -hierarchy -output netlist/cpu16_core.mapped.v
-write_sdc                                       netlist/cpu16_core.mapped.sdc
-write -format ddc -hierarchy -output            netlist/cpu16_core.ddc
+write -format verilog -hierarchy -output netlist/adam16_core.mapped.v
+write_sdc                                       netlist/adam16_core.mapped.sdc
+write -format ddc -hierarchy -output            netlist/adam16_core.ddc
 
 echo "=== synthesis complete — check reports/qor.rpt for slack & area ==="
 

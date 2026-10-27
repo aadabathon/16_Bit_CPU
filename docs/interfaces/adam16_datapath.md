@@ -1,10 +1,10 @@
-# `cpu16_datapath`
+# `adam16_datapath`
 
-**Source:** `rtl/cpu16_datapath.sv` · **Instantiated in:** `cpu16_core` (as `u_dp`) · **Contains:** `cpu16_regfile` (`rf`), `cpu16_alu` (`alu0`) · **Imports:** `cpu16_isa`
+**Source:** `rtl/adam16_datapath.sv` · **Instantiated in:** `adam16_core` (as `u_dp`) · **Contains:** `adam16_regfile` (`rf`), `adam16_alu` (`alu0`) · **Imports:** `adam16_isa`
 
 Everything the controller steers: PC, IR, MAR, MDR, the N/Z/P flags, the register file, the ALU, and the muxes between them. It slices fixed IR fields (register numbers, immediates) but never decodes the opcode. Every opcode-dependent choice arrives on a control input.
 
-![cpu16_datapath symbol](../figures/symbols/cpu16_datapath.svg)
+![adam16_datapath symbol](../figures/symbols/adam16_datapath.svg)
 
 The internal structure is in [Datapath](../02_datapath.md), with the full diagram and every mux select code.
 
@@ -42,7 +42,7 @@ The internal structure is in [Datapath](../02_datapath.md), with the full diagra
 
 - **Every register updates on the rising edge, and only when its enable is high.** Next values are chosen combinationally by the select inputs, so a select must be valid before the edge on which its enable is high.
 - **Combinational paths to outputs.** `ra2_sel` reaches `mem_wdata` through the register-file read port. The ALU selects and `alu_op` reach `alu_y_o`. All other outputs come straight from flip-flops.
-- **Register file reads are asynchronous** and have no bypass. See [`cpu16_regfile`](cpu16_regfile.md#timing).
+- **Register file reads are asynchronous** and have no bypass. See [`adam16_regfile`](adam16_regfile.md#timing).
 
 ## Connections
 
@@ -92,7 +92,7 @@ Every port and every net that reaches a sub-module. Nets used only by this modul
 
 <!-- BEGIN GENERATED: instantiation -->
 ```systemverilog
-cpu16_datapath u_cpu16_datapath (
+adam16_datapath u_adam16_datapath (
   .clk         (clk),          // in   1
   .rst         (rst),          // in   1
   .mem_rdata   (mem_rdata),    // in  16

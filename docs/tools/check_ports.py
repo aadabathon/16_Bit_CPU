@@ -4,7 +4,7 @@ For every module in rtl/ there must be docs/interfaces/<module>.md whose
 "## Ports" table lists exactly the module's ports, in header order, with the
 right direction and width, and whose "## Parameters" table (if the module has
 parameters) lists the parameters with their defaults. Also checks that the
-opcode and funct encodings in fsm_spec.py match rtl/cpu16_isa.sv.
+opcode and funct encodings in fsm_spec.py match rtl/adam16_isa.sv.
 
     python3 check_ports.py        exit 1 on any mismatch
 """
@@ -77,17 +77,17 @@ def check_module(mod, problems):
 
 
 def check_isa(problems):
-    src = open(os.path.join(RTL_DIR, "cpu16_isa.sv")).read()
+    src = open(os.path.join(RTL_DIR, "adam16_isa.sv")).read()
     enc = {n: int(v, 16) for n, v in re.findall(r"\b(OP_\w+|ALU[01]_\w+)\s*=\s*\d+'[hb]([0-9A-Fa-f]+)", src)
            if n.startswith("OP_")}
     enc.update({n: int(v, 2) for n, v in re.findall(r"\b(ALU[01]_\w+)\s*=\s*3'b([01]+)", src)})
     for name, val in fsm_spec.OP.items():
         if enc.get("OP_" + name) != val:
-            problems.append(f"fsm_spec OP[{name}]={val:#x} but cpu16_isa.sv has {enc.get('OP_' + name)}")
+            problems.append(f"fsm_spec OP[{name}]={val:#x} but adam16_isa.sv has {enc.get('OP_' + name)}")
     for prefix, table in (("ALU0_", fsm_spec.F0), ("ALU1_", fsm_spec.F1)):
         for name, val in table.items():
             if enc.get(prefix + name) != val:
-                problems.append(f"fsm_spec {prefix}{name}={val} but cpu16_isa.sv has "
+                problems.append(f"fsm_spec {prefix}{name}={val} but adam16_isa.sv has "
                                 f"{enc.get(prefix + name)}")
 
 
@@ -98,7 +98,7 @@ def main():
         check_module(mod, problems)
     for f in os.listdir(PAGES):
         name = f[:-3]
-        if f.endswith(".md") and f != "README.md" and name not in mods and name != "cpu16_isa":
+        if f.endswith(".md") and f != "README.md" and name not in mods and name != "adam16_isa":
             problems.append(f"docs/interfaces/{f}: no RTL module named {name}")
     check_isa(problems)
     if problems:
@@ -107,7 +107,7 @@ def main():
             print("  -", p)
         sys.exit(1)
     print(f"interfaces: {len(mods)} modules, every port table matches the RTL; "
-          f"fsm_spec encodings match cpu16_isa.sv")
+          f"fsm_spec encodings match adam16_isa.sv")
 
 
 if __name__ == "__main__":

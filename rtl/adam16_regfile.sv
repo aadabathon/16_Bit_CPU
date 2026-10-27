@@ -1,4 +1,4 @@
-module cpu16_regfile (
+module adam16_regfile (
   input  logic        clk,
   input  logic        rst,
 

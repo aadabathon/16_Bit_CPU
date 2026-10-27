@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 // =============================================================================
-//  tb_cpu16 — directed testbench for the 16-bit core.
+//  tb_adam16 — directed testbench for the 16-bit core.
 //
 //  Each test:
 //    1. clear_memory() — zero out program memory
@@ -18,7 +18,7 @@
 //  without TRAP clobbering R7. TRAPs to any other vector execute normally.
 // =============================================================================
 
-module tb_cpu16;
+module tb_adam16;
 
   // -- Clock and reset --
   logic clk = 0;
@@ -30,7 +30,7 @@ module tb_cpu16;
   logic        mem_we;
 
   // -- DUT --
-  cpu16_core dut (
+  adam16_core dut (
     .clk      (clk),
     .rst      (rst),
     .mem_rdata(mem_rdata),
@@ -40,7 +40,7 @@ module tb_cpu16;
   );
 
   // -- Memory --
-  SramSBC imem (
+  adam16_sram imem (
     .clk  (clk),
     .we   (mem_we),
     .addr (mem_addr),
@@ -49,7 +49,7 @@ module tb_cpu16;
   );
 
   // -- Halt detection (hierarchical) --
-  // S_EX_TRAP is 5'd13 in cpu16_control_fsm. Only TRAP x025 halts.
+  // S_EX_TRAP is 5'd13 in adam16_control_fsm. Only TRAP x025 halts.
   localparam logic [4:0]  HALT_STATE  = 5'd13;
   localparam logic [11:0] HALT_VECTOR = 12'h025;
   wire halted = (dut.u_ctrl.state == HALT_STATE) &&
@@ -473,11 +473,11 @@ module tb_cpu16;
     string vcd;
     if ($value$plusargs("VCD=%s", vcd)) begin
       $dumpfile(vcd);
-      $dumpvars(0, tb_cpu16);
+      $dumpvars(0, tb_adam16);
     end
 
     $display("================================================");
-    $display(" CPU16 testbench");
+    $display(" adam16 testbench");
     $display("================================================");
 
     rst = 1;

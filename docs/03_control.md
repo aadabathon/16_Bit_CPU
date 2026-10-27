@@ -1,12 +1,12 @@
 # 3. Control
 
-`cpu16_control_fsm` is a 14-state finite state machine. Every instruction starts at `S_IF0`, spends three cycles in fetch and one in decode, then takes one to four cycles on an execute path before returning to `S_IF0`. Its ports are on the [interface page](interfaces/cpu16_control_fsm.md).
+`adam16_control_fsm` is a 14-state finite state machine. Every instruction starts at `S_IF0`, spends three cycles in fetch and one in decode, then takes one to four cycles on an execute path before returning to `S_IF0`. Its ports are on the [interface page](interfaces/adam16_control_fsm.md).
 
 ## Bubble diagrams
 
 There are five diagrams: one overview, and four detail diagrams that between them contain every arc of the machine.
 
-**How they are kept correct.** All five, and all three tables further down, are generated from one specification, [`docs/tools/fsm_spec.py`](tools/fsm_spec.py). `make -C docs check` expands that spec into a trace for every opcode × `IR[11:9]` × funct × {N, Z, P} combination: 8,192 instructions, 52,224 clock cycles, with `IR[8:3]` random. It then replays them against `rtl/cpu16_control_fsm.sv` in simulation, comparing the state and all 15 outputs on every cycle (`tb/tb_control_fsm_spec.sv`). If you change the RTL, change the spec to match. The check fails until the two agree.
+**How they are kept correct.** All five, and all three tables further down, are generated from one specification, [`docs/tools/fsm_spec.py`](tools/fsm_spec.py). `make -C docs check` expands that spec into a trace for every opcode × `IR[11:9]` × funct × {N, Z, P} combination: 8,192 instructions, 52,224 clock cycles, with `IR[8:3]` random. It then replays them against `rtl/adam16_control_fsm.sv` in simulation, comparing the state and all 15 outputs on every cycle (`tb/tb_control_fsm_spec.sv`). If you change the RTL, change the spec to match. The check fails until the two agree.
 
 ### Notation
 
@@ -150,5 +150,5 @@ The same information as the detail diagrams, one row per arc. Codes match the [d
 
 Every control output is a function of `(state, IR, N, Z, P)`. Two consequences:
 
-1. **The timing behaves like a Moore machine.** IR and N/Z/P are registers inside the datapath, so no control output has a combinational path from any input of `cpu16_core`, and in particular none from `mem_rdata`. Outputs settle shortly after each clock edge and stay stable for the rest of the cycle. Six outputs (`ir_we`, `mar_we`, `mdr_we`, `mem_we`, `wb_sel`, `mar_src_sel`) depend on the state alone.
-2. **The notation is Mealy.** At the level of `cpu16_control_fsm`, IR and the flags are inputs, and outputs that depend on inputs belong on arcs. That is why the detail diagrams write *condition / outputs*. A strictly Moore drawing would split `S_EX_ALU` into one state per case, `S_EX_BR` into taken / not-taken, and so on. The behaviour would be identical, with more states.
+1. **The timing behaves like a Moore machine.** IR and N/Z/P are registers inside the datapath, so no control output has a combinational path from any input of `adam16_core`, and in particular none from `mem_rdata`. Outputs settle shortly after each clock edge and stay stable for the rest of the cycle. Six outputs (`ir_we`, `mar_we`, `mdr_we`, `mem_we`, `wb_sel`, `mar_src_sel`) depend on the state alone.
+2. **The notation is Mealy.** At the level of `adam16_control_fsm`, IR and the flags are inputs, and outputs that depend on inputs belong on arcs. That is why the detail diagrams write *condition / outputs*. A strictly Moore drawing would split `S_EX_ALU` into one state per case, `S_EX_BR` into taken / not-taken, and so on. The behaviour would be identical, with more states.

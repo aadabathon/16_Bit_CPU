@@ -1,4 +1,4 @@
-module cpu16_control_fsm (
+module adam16_control_fsm (
   input  logic        clk,
   input  logic        rst,
   input  logic [15:0] ir,
@@ -24,7 +24,7 @@ module cpu16_control_fsm (
   output logic [1:0]  mar_src_sel
 );
 
-  import cpu16_isa::*;
+  import adam16_isa::*;
 
   // States. Note: S_IF1 is a wait state to absorb the 1-cycle SRAM read
   // latency; S_IF2 is the cycle in which IR latches mem_rdata and PC bumps.

@@ -1,6 +1,6 @@
 # Roadmap
 
-**Scope.** cpu16 stays what it is: a 16-bit, LC-3-inspired processor with its own ISA. The goal is to finish it properly. That means fixing the known issues, releasing it as an open-source v1, then building a **pipelined** version that runs the same programs. A RISC-V processor is a separate, later project (see the end); most of the tooling built here carries over to it.
+**Scope.** adam16 stays what it is: a 16-bit, LC-3-inspired processor with its own ISA. The goal is to finish it properly. That means fixing the known issues, releasing it as an open-source v1, then building a **pipelined** version that runs the same programs. A RISC-V processor is a separate, later project (see the end); most of the tooling built here carries over to it.
 
 **Ground rules.**
 - Every step lands as a small PR with green CI (`make check`).
@@ -41,10 +41,10 @@ Sizes are relative: **S** fits in one sitting, **M** in a few, **L** is a projec
 | S | **CMP overflow**: implement the option you choose (decision 3 below), with tests at the overflow boundaries | ISS + directed tests |
 | S | **Register file 3R → 2R**: mux port 1's address between `IR[5:3]`, `IR[11:9]` and R7, delete port 2 | Existing tests + FSM spec update + random tests |
 | M | **Basys3 clock enable**: run everything on the 100 MHz clock, step = clock enable, no logic-generated clock. Constrain and time it in Vivado. | Simulation here; **you** verify on the board (demo.md press counts must not change) |
-| M | **Vivado project from a Tcl script** (`fpga/build.tcl`) instead of the committed `.xpr`. Fixes: the `.xpr` points at `constraints/basys3.xdc`, but the repo has `adam16.xdc`; it has an empty block design and a stale `.dcp`; the memory image path is absolute (`C:/Users/...`). Rename `Sram.sv` → `SramSBC.sv` while at it. | **You** run it in Vivado 2025.2 and program the board |
+| M | **Vivado project from a Tcl script** (`fpga/build.tcl`) instead of the committed `.xpr`. Fixes: the `.xpr` points at `constraints/basys3.xdc`, but the repo has `adam16.xdc`; it has an empty block design and a stale `.dcp`; the memory image path is absolute (`C:/Users/...`). Rename `adam16_sram.sv` → `adam16_sram.sv` while at it. | **You** run it in Vivado 2025.2 and program the board |
 | S | **ASIC flow paths**: `scripts/adam16.dc` and `adam16_sim.do` hard-code `/userspace/...`; take them from environment variables | You, on the machine with SAED32 |
 | S | **Gate-level testbench**: re-run after the RTL changes; align its halt condition with the RTL testbench | You (needs SAED32) |
-| S | **Open-source synthesis check in CI**: Yosys (`synth_xilinx`, resource counts). Today's Yosys 0.33 can't parse the struct-typed local in `cpu16_isa::decode()`; either convert with `sv2v` or restructure `decode()` | CI |
+| S | **Open-source synthesis check in CI**: Yosys (`synth_xilinx`, resource counts). Today's Yosys 0.33 can't parse the struct-typed local in `adam16_isa::decode()`; either convert with `sv2v` or restructure `decode()` | CI |
 
 ### 1c. Release v1.0
 
@@ -95,7 +95,7 @@ The three multicycle speed-ups (A–C) analysed in [execution timing](docs/05_ti
 | # | Decision | Options | My recommendation |
 |---|---|---|---|
 | 1 | **License** | MIT · Apache-2.0 · Solderpad 2.1 (Apache-based, written for hardware; used by lowRISC / OpenHW) · CERN-OHL-P/W/S | **MIT** if you want the simplest, best-known terms. **Apache-2.0 / Solderpad** if you want an explicit patent grant |
-| 2 | **Project name** | `cpu16` (README, RTL) vs `adam16` (scripts, constraints, Vivado project) | Pick one before the v1 tag. The repo name and docs should match |
+| 2 | **Project name** | `adam16` (README, RTL) vs `adam16` (scripts, constraints, Vivado project) | Pick one before the v1 tag. The repo name and docs should match |
 | 3 | **CMP fix** | (a) CMP sets N/Z/P from the true signed comparison of SR1 and SR2; no encoding change, SUB unchanged · (b) add a V flag and new branch conditions; encoding change · (c) document the limitation | **(a)**: fixes the real-world case (signed compares) without touching the encoding |
 | 4 | **Pipeline vs multicycle** | Keep both cores (recommended) · replace the multicycle core | **Keep both**: v1 is the reference model and the simple teaching design |
 | 5 | **ISA freeze** | Freeze the ISA at v1 (with the CMP fix) · allow changes for v2 (e.g. drop RET as an alias of `JMP R7`, add HALT or immediate shifts) | **Freeze** for v2, so the same binaries run on both cores and differential testing stays trivial. Collect ISA ideas for the RISC-V project instead |

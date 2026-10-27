@@ -1,10 +1,10 @@
-# `cpu16_core`
+# `adam16_core`
 
-**Source:** `rtl/cpu16_core.sv` · **Instantiated in:** `basys3_top` (as `u_cpu`), `tb_cpu16`, `tb_cpu16_gate` · **Contains:** `cpu16_control_fsm` (`u_ctrl`), `cpu16_datapath` (`u_dp`)
+**Source:** `rtl/adam16_core.sv` · **Instantiated in:** `basys3_top` (as `u_cpu`), `tb_adam16`, `tb_adam16_gate` · **Contains:** `adam16_control_fsm` (`u_ctrl`), `adam16_datapath` (`u_dp`)
 
 The processor. It has a single memory port: synchronous, word-addressed, with a one-cycle read latency, shared by instruction fetch and data access. It also has a set of debug outputs. Inside, it only wires the controller to the datapath and taps the debug signals; there is no logic of its own.
 
-![cpu16_core symbol](../figures/symbols/cpu16_core.svg)
+![adam16_core symbol](../figures/symbols/adam16_core.svg)
 
 ## Ports
 
@@ -26,7 +26,7 @@ The processor. It has a single memory port: synchronous, word-addressed, with a 
 ## Timing
 
 - **Memory protocol.** One access per cycle. Reads take one cycle; writes happen on the edge that ends `S_MEM_WR0`. Details and waveforms: [memory interface](../04_memory.md).
-- **No input-to-output combinational paths.** No input of `cpu16_core` reaches an output without passing through a register. `mem_rdata` only goes into IR and MDR, and every control signal depends only on the state, IR and N/Z/P, which are all registers. `mem_we` and `mem_wdata` are combinational, but only from registers.
+- **No input-to-output combinational paths.** No input of `adam16_core` reaches an output without passing through a register. `mem_rdata` only goes into IR and MDR, and every control signal depends only on the state, IR and N/Z/P, which are all registers. `mem_we` and `mem_wdata` are combinational, but only from registers.
 - **Cycles per instruction:** 5 (ALU, branch, jump, call, TRAP), 6 (store), 8 (load), 4 (undefined opcode). See [execution timing](../05_timing.md).
 
 ## Connections
@@ -74,7 +74,7 @@ Every port and every internal net, with the instance pin or logic that drives it
 
 <!-- BEGIN GENERATED: instantiation -->
 ```systemverilog
-cpu16_core u_cpu16_core (
+adam16_core u_adam16_core (
   .clk       (clk),        // in   1
   .rst       (rst),        // in   1
   .mem_rdata (mem_rdata),  // in  16

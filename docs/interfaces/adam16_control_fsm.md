@@ -1,10 +1,10 @@
-# `cpu16_control_fsm`
+# `adam16_control_fsm`
 
-**Source:** `rtl/cpu16_control_fsm.sv` · **Instantiated in:** `cpu16_core` (as `u_ctrl`) · **Imports:** `cpu16_isa`
+**Source:** `rtl/adam16_control_fsm.sv` · **Instantiated in:** `adam16_core` (as `u_ctrl`) · **Imports:** `adam16_isa`
 
 The controller: a 14-state machine and the only block that decodes the opcode. Each cycle it drives every datapath enable and mux select, plus the memory write enable, from its state, the instruction register and the condition flags.
 
-![cpu16_control_fsm symbol](../figures/symbols/cpu16_control_fsm.svg)
+![adam16_control_fsm symbol](../figures/symbols/adam16_control_fsm.svg)
 
 ## Ports
 
@@ -28,7 +28,7 @@ All outputs are combinational functions of `(state, ir, N, Z, P)` and default to
 | `reg_dst` | out | 3 | comb | — | Register write address: `DR` in `S_EX_ALU` and `S_WB_LD`; `111` (R7) in `S_EX_JSR` and `S_EX_TRAP` |
 | `ra2_sel` | out | 1 | comb | — | Read port 2 address: `1` = R7 in `S_EX_JMP` for RET; otherwise `0` = `IR[11:9]` |
 | `wb_sel` | out | 2 | comb | — | Write-back source: `00` alu_y, `01` MDR (`S_WB_LD`), `10` PC (`S_EX_JSR`, `S_EX_TRAP`) |
-| `alu_op` | out | 4 | comb | — | ALU operation `{group, funct}` (see [`cpu16_alu`](cpu16_alu.md#operations)). `{0,fn}` / `{1,fn}` for ALU0 / ALU1, `0011` for ANDI, `0000` (ADD) otherwise |
+| `alu_op` | out | 4 | comb | — | ALU operation `{group, funct}` (see [`adam16_alu`](adam16_alu.md#operations)). `{0,fn}` / `{1,fn}` for ALU0 / ALU1, `0011` for ANDI, `0000` (ADD) otherwise |
 | `alu_a_sel` | out | 2 | comb | — | ALU A: `00` rd0, `01` PC (LEA, LD/ST address) |
 | `alu_b_sel` | out | 3 | comb | — | ALU B: `000` rd1, `001` SEXT(imm6), `010` ZEXT(imm6), `011` SEXT(off9), `100` SEXT(off6), `111` zero |
 | `pc_src_sel` | out | 3 | comb | — | PC next value: `000` PC+1, `001` PC+off9, `010` PC+off11, `011` BaseR, `100` R7, `101` ZEXT(tv12) |
@@ -50,7 +50,7 @@ The overview shows states and next-state conditions. The detailed bubble diagram
 
 <!-- BEGIN GENERATED: instantiation -->
 ```systemverilog
-cpu16_control_fsm u_cpu16_control_fsm (
+adam16_control_fsm u_adam16_control_fsm (
   .clk         (clk),          // in   1
   .rst         (rst),          // in   1
   .ir          (ir),           // in  16

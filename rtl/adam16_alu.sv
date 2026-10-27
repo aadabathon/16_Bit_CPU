@@ -1,5 +1,5 @@
 // op = {group, funct}: op[3]=0 selects ALU0 ops, op[3]=1 selects ALU1 ops.
-module cpu16_alu (
+module adam16_alu (
   input  logic [3:0]  op,
   input  logic [15:0] a,
   input  logic [15:0] b,

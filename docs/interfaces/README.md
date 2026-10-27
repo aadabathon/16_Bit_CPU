@@ -3,29 +3,29 @@
 One page per RTL module: what it does, its schematic symbol, every parameter and port, timing behaviour, and a ready-to-paste instantiation. Hierarchical modules also list every internal net with its driver and readers.
 
 ```
-basys3_top ............................ FPGA wrapper (Basys3 board)
-├── debounce        (db_rst, db_step)   button synchronizer + debouncer
-├── cpu16_core      (u_cpu)             the processor
-│   ├── cpu16_control_fsm  (u_ctrl)     14-state controller
-│   └── cpu16_datapath     (u_dp)       PC, IR, MAR, MDR, flags, muxes
-│       ├── cpu16_regfile  (rf)         8 x 16 register file
-│       └── cpu16_alu      (alu0)       16-operation ALU
-└── SramSBC         (imem)              64K x 16 synchronous memory
+basys3_top .............................. FPGA wrapper (Basys3 board)
+├── debounce           (db_rst, db_step)  button synchronizer + debouncer
+├── adam16_core        (u_cpu)            the processor
+│   ├── adam16_control_fsm  (u_ctrl)      14-state controller
+│   └── adam16_datapath     (u_dp)        PC, IR, MAR, MDR, flags, muxes
+│       ├── adam16_regfile  (rf)          8 x 16 register file
+│       └── adam16_alu      (alu0)        16-operation ALU
+└── adam16_sram        (imem)             64K x 16 synchronous memory
 
-cpu16_isa  (package)                    opcode / funct enums, decode(), sign/zero extend
+adam16_isa  (package)                     opcode / funct enums, decode(), sign/zero extend
 ```
 
 | Module | File | Clocked | In / out | Page |
 |---|---|---|---|---|
-| `cpu16_core` | `rtl/cpu16_core.sv` | yes | 3 / 9 | [cpu16_core](cpu16_core.md) |
-| `cpu16_control_fsm` | `rtl/cpu16_control_fsm.sv` | yes | 6 / 15 | [cpu16_control_fsm](cpu16_control_fsm.md) |
-| `cpu16_datapath` | `rtl/cpu16_datapath.sv` | yes | 17 / 8 | [cpu16_datapath](cpu16_datapath.md) |
-| `cpu16_regfile` | `rtl/cpu16_regfile.sv` | yes | 8 / 3 | [cpu16_regfile](cpu16_regfile.md) |
-| `cpu16_alu` | `rtl/cpu16_alu.sv` | no | 3 / 1 | [cpu16_alu](cpu16_alu.md) |
-| `SramSBC` | `rtl/Sram.sv` | yes | 4 / 1 | [SramSBC](SramSBC.md) |
+| `adam16_core` | `rtl/adam16_core.sv` | yes | 3 / 9 | [adam16_core](adam16_core.md) |
+| `adam16_control_fsm` | `rtl/adam16_control_fsm.sv` | yes | 6 / 15 | [adam16_control_fsm](adam16_control_fsm.md) |
+| `adam16_datapath` | `rtl/adam16_datapath.sv` | yes | 17 / 8 | [adam16_datapath](adam16_datapath.md) |
+| `adam16_regfile` | `rtl/adam16_regfile.sv` | yes | 8 / 3 | [adam16_regfile](adam16_regfile.md) |
+| `adam16_alu` | `rtl/adam16_alu.sv` | no | 3 / 1 | [adam16_alu](adam16_alu.md) |
+| `adam16_sram` | `rtl/adam16_sram.sv` | yes | 4 / 1 | [adam16_sram](adam16_sram.md) |
 | `basys3_top` | `rtl/basys3_top.sv` | yes | 4 / 1 | [basys3_top](basys3_top.md) |
 | `debounce` | `rtl/debounce.sv` | yes | 2 / 2 | [debounce](debounce.md) |
-| `cpu16_isa` | `rtl/cpu16_isa.sv` | package | — | [cpu16_isa](cpu16_isa.md) |
+| `adam16_isa` | `rtl/adam16_isa.sv` | package | — | [adam16_isa](adam16_isa.md) |
 
 ## How to read a port table
 

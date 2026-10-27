@@ -1,9 +1,9 @@
-"""cpu16_control_fsm specification.
+"""adam16_control_fsm specification.
 
 This file is the single source of truth for the control state machine's
 documentation. From it, gen_fsm.py draws every control bubble diagram and
 writes test vectors that tb/tb_control_fsm_spec.sv replays against the RTL,
-so the diagrams are checked against rtl/cpu16_control_fsm.sv cycle by cycle.
+so the diagrams are checked against rtl/adam16_control_fsm.sv cycle by cycle.
 
 When you change the FSM RTL, change this file to match, then run
 `make -C docs` (redraw) and `make -C docs check` (prove RTL == spec).
@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from typing import Callable, Optional
 
 # --------------------------------------------------------------------------
-# Encodings (mirror rtl/cpu16_isa.sv)
+# Encodings (mirror rtl/adam16_isa.sv)
 # --------------------------------------------------------------------------
 OP = dict(ALU0=0x0, ALU1=0x1, ADDI=0x2, ANDI=0x3, LD=0x4, ST=0x5, JMP=0x6,
           JSR=0x7, RET=0x8, TRAP=0x9, LDR=0xA, STR=0xB, LEA=0xC, BR=0xD,

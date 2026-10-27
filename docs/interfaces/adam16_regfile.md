@@ -1,10 +1,10 @@
-# `cpu16_regfile`
+# `adam16_regfile`
 
-**Source:** `rtl/cpu16_regfile.sv` · **Instantiated in:** `cpu16_datapath` (as `rf`)
+**Source:** `rtl/adam16_regfile.sv` · **Instantiated in:** `adam16_datapath` (as `rf`)
 
 Eight 16-bit general-purpose registers, R0–R7, with three read ports and one write port. Reads are asynchronous (combinational) and the write is synchronous.
 
-![cpu16_regfile symbol](../figures/symbols/cpu16_regfile.svg)
+![adam16_regfile symbol](../figures/symbols/adam16_regfile.svg)
 
 ## Ports
 
@@ -44,7 +44,7 @@ Eight 16-bit general-purpose registers, R0–R7, with three read ports and one w
 
 <!-- BEGIN GENERATED: instantiation -->
 ```systemverilog
-cpu16_regfile u_cpu16_regfile (
+adam16_regfile u_adam16_regfile (
   .clk (clk),  // in   1
   .rst (rst),  // in   1
   .ra0 (ra0),  // in   3

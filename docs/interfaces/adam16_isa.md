@@ -1,6 +1,6 @@
-# `cpu16_isa` (package)
+# `adam16_isa` (package)
 
-**Source:** `rtl/cpu16_isa.sv` · **Imported by:** `cpu16_control_fsm` (enums, `decode()`), `cpu16_datapath` (sign/zero-extend functions)
+**Source:** `rtl/adam16_isa.sv` · **Imported by:** `adam16_control_fsm` (enums, `decode()`), `adam16_datapath` (sign/zero-extend functions)
 
 This package holds the instruction-set encodings, so the controller and the datapath agree on them. It has no ports; its interface is the types and functions below. Compile it before any module that imports it.
 

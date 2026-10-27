@@ -1,10 +1,10 @@
-# `cpu16_alu`
+# `adam16_alu`
 
-**Source:** `rtl/cpu16_alu.sv` · **Instantiated in:** `cpu16_datapath` (as `alu0`)
+**Source:** `rtl/adam16_alu.sv` · **Instantiated in:** `adam16_datapath` (as `alu0`)
 
 A purely combinational 16-bit ALU with 16 operations in two groups of eight. It has no clock, no state and no flag outputs: the datapath derives N/Z/P from the write-back value.
 
-![cpu16_alu symbol](../figures/symbols/cpu16_alu.svg)
+![adam16_alu symbol](../figures/symbols/adam16_alu.svg)
 
 ## Ports
 
@@ -46,7 +46,7 @@ Arithmetic wraps modulo 2<sup>16</sup>. There is no carry or overflow output ([k
 
 <!-- BEGIN GENERATED: instantiation -->
 ```systemverilog
-cpu16_alu u_cpu16_alu (
+adam16_alu u_adam16_alu (
   .op (op),  // in   4
   .a  (a),   // in  16
   .b  (b),   // in  16

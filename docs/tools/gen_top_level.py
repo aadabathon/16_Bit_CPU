@@ -12,7 +12,7 @@ c = Canvas(1240, 640)
 
 # ---------------------------------------------------------------- basys3_top frame
 c.rect(60, 20, 1080, 600, fill="none", stroke=MUTED, sw=1.2, rx=6, dash="6,4")
-c.text(75, 42, "basys3_top  (FPGA only; simulation instantiates cpu16_core + SramSBC directly)",
+c.text(75, 42, "basys3_top  (FPGA only; simulation instantiates adam16_core + adam16_sram directly)",
        anchor="start", size=13, weight="bold", color=MUTED)
 
 # ---------------------------------------------------------------- board inputs
@@ -54,14 +54,14 @@ c.text(300, 300, "derived clock:", size=9.5, color=CTRL)
 c.text(300, 313, "one edge per press", size=9.5, color=CTRL)
 c.text(300, 326, "(see known issues)", size=9.5, color=CTRL)
 
-# ---------------------------------------------------------------- cpu16_core
+# ---------------------------------------------------------------- adam16_core
 c.rect(395, 70, 470, 420, fill="#f8fafc", rx=6)
-c.text(410, 92, "cpu16_core", anchor="start", size=14, weight="bold")
+c.text(410, 92, "adam16_core", anchor="start", size=14, weight="bold")
 c.text(399, 164, "rst", anchor="start", size=9.5)
 c.text(399, 220, "clk", anchor="start", size=9.5)
 
 c.rect(425, 120, 150, 330, fill="white", rx=4)
-c.text(500, 145, "cpu16_control_fsm", size=11.5, weight="bold")
+c.text(500, 145, "adam16_control_fsm", size=11.5, weight="bold")
 c.text(500, 162, "14-state FSM", size=9.5, color=MUTED)
 c.rect(445, 180, 110, 34, fill=REG_FILL)
 c.text(500, 201, "state[4:0]", size=10.5, family=MONO)
@@ -70,7 +70,7 @@ c.text(500, 254, "output logic", size=9.5, color=MUTED)
 c.text(500, 268, "f(state, IR, N, Z, P)", size=9.5, color=MUTED, family=MONO)
 
 c.rect(705, 120, 140, 330, fill="white", rx=4)
-c.text(775, 145, "cpu16_datapath", size=11.5, weight="bold")
+c.text(775, 145, "adam16_datapath", size=11.5, weight="bold")
 for i, nm in enumerate(["PC  IR  MAR  MDR", "regfile 8x16", "ALU", "N Z P flags"]):
     c.text(775, 175 + i * 18, nm, size=9.5, color=MUTED)
 
@@ -88,7 +88,7 @@ c.text(640, 414, "ir[15:0], N, Z, P", size=9.5, weight="bold", color=CTRL)
 
 # ---------------------------------------------------------------- memory bus
 c.rect(930, 120, 170, 230, fill="#fefce8", rx=4)
-c.text(1015, 145, "SramSBC", size=13, weight="bold")
+c.text(1015, 145, "adam16_sram", size=13, weight="bold")
 c.text(1015, 162, "64K x 16, sync read", size=9.5, color=MUTED)
 c.text(1015, 176, "INIT_FILE = .mem image", size=9.5, color=MUTED)
 for y, nm in [(205, "addr"), (240, "wdata"), (275, "we"), (305, "rdata"), (330, "clk")]:

@@ -1,4 +1,4 @@
-"""cpu16_datapath block diagram -> docs/figures/datapath.svg
+"""adam16_datapath block diagram -> docs/figures/datapath.svg
 
 Run:  python3 docs/tools/gen_datapath.py   (or make -C docs)
 Conventions: wires connect only at dots; an italic name at a mux input
@@ -14,11 +14,11 @@ c = Canvas(1340, 900)
 
 # ---------------------------------------------------------------- frame
 c.rect(170, 20, 1150, 865, fill="none", stroke=MUTED, sw=1.2, rx=6, dash="6,4")
-c.text(185, 42, "cpu16_datapath", anchor="start", size=15, weight="bold", color=MUTED)
+c.text(185, 42, "adam16_datapath", anchor="start", size=15, weight="bold", color=MUTED)
 
 # ---------------------------------------------------------------- SRAM (outside)
 c.rect(30, 320, 110, 240, fill="#fefce8", rx=4)
-c.text(85, 345, "SramSBC", size=13, weight="bold")
+c.text(85, 345, "adam16_sram", size=13, weight="bold")
 c.text(85, 362, "64K x 16", size=10, color=MUTED)
 c.text(85, 376, "sync read", size=10, color=MUTED)
 c.text(132, 399, "addr", anchor="end", size=10)
@@ -84,7 +84,7 @@ for y, lab, net in fields:
 # ---------------------------------------------------------------- register file
 RF_X, RF_Y, RF_W, RF_H = 640, 460, 130, 240
 c.rect(RF_X, RF_Y, RF_W, RF_H, fill="#eef2ff")
-c.text(RF_X + RF_W / 2, RF_Y + 20, "cpu16_regfile", size=12, weight="bold")
+c.text(RF_X + RF_W / 2, RF_Y + 20, "adam16_regfile", size=12, weight="bold")
 c.text(RF_X + RF_W / 2, RF_Y + 35, "8 x 16, 3R / 1W", size=9.5, color=MUTED)
 c.text(RF_X + RF_W / 2, RF_Y + 48, "async read, sync write", size=9.5, color=MUTED)
 c.text(RF_X + RF_W / 2, RF_Y + RF_H - 34, "rst: R0-R7 = 0", size=9.5, color=MUTED)
@@ -204,9 +204,9 @@ c.text(LX + 12, LY + 20, "Legend", anchor="start", size=11, weight="bold")
 c.rect(LX + 12, LY + 30, 26, 16, fill="#dbeafe")
 c.text(LX + 46, LY + 42, "register (posedge clk, sync rst)", anchor="start", size=10)
 c.wire([(LX + 12, LY + 62), (LX + 38, LY + 62)], color=CTRL, sw=1.3, dash="4,3")
-c.text(LX + 46, LY + 66, "control from cpu16_control_fsm", anchor="start", size=10)
+c.text(LX + 46, LY + 66, "control from adam16_control_fsm", anchor="start", size=10)
 c.wire([(LX + 12, LY + 84), (LX + 38, LY + 84)], color=CTRL, sw=1.6)
-c.text(LX + 46, LY + 88, "status to cpu16_control_fsm", anchor="start", size=10)
+c.text(LX + 46, LY + 88, "status to adam16_control_fsm", anchor="start", size=10)
 c.dot(LX + 25, LY + 106)
 c.text(LX + 46, LY + 110, "wires connect only at dots;", anchor="start", size=10)
 c.text(LX + 46, LY + 123, "italic names connect by name", anchor="start", size=10, italic=True)

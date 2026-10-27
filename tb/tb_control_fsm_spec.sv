@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 // =============================================================================
-//  tb_control_fsm_spec — conformance check: cpu16_control_fsm vs. its spec.
+//  tb_control_fsm_spec — conformance check: adam16_control_fsm vs. its spec.
 //
 //  The spec is docs/tools/fsm_spec.py, the same data the control bubble
 //  diagrams are drawn from. gen_fsm.py --vectors expands it into one line per
@@ -34,7 +34,7 @@ module tb_control_fsm_spec;
   logic [2:0]  pc_src_sel;
   logic [1:0]  mar_src_sel;
 
-  cpu16_control_fsm dut (
+  adam16_control_fsm dut (
     .clk(clk), .rst(rst), .ir(ir), .N(N), .Z(Z), .P(P),
     .pc_we(pc_we), .ir_we(ir_we), .mar_we(mar_we), .mdr_we(mdr_we),
     .reg_we(reg_we), .flag_we(flag_we), .mem_we(mem_we),
@@ -100,7 +100,7 @@ module tb_control_fsm_spec;
     $fclose(fd);
 
     $display("================================================");
-    $display(" cpu16_control_fsm vs docs/tools/fsm_spec.py");
+    $display(" adam16_control_fsm vs docs/tools/fsm_spec.py");
     $display(" %0d instructions, %0d cycles checked, %0d mismatches",
              n_instr, n_cycles, n_fail);
     if (n_instr == 0)      $display(" ERROR: no vectors read");

@@ -1,6 +1,6 @@
 # `basys3_top`
 
-**Source:** `rtl/basys3_top.sv` · **Top level for:** the Vivado project (`fpga/`) · **Contains:** `debounce` (`db_rst`, `db_step`), `cpu16_core` (`u_cpu`), `SramSBC` (`imem`)
+**Source:** `rtl/basys3_top.sv` · **Top level for:** the Vivado project (`fpga/`) · **Contains:** `debounce` (`db_rst`, `db_step`), `adam16_core` (`u_cpu`), `adam16_sram` (`imem`)
 
 The FPGA wrapper for the Digilent Basys3. It keeps the memory bus on-chip, lets a person single-step the CPU with a button, and shows one of four debug words on the 16 LEDs. Pin assignments are in `fpga/constraints/adam16.xdc`. How to use it: [`demo.md`](../../demo.md).
 

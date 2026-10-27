@@ -54,8 +54,8 @@ check-fsm:
 	@mkdir -p $(BUILD)
 	@rm -f $(BUILD)/fsm_spec_tb $(BUILD)/fsm_spec.log   # a failed compile must not reuse an old binary
 	$(PY) tools/gen_fsm.py --vectors $(BUILD)/fsm_vectors.txt
-	iverilog -g2012 -o $(BUILD)/fsm_spec_tb ../rtl/cpu16_isa.sv \
-	    ../rtl/cpu16_control_fsm.sv ../tb/tb_control_fsm_spec.sv 2>&1 | grep -v "sorry:" || true
+	iverilog -g2012 -o $(BUILD)/fsm_spec_tb ../rtl/adam16_isa.sv \
+	    ../rtl/adam16_control_fsm.sv ../tb/tb_control_fsm_spec.sv 2>&1 | grep -v "sorry:" || true
 	vvp $(BUILD)/fsm_spec_tb +VECTORS=$(BUILD)/fsm_vectors.txt | tee $(BUILD)/fsm_spec.log
 	@grep -q "RTL MATCHES SPEC" $(BUILD)/fsm_spec.log
 

@@ -1,6 +1,6 @@
-# cpu16 microarchitecture documentation
+# adam16 microarchitecture documentation
 
-This folder describes the hardware: how `cpu16_core` is built, what every module's interface is, and how the machine moves through each instruction cycle by cycle. The instruction set itself (encodings and semantics) is in the [top-level README](../README.md#instruction-set-reference) and [`InstructionSet.txt`](../InstructionSet.txt).
+This folder describes the hardware: how `adam16_core` is built, what every module's interface is, and how the machine moves through each instruction cycle by cycle. The instruction set itself (encodings and semantics) is in the [top-level README](../README.md#instruction-set-reference) and [`InstructionSet.txt`](../InstructionSet.txt).
 
 ## Reference
 
@@ -42,7 +42,7 @@ Most of what describes the hardware is generated from the RTL, or checked agains
 | Module symbols | RTL module headers | `tools/gen_symbols.py` |
 | Instantiation templates, connection tables | RTL headers and instances | `tools/gen_interconnect.py` |
 | Port and parameter tables (hand-written) | RTL module headers | `tools/check_ports.py` checks names, directions, widths, order, defaults |
-| Opcode / funct encodings in the spec | `rtl/cpu16_isa.sv` | `tools/check_ports.py` |
+| Opcode / funct encodings in the spec | `rtl/adam16_isa.sv` | `tools/check_ports.py` |
 | Links and images | — | `tools/check_links.py` |
 | Datapath, top-level, debounce, timing figures | hand-placed sources in `tools/` and `figures/src/` | redrawn by `make`. Timing values come from RTL simulation of `sum_array` |
 

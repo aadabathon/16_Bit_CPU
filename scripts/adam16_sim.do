@@ -1,7 +1,7 @@
 #--- Paths ----------------------------------------------------
-set NETLIST ../../synth/work/netlist/cpu16_core.mapped.v
-set SRAM    /userspace/ashebani/RTL_sandbox/16_Bit_CPU/rtl/Sram.sv
-set TB ../../tb/tb_cpu16_gate.sv
+set NETLIST ../../synth/work/netlist/adam16_core.mapped.v
+set SRAM    /userspace/ashebani/RTL_sandbox/16_Bit_CPU/rtl/adam16_sram.sv
+set TB ../../tb/tb_adam16_gate.sv
 
 #--- Work library ---------------------------------------------
 vlib work
@@ -14,7 +14,7 @@ vlog -sv $SRAM
 vlog -sv $TB
 
 #--- Elaborate + load (no -L needed; cells are in work now) ---
-vsim -voptargs=+acc +notimingchecks work.tb_cpu16_gate
+vsim -voptargs=+acc +notimingchecks work.tb_adam16_gate
 
 add wave -r /*
 run -all

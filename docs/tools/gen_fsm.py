@@ -148,7 +148,7 @@ def connector(node_id, text):
 def overview():
     star = conditional_states()
     d = [HEADER.format(name="overview", rankdir="TB", nodesep=0.35, ranksep=0.55,
-                       title="<b>cpu16_control_fsm</b>  overview")]
+                       title="<b>adam16_control_fsm</b>  overview")]
     d.append('  rst [shape=plaintext, style="", fixedsize=false, width=0, '
              'label="rst\\n(any state,\\nsynchronous)", fontsize=10];')
     defaults = "<br/>".join(

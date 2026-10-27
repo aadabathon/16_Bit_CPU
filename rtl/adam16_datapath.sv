@@ -1,4 +1,4 @@
-module cpu16_datapath (
+module adam16_datapath (
   input  logic        clk,
   input  logic        rst,
 
@@ -30,7 +30,7 @@ module cpu16_datapath (
   output logic [15:0] alu_y_o
 );
 
-  import cpu16_isa::*;
+  import adam16_isa::*;
 
   logic [15:0] mar, mdr;
 
@@ -55,7 +55,7 @@ module cpu16_datapath (
   assign pcoff11    = ir[10:0];
   assign trapvect12 = ir[11:0];
 
-  cpu16_regfile rf(
+  adam16_regfile rf(
     .clk(clk), .rst(rst),
     .ra0(ra0), .ra1(ra1), .ra2(ra2),
     .rd0(rd0), .rd1(rd1), .rd2(rd2),
@@ -91,7 +91,7 @@ module cpu16_datapath (
 
   // CMP runs as ALU1 funct 111 (a - b). No special-case needed here;
   // the FSM is responsible for clearing reg_we on CMP.
-  cpu16_alu alu0(
+  adam16_alu alu0(
     .op(alu_op),
     .a(alu_a),
     .b(alu_b),

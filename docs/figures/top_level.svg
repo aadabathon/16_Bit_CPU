@@ -2,7 +2,7 @@
 <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1e293b"/></marker><marker id="arrc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c2410c"/></marker></defs>
 <rect width="100%" height="100%" fill="white"/>
 <rect x="60.0" y="20.0" width="1080.0" height="600.0" rx="6" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="6,4"/>
-<text x="75.0" y="42.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#64748b" style="">basys3_top  (FPGA only; simulation instantiates cpu16_core + SramSBC directly)</text>
+<text x="75.0" y="42.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#64748b" style="">basys3_top  (FPGA only; simulation instantiates adam16_core + adam16_sram directly)</text>
 <text x="8.0" y="89.0" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">clk</text>
 <text x="8.0" y="109.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#64748b" style="">W5, 100 MHz</text>
 <text x="8.0" y="169.0" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#1e293b" style="">btn_rst</text>
@@ -39,11 +39,11 @@
 <text x="300.0" y="313.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#c2410c" style="">one edge per press</text>
 <text x="300.0" y="326.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#c2410c" style="">(see known issues)</text>
 <rect x="395.0" y="70.0" width="470.0" height="420.0" rx="6" fill="#f8fafc" stroke="#1e293b" stroke-width="1.4"/>
-<text x="410.0" y="92.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1e293b" style="">cpu16_core</text>
+<text x="410.0" y="92.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1e293b" style="">adam16_core</text>
 <text x="399.0" y="164.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="">rst</text>
 <text x="399.0" y="220.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="">clk</text>
 <rect x="425.0" y="120.0" width="150.0" height="330.0" rx="4" fill="white" stroke="#1e293b" stroke-width="1.4"/>
-<text x="500.0" y="145.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#1e293b" style="">cpu16_control_fsm</text>
+<text x="500.0" y="145.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#1e293b" style="">adam16_control_fsm</text>
 <text x="500.0" y="162.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">14-state FSM</text>
 <rect x="445.0" y="180.0" width="110.0" height="34.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
 <text x="500.0" y="201.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="">state[4:0]</text>
@@ -51,7 +51,7 @@
 <text x="500.0" y="254.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">output logic</text>
 <text x="500.0" y="268.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="9.5" font-weight="normal" fill="#64748b" style="">f(state, IR, N, Z, P)</text>
 <rect x="705.0" y="120.0" width="140.0" height="330.0" rx="4" fill="white" stroke="#1e293b" stroke-width="1.4"/>
-<text x="775.0" y="145.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#1e293b" style="">cpu16_datapath</text>
+<text x="775.0" y="145.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#1e293b" style="">adam16_datapath</text>
 <text x="775.0" y="175.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">PC  IR  MAR  MDR</text>
 <text x="775.0" y="193.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">regfile 8x16</text>
 <text x="775.0" y="211.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">ALU</text>
@@ -75,7 +75,7 @@
 <polyline points="705.0,420.0 575.0,420.0" fill="none" stroke="#c2410c" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrc)"/>
 <text x="640.0" y="414.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#c2410c" style="">ir[15:0], N, Z, P</text>
 <rect x="930.0" y="120.0" width="170.0" height="230.0" rx="4" fill="#fefce8" stroke="#1e293b" stroke-width="1.4"/>
-<text x="1015.0" y="145.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1e293b" style="">SramSBC</text>
+<text x="1015.0" y="145.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1e293b" style="">adam16_sram</text>
 <text x="1015.0" y="162.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">64K x 16, sync read</text>
 <text x="1015.0" y="176.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">INIT_FILE = .mem image</text>
 <text x="936.0" y="209.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#1e293b" style="">addr</text>

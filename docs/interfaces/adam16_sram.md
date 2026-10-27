@@ -1,10 +1,10 @@
-# `SramSBC`
+# `adam16_sram`
 
-**Source:** `rtl/Sram.sv` · **Instantiated in:** `basys3_top` (as `imem`), `tb_cpu16`, `tb_cpu16_gate`
+**Source:** `rtl/adam16_sram.sv` · **Instantiated in:** `basys3_top` (as `imem`), `tb_adam16`, `tb_adam16_gate`
 
 A 64K × 16 single-port memory with a registered (synchronous) read. In simulation it is the program and data memory. On the FPGA it is written in the synchronous-read style that synthesis maps to block RAM. It has no reset: contents come from `INIT_FILE`, or start uninitialised.
 
-![SramSBC symbol](../figures/symbols/SramSBC.svg)
+![adam16_sram symbol](../figures/symbols/adam16_sram.svg)
 
 ## Parameters
 
@@ -25,16 +25,16 @@ A 64K × 16 single-port memory with a registered (synchronous) read. In simulati
 ## Timing
 
 - **Read latency is one cycle.** The address presented during cycle *t* appears on `rdata` during cycle *t + 1*.
-- **Read-during-write returns the old contents** (read-first). The new value appears the cycle after. `cpu16_core` never uses `rdata` right after a write, so a write-first or no-change memory would also work.
+- **Read-during-write returns the old contents** (read-first). The new value appears the cycle after. `adam16_core` never uses `rdata` right after a write, so a write-first or no-change memory would also work.
 - Waveforms for fetch, load and store: [memory interface](../04_memory.md).
 
 ## Instantiation
 
 <!-- BEGIN GENERATED: instantiation -->
 ```systemverilog
-SramSBC #(
+adam16_sram #(
   .INIT_FILE ("")
-) u_sramsbc (
+) u_adam16_sram (
   .clk   (clk),    // in   1
   .we    (we),     // in   1
   .addr  (addr),   // in  16

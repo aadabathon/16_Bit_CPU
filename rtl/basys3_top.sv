@@ -1,4 +1,4 @@
-// Basys3 top level: wraps cpu16_core + instruction/data memory so the raw
+// Basys3 top level: wraps adam16_core + instruction/data memory so the raw
 // mem_* bus never reaches package pins, and lets a human single-step the
 // CPU with a button instead of free-running at 100 MHz.
 module basys3_top (
@@ -28,7 +28,7 @@ module basys3_top (
   logic [15:0] dbg_pc, dbg_ir, dbg_alu_y;
   logic        dbg_n, dbg_z, dbg_p;
 
-  cpu16_core u_cpu (
+  adam16_core u_cpu (
     .clk      (core_clk),
     .rst      (rst_clean),
     .mem_rdata(mem_rdata),
@@ -43,8 +43,8 @@ module basys3_top (
     .dbg_p    (dbg_p)
   );
 
-  SramSBC #(
-    .INIT_FILE("C:/Users/adams/Projects/16_Bit_CPU/fpga/mem/cpu16_sum_array.mem")
+  adam16_sram #(
+    .INIT_FILE("C:/Users/adams/Projects/16_Bit_CPU/fpga/mem/adam16_sum_array.mem")
   ) imem (
     .clk  (core_clk),
     .we   (mem_we),

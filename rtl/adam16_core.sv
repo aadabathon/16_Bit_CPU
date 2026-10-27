@@ -1,4 +1,4 @@
-module cpu16_core (
+module adam16_core (
   input  logic        clk,
   input  logic        rst,
   input  logic [15:0] mem_rdata,
@@ -28,7 +28,7 @@ module cpu16_core (
   logic [15:0] pc;
   logic [15:0] alu_y_w;
 
-  cpu16_control_fsm u_ctrl(
+  adam16_control_fsm u_ctrl(
     .clk(clk),
     .rst(rst),
     .ir(ir),
@@ -52,7 +52,7 @@ module cpu16_core (
     .mar_src_sel(mar_src_sel)
   );
 
-  cpu16_datapath u_dp(
+  adam16_datapath u_dp(
     .clk(clk),
     .rst(rst),
     .mem_rdata(mem_rdata),

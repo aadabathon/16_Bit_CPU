@@ -2,12 +2,12 @@
 
 ![Top-level block diagram](figures/top_level.svg)
 
-The core (`cpu16_core`) is split the classic way:
+The core (`adam16_core`) is split the classic way:
 
-- **`cpu16_control_fsm`** holds the state register and is the only block that decodes the opcode. Each cycle it drives 14 control signals to the datapath, plus `mem_we` to memory.
-- **`cpu16_datapath`** holds PC, IR, MAR, MDR, the register file, the ALU and the N/Z/P flags. It reports `ir[15:0]` and `N, Z, P` back to the controller.
+- **`adam16_control_fsm`** holds the state register and is the only block that decodes the opcode. Each cycle it drives 14 control signals to the datapath, plus `mem_we` to memory.
+- **`adam16_datapath`** holds PC, IR, MAR, MDR, the register file, the ALU and the N/Z/P flags. It reports `ir[15:0]` and `N, Z, P` back to the controller.
 
-Memory sits outside the core on a simple synchronous single-port bus. In simulation the testbench wires `cpu16_core` straight to `SramSBC`. On the Basys3 board, `basys3_top` adds button debouncing, single-step clocking and an LED debug view.
+Memory sits outside the core on a simple synchronous single-port bus. In simulation the testbench wires `adam16_core` straight to `adam16_sram`. On the Basys3 board, `basys3_top` adds button debouncing, single-step clocking and an LED debug view.
 
 ## Clocking and reset
 
@@ -45,12 +45,12 @@ Every module has its own interface sheet in [`interfaces/`](interfaces/README.md
 
 | Module | Role |
 |---|---|
-| [`cpu16_core`](interfaces/cpu16_core.md) | The processor: memory port + debug outputs |
-| [`cpu16_control_fsm`](interfaces/cpu16_control_fsm.md) | Controller |
-| [`cpu16_datapath`](interfaces/cpu16_datapath.md) | Registers, muxes, flags |
-| [`cpu16_regfile`](interfaces/cpu16_regfile.md) | 8 × 16 register file |
-| [`cpu16_alu`](interfaces/cpu16_alu.md) | 16-operation ALU |
-| [`SramSBC`](interfaces/SramSBC.md) | 64K × 16 synchronous memory |
+| [`adam16_core`](interfaces/adam16_core.md) | The processor: memory port + debug outputs |
+| [`adam16_control_fsm`](interfaces/adam16_control_fsm.md) | Controller |
+| [`adam16_datapath`](interfaces/adam16_datapath.md) | Registers, muxes, flags |
+| [`adam16_regfile`](interfaces/adam16_regfile.md) | 8 × 16 register file |
+| [`adam16_alu`](interfaces/adam16_alu.md) | 16-operation ALU |
+| [`adam16_sram`](interfaces/adam16_sram.md) | 64K × 16 synchronous memory |
 | [`basys3_top`](interfaces/basys3_top.md) | Basys3 wrapper |
 | [`debounce`](interfaces/debounce.md) | Button synchronizer + debouncer |
-| [`cpu16_isa`](interfaces/cpu16_isa.md) | Package: encodings and helpers |
+| [`adam16_isa`](interfaces/adam16_isa.md) | Package: encodings and helpers |

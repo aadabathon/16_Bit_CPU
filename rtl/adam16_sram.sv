@@ -1,4 +1,4 @@
-module SramSBC #(
+module adam16_sram #(
   parameter INIT_FILE = ""
 ) (
   input  wire        clk,

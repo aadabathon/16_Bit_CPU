@@ -1,4 +1,4 @@
-# cpu16
+# adam16
 
 [![CI](https://github.com/aadabathon/16_Bit_CPU/actions/workflows/ci.yml/badge.svg)](https://github.com/aadabathon/16_Bit_CPU/actions/workflows/ci.yml)
 
@@ -28,21 +28,21 @@ A 16-bit soft-core processor written in SystemVerilog. Loosely inspired by LC-3 
 ## Module Hierarchy
 
 ```
-cpu16_core
-├── cpu16_control_fsm   (14-state FSM; the only block that decodes the opcode)
-│   └── [imports] cpu16_isa
-└── cpu16_datapath      (PC, IR, MAR, MDR; ALU; register file wiring)
-    ├── cpu16_regfile   (8 × 16-bit, 3 read ports / 1 write port)
-    └── cpu16_alu       (combinational; two-group operation select)
-    └── [imports] cpu16_isa
+adam16_core
+├── adam16_control_fsm   (14-state FSM; the only block that decodes the opcode)
+│   └── [imports] adam16_isa
+└── adam16_datapath      (PC, IR, MAR, MDR; ALU; register file wiring)
+    ├── adam16_regfile   (8 × 16-bit, 3 read ports / 1 write port)
+    └── adam16_alu       (combinational; two-group operation select)
+    └── [imports] adam16_isa
 
-cpu16_isa               (package: opcode enum, dec_t struct, decode(), sext/zext helpers)
-SramSBC                 (65536 × 16-bit synchronous SRAM — used in simulation only)
+adam16_isa               (package: opcode enum, dec_t struct, decode(), sext/zext helpers)
+adam16_sram                 (65536 × 16-bit synchronous SRAM — used in simulation only)
 ```
 
 ### Memory Interface
 
-`cpu16_core` drives a simple synchronous bus. Connect it to any SRAM that presents read data on the cycle after `mem_addr` is stable.
+`adam16_core` drives a simple synchronous bus. Connect it to any SRAM that presents read data on the cycle after `mem_addr` is stable.
 
 | Signal | Direction | Width | Description |
 |---|---|---|---|
@@ -202,18 +202,18 @@ See [docs/02_datapath.md](docs/02_datapath.md) for the full diagram and every se
 ```
 16_Bit_CPU/
 ├── rtl/
-│   ├── cpu16_isa.sv          — ISA package: opcode enum, dec_t, decode(), sext/zext helpers
-│   ├── cpu16_alu.sv          — Combinational ALU (ALU0 and ALU1 groups, pure logic)
-│   ├── cpu16_regfile.sv      — 8 × 16-bit register file (3R async / 1W sync)
-│   ├── cpu16_datapath.sv     — PC, IR, MAR, MDR, flags; ALU and regfile interconnect
-│   ├── cpu16_control_fsm.sv  — 14-state FSM; all decode and control signal generation
-│   ├── cpu16_core.sv         — Top-level: wires control and datapath together
-│   ├── Sram.sv               — SramSBC: synchronous 65536 × 16-bit memory
+│   ├── adam16_isa.sv          — ISA package: opcode enum, dec_t, decode(), sext/zext helpers
+│   ├── adam16_alu.sv          — Combinational ALU (ALU0 and ALU1 groups, pure logic)
+│   ├── adam16_regfile.sv      — 8 × 16-bit register file (3R async / 1W sync)
+│   ├── adam16_datapath.sv     — PC, IR, MAR, MDR, flags; ALU and regfile interconnect
+│   ├── adam16_control_fsm.sv  — 14-state FSM; all decode and control signal generation
+│   ├── adam16_core.sv         — Top-level: wires control and datapath together
+│   ├── adam16_sram.sv               — adam16_sram: synchronous 65536 × 16-bit memory
 │   ├── basys3_top.sv         — Basys3 wrapper: single-step clock, LED debug view
 │   └── debounce.sv           — Button synchronizer + debouncer
 ├── tb/
-│   ├── tb_cpu16.sv           — Directed RTL testbench: 16 test programs
-│   ├── tb_cpu16_gate.sv      — Gate-level (post-synthesis) testbench
+│   ├── tb_adam16.sv           — Directed RTL testbench: 16 test programs
+│   ├── tb_adam16_gate.sv      — Gate-level (post-synthesis) testbench
 │   └── tb_control_fsm_spec.sv — Control FSM vs. its documented spec (make -C docs check)
 ├── docs/                     — Microarchitecture docs: interfaces/, bubble diagrams, figures, tools/
 ├── fpga/                     — Vivado project, constraints, memory image
@@ -233,10 +233,10 @@ You need Icarus Verilog, Verilator, Python 3 and Graphviz. On Ubuntu: `sudo apt 
 
 | Command | What it does |
 |---|---|
-| `make test` | RTL testbench (`tb/tb_cpu16.sv`) under Icarus Verilog |
+| `make test` | RTL testbench (`tb/tb_adam16.sv`) under Icarus Verilog |
 | `make lint` | Verilator lint with all warnings enabled |
 | `make check` | Everything CI runs: `test`, `lint`, and the documentation checks |
-| `make wave` | Testbench with a VCD dump at `build/cpu16.vcd`, for GTKWave |
+| `make wave` | Testbench with a VCD dump at `build/adam16.vcd`, for GTKWave |
 | `make docs` | Regenerate the documentation figures and tables (also needs the WaveDrom CLI) |
 
 CI runs `make check` on every push and pull request. Icarus prints some `sorry: constant selects in always_* processes` notes while compiling; they are harmless, and the Makefile filters them out.
@@ -247,7 +247,7 @@ Where this project is going next: [ROADMAP.md](ROADMAP.md).
 
 ```
 ================================================
- CPU16 testbench
+ adam16 testbench
 ================================================
 
 [T1] addi_add
@@ -341,4 +341,4 @@ LOOP:
 
 ### Running This Example
 
-The example is already included as **T12** in `tb/tb_cpu16.sv`, and as a memory image in `fpga/mem/cpu16_sum_array.mem`. Run it with `make test`. To load the program onto a different simulator, initialize memory with the encoding table above (16 words starting at address `0x0000`).
+The example is already included as **T12** in `tb/tb_adam16.sv`, and as a memory image in `fpga/mem/adam16_sum_array.mem`. Run it with `make test`. To load the program onto a different simulator, initialize memory with the encoding table above (16 words starting at address `0x0000`).

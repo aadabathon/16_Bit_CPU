@@ -1,6 +1,6 @@
 # 5. Execution timing
 
-cpu16 is a **multi-cycle** machine, not a pipelined one. Exactly one instruction is in flight at a time, and it walks the FSM from `S_IF0` back to `S_IF0`. This page covers what that costs and where the cycles go. The last section collects notes for a pipelined successor.
+adam16 is a **multi-cycle** machine, not a pipelined one. Exactly one instruction is in flight at a time, and it walks the FSM from `S_IF0` back to `S_IF0`. This page covers what that costs and where the cycles go. The last section collects notes for a pipelined successor.
 
 ## Cycles per instruction class
 
@@ -19,7 +19,7 @@ A taken branch costs the same as an untaken one. With only one instruction in fl
 
 ## Example: `sum_array`
 
-The demo program (`fpga/mem/cpu16_sum_array.mem`, testbench T12) runs 35 instructions in **191 cycles**, so **CPI = 5.46**. Simulation confirms it: `TRAP` finishes in cycle 190, counting from 0.
+The demo program (`fpga/mem/adam16_sum_array.mem`, testbench T12) runs 35 instructions in **191 cycles**, so **CPI = 5.46**. Simulation confirms it: `TRAP` finishes in cycle 190, counting from 0.
 
 | Part | Instructions | Cycles |
 |---|---|---|

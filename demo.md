@@ -1,8 +1,8 @@
-# Demoing the CPU16 on Basys3
+# Demoing the adam16 on Basys3
 
 This walks through a live hardware demo of `basys3_top`, using the preloaded
-program in `fpga/mem/cpu16_sum_array.mem` (same program as
-`tb_cpu16.sv:test_sum_array()`), which sums the five words at
+program in `fpga/mem/adam16_sum_array.mem` (same program as
+`tb_adam16.sv:test_sum_array()`), which sums the five words at
 `mem[0x000B..0x000F]` (1+2+3+4+5) and stores the result (15) in `R3` and
 `mem[0x0010]`.
 
@@ -138,5 +138,5 @@ housekeeping instruction.)
   the ALU trace.
 - **Reprogramming = only way to change the program.** The image is baked
   into the bitstream via `$readmemh` at synthesis time
-  (`fpga/mem/cpu16_sum_array.mem`). Loading a different program means
+  (`fpga/mem/adam16_sum_array.mem`). Loading a different program means
   editing that file and re-running synthesis/implementation/bitgen.
