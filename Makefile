@@ -2,8 +2,10 @@
 #
 #   make test     RTL testbench (Icarus Verilog)
 #   make lint     Verilator lint, all warnings on
+#   make regress  every sw/tests program + RANDOM_N random programs on the ISS
+#                 and each core, traces compared (SEED=, RANDOM_N=, CORES=)
 #   make docs     regenerate the documentation figures and tables
-#   make check    everything CI runs: test + lint + docs checks
+#   make check    everything CI runs: test + lint + regress + docs checks
 #   make wave     testbench with a VCD dump (build/adam16.vcd) for GTKWave
 #   make clean
 #
@@ -14,6 +16,11 @@ BUILD := build
 CORE_RTL := rtl/adam16_isa.sv rtl/adam16_alu.sv rtl/adam16_regfile.sv \
             rtl/adam16_datapath.sv rtl/adam16_control_fsm.sv rtl/adam16_core.sv
 FPGA_RTL := rtl/adam16_sram.sv rtl/debounce.sv rtl/basys3_top.sv
+
+PY       := python3
+CORES    ?= multi
+SEED     ?= 1
+RANDOM_N ?= 200
 
 # PINCONNECTEMPTY: outputs deliberately left open with `.port()`.
 LINT_FLAGS := --lint-only -Wall -Wno-PINCONNECTEMPTY
@@ -38,13 +45,16 @@ lint:
 	verilator $(LINT_FLAGS) --top-module basys3_top $(CORE_RTL) $(FPGA_RTL)
 	@echo "lint: clean"
 
+regress:
+	$(PY) sw/regress.py --cores $(CORES) --random $(RANDOM_N) --seed $(SEED)
+
 docs:
 	$(MAKE) -C docs
 
-check: test lint
+check: test lint regress
 	$(MAKE) -C docs check
 
 clean:
 	rm -rf $(BUILD)
 
-.PHONY: all test wave lint docs check clean
+.PHONY: all test wave lint regress docs check clean
