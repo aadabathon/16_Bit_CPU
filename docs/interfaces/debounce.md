@@ -21,7 +21,7 @@ Turns a bouncing push-button into a clean level and a one-cycle pulse. A 2-flop 
 | `btn_clean` | out | 1 | reg | none (power-up 0) | Debounced level: the `stable` flip-flop |
 | `btn_pulse` | out | 1 | comb | none (power-up 0) | `stable & ~stable_d`: high for exactly one `clk` cycle after each rising edge of `btn_clean` |
 
-There is no reset input. On the FPGA every flip-flop powers up at 0, which is state LOW with `cnt = 0`. In simulation the flip-flops start as X, so a testbench has to initialise them.
+There is no reset input. Every flip-flop has a declared power-up value of 0 (state LOW, `cnt = 0`), which the FPGA honours at configuration and simulators apply at time 0. ASIC synthesis ignores power-up values, but this module is only used on the FPGA.
 
 ## State machine
 

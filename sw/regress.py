@@ -11,8 +11,9 @@ For each program:
   3. run it on each core under tb/tb_program.sv and require the retire trace
      and the final registers to equal the ISS's, instruction for instruction.
 
-Prints one line per program with the cycle count on each core, then the
-totals, and exits 1 if anything failed. Work files go to build/regress/.
+Prints one line per program: instructions retired (HALT included), and the
+cycles from reset until HALT retires on each core. Then the totals; exits 1
+if anything failed. Work files go to build/regress/.
 """
 
 import argparse
@@ -54,13 +55,12 @@ def build(core):
 def check_expectations(src, m):
     errors = []
     for lhs, rhs in EXPECT.findall(open(src).read()):
-        lhs = lhs.upper()
-        if lhs == "NZP":
+        if lhs.upper() == "NZP":
             want, got = int(rhs, 2), m.nzp
             show = lambda v: f"{v:03b}"
         else:
             want = parse_number(rhs) & 0xFFFF
-            got = m.r[int(lhs[1])] if lhs[0] == "R" else m.mem[parse_number(lhs[2:-1])]
+            got = m.r[int(lhs[1])] if lhs[0] in "Rr" else m.mem[parse_number(lhs[2:-1])]
             show = lambda v: f"0x{v:04X}"
         if got != want:
             errors.append(f"ISS: {lhs} = {show(got)}, expected {show(want)}")
@@ -105,8 +105,9 @@ def run_program(src, sims, max_instr):
     cycles = {}
     for core, exe in sims.items():
         tr = f"{base}.{core}"
+        # No core needs more than 8 cycles an instruction, plus pipeline fill.
         r = subprocess.run(["vvp", "-n", exe, f"+MEM={base}.mem", f"+TRACE={tr}",
-                            f"+MAXCYC={20 * max_instr}"], capture_output=True, text=True)
+                            f"+MAXCYC={8 * len(trace) + 64}"], capture_output=True, text=True)
         done = DONE.search(r.stdout)
         if r.returncode or not done or "TIMEOUT" in r.stdout:
             errors.append(f"{core}: simulation did not finish\n{r.stdout[-400:]}{r.stderr[-400:]}")
@@ -118,7 +119,11 @@ def run_program(src, sims, max_instr):
         elif done.group(3).strip() != want_regs:
             errors.append(f"{core}: final registers {done.group(3).strip()}\n"
                           f"        ISS        {want_regs}")
-    return name, cycles, len(trace), errors
+    if name.startswith("rand") and not errors:          # keep only failures' files
+        for ext in [".asm", ".mem", ".lst", ".iss"] + [f".{c}" for c in sims]:
+            if os.path.exists(base + ext):
+                os.remove(base + ext)
+    return name, cycles, len(trace) + 1, errors          # + 1: HALT retires too
 
 
 def main():

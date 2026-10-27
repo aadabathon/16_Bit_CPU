@@ -1,6 +1,6 @@
 # `adam16_alu`
 
-**Source:** `rtl/adam16_alu.sv` · **Instantiated in:** `adam16_datapath` (as `alu0`)
+**Source:** `rtl/adam16_alu.sv` · **Instantiated in:** `adam16_datapath` (as `alu0`), `adam16_pipe_core` (as `alu`)
 
 A purely combinational 16-bit ALU with 16 operations in two groups of eight. It has no clock, no state and no flag outputs: the datapath derives N/Z/P from the write-back value.
 

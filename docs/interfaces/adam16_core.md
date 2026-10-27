@@ -1,8 +1,8 @@
 # `adam16_core`
 
-**Source:** `rtl/adam16_core.sv` · **Instantiated in:** `basys3_top` (as `u_cpu`), `tb_adam16`, `tb_adam16_gate` · **Contains:** `adam16_control_fsm` (`u_ctrl`), `adam16_datapath` (`u_dp`)
+**Source:** `rtl/adam16_core.sv` · **Instantiated in:** `basys3_top` (as `u_cpu`, when `PIPELINED = 0`), `tb_adam16`, `tb_program`, `tb_adam16_gate` · **Contains:** `adam16_control_fsm` (`u_ctrl`), `adam16_datapath` (`u_dp`)
 
-The multicycle processor (5–8 cycles per instruction). It has a single memory port: synchronous, word-addressed, with a one-cycle read latency, shared by instruction fetch and data access. It also has a set of debug outputs. Inside, it only wires the controller to the datapath and taps the debug signals; there is no logic of its own.
+The multicycle processor (5–8 cycles per instruction). Its pipelined counterpart is [`adam16_pipe_core`](adam16_pipe_core.md). It has a single memory port: synchronous, word-addressed, with a one-cycle read latency, shared by instruction fetch and data access. It also has a set of debug outputs. Inside, it only wires the controller to the datapath and taps the debug signals; there is no logic of its own.
 
 ![adam16_core symbol](../figures/symbols/adam16_core.svg)
 
@@ -12,7 +12,7 @@ The multicycle processor (5–8 cycles per instruction). It has a single memory 
 |---|---|---|---|---|---|
 | `clk` | in | 1 | clock | — | Core clock. Every register in the core updates on the rising edge |
 | `rst` | in | 1 | reset | — | One rising edge with `rst = 1` (`ce` is ignored): FSM → `S_IF0`; PC, IR, MAR, MDR, R0–R7 → `0x0000`; N Z P → `0 1 0` |
-| `ce` | in | 1 | data | — | Clock enable. The core advances one cycle on each rising edge with `ce = 1` and holds otherwise. Drive the memory's `en` from the same signal. Tie to 1 to run at full speed; `basys3_top` drives it from the step button |
+| `ce` | in | 1 | data | — | Clock enable. The core advances one cycle on each rising edge with `ce = 1` and holds otherwise. Drive the memory's `en` from the same signal. Tie to 1 to run at full speed; `basys3_top` drives it with a one-cycle pulse per press of the step button |
 | `mem_rdata` | in | 16 | data | — | Read data. Must equal `M[mem_addr]` as presented during the *previous* cycle. Latched into IR in `S_IF2` and into MDR in `S_MEM_RD1`; ignored in every other state |
 | `mem_addr` | out | 16 | reg | `0x0000` | Memory address (= MAR). Changes only on edges that end `S_IF0` or `S_EX_EA` |
 | `mem_wdata` | out | 16 | comb | — | Write data = register-file read port 1, which the controller points at the store source `R[IR[11:9]]` in `S_MEM_WR0`. Only meaningful while `mem_we = 1` |

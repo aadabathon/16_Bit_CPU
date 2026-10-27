@@ -1,6 +1,6 @@
 # `adam16_sram`
 
-**Source:** `rtl/adam16_sram.sv` · **Instantiated in:** `basys3_top` (as `imem`), `tb_adam16`, `tb_adam16_gate`
+**Source:** `rtl/adam16_sram.sv` · **Instantiated in:** `basys3_top` (as `u_mem`, when `PIPELINED = 0`), `tb_adam16`, `tb_program`, `tb_adam16_gate`
 
 A 64K × 16 single-port memory with a registered (synchronous) read. In simulation it is the program and data memory. On the FPGA it is written in the synchronous-read style that synthesis maps to block RAM. It has no reset: contents come from `INIT_FILE`, or start uninitialised.
 
@@ -10,7 +10,7 @@ A 64K × 16 single-port memory with a registered (synchronous) read. In simulati
 
 | Name | Type | Default | Description |
 |---|---|---|---|
-| `INIT_FILE` | string | `""` | Hex image loaded with `$readmemh` at time 0 (simulation) or at configuration (FPGA). `""` loads nothing. `basys3_top` passes an absolute path ([known issues](../06_known_issues.md#2-repository-housekeeping)) |
+| `INIT_FILE` | string | `""` | Hex image loaded with `$readmemh` at time 0 (simulation) or at configuration (FPGA). `""` loads nothing. `basys3_top` passes its `MEM_INIT` |
 
 ## Ports
 

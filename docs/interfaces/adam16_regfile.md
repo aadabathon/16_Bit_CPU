@@ -1,6 +1,6 @@
 # `adam16_regfile`
 
-**Source:** `rtl/adam16_regfile.sv` · **Instantiated in:** `adam16_datapath` (as `rf`, `BYPASS = 0`)
+**Source:** `rtl/adam16_regfile.sv` · **Instantiated in:** `adam16_datapath` (as `rf`, `BYPASS = 0`), `adam16_pipe_core` (as `rf`, `BYPASS = 1`)
 
 Eight 16-bit general-purpose registers, R0–R7, with two read ports and one write port. Reads are asynchronous (combinational) and the write is synchronous. No instruction ever needs more than two register reads at once, so two ports are enough.
 

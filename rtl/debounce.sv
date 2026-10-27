@@ -9,9 +9,11 @@ module debounce #(
 
   localparam int CW = $clog2(CYCLES+1);   // counter width: holds 0..CYCLES
 
-  logic [1:0] sync;
-  logic [CW-1:0] cnt;
-  logic stable, stable_d;
+  // Power-up values (FPGA flops honour them); there is no reset input.
+  logic [1:0]    sync     = 2'b00;
+  logic [CW-1:0] cnt      = '0;
+  logic          stable   = 1'b0;
+  logic          stable_d = 1'b0;
 
   always_ff @(posedge clk) sync <= {sync[0], btn_in};
 

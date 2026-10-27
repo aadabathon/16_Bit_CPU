@@ -1,8 +1,8 @@
 # `adam16_isa` (package)
 
-**Source:** `rtl/adam16_isa.sv` · **Imported by:** `adam16_control_fsm` (enums, `decode()`), `adam16_datapath` (sign/zero-extend functions)
+**Source:** `rtl/adam16_isa.sv` · **Imported by:** `adam16_control_fsm` (enums, `decode()`), `adam16_datapath` (sign/zero-extend functions), `adam16_pipe_decode` (enums, sign/zero-extend functions)
 
-This package holds the instruction-set encodings, so the controller and the datapath agree on them. It has no ports; its interface is the types and functions below. Compile it before any module that imports it.
+This package holds the instruction-set encodings, so every module that decodes instructions agrees on them. It has no ports; its interface is the types and functions below. Compile it before any module that imports it.
 
 `docs/tools/check_ports.py` checks that the opcode and funct values here match `docs/tools/fsm_spec.py`, the source of the control bubble diagrams.
 

@@ -129,15 +129,27 @@ def parse_file(path):
     return mods
 
 
+def _block(body, start):
+    """Text of the always block starting at body[start]: up to the `end` that
+    closes its first `begin`, or up to the first ';' for a single statement."""
+    semi = body.find(";", start)
+    first = re.compile(r"\bbegin\b").search(body, start)
+    if not first or (semi != -1 and first.start() > semi):
+        return body[start: semi + 1 if semi != -1 else len(body)]
+    depth = 0
+    for t in re.finditer(r"\b(begin|end)\b", body[first.start():]):
+        depth += 1 if t.group(1) == "begin" else -1
+        if depth == 0:
+            return body[start: first.start() + t.end()]
+    return body[start:]
+
+
 def _parse_body(mod, body):
     for am in re.finditer(r"\bassign\s+(\w+)\s*=\s*([^;]+);", body):
         mod.assigns[am.group(1)] = " ".join(am.group(2).split())
     for kind, target in (("always_comb", mod.comb_nets), ("always_ff", mod.reg_nets)):
         for bm in re.finditer(rf"\b{kind}\b", body):
-            # the block runs to the next always/assign/instance-ish keyword; good enough here
-            nxt = re.search(r"\b(always_comb|always_ff|assign|endmodule)\b|\w+\s+\w+\s*\(\s*\.",
-                            body[bm.end():])
-            block = body[bm.end(): bm.end() + (nxt.start() if nxt else len(body))]
+            block = _block(body, bm.end())
             mod.blocks.append((kind, block))
             for lhs in re.findall(r"(\w+)(?:\[[^\]]*\])?\s*<?=(?!=)", block):
                 target.add(lhs)

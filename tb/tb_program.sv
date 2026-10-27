@@ -6,6 +6,7 @@
 //    +MEM=<file.mem>      program image ($readmemh); all other words are 0
 //    +TRACE=<file>        retire trace, one line per instruction (format below)
 //    +MAXCYC=<n>          give up after n cycles (default 200000)
+//    +PIPEVIEW=<file>     pipelined core only: what each stage holds, per cycle
 //
 //  Compile with -DPIPE for the pipelined core, without it for the multicycle
 //  core. The run ends when TRAP x025 (HALT) retires; HALT itself is not
@@ -67,6 +68,19 @@ module tb_program;
   function automatic logic [15:0] reg_val(input int r);
     return dut.rf.r[r];
   endfunction
+
+  // +PIPEVIEW=<file>: one line per cycle with what each stage holds,
+  //   imem_addr redirect  {valid pc ir} for ID, EX, MEM, WB
+  // (docs/tools/gen_pipeview.py turns it into the table in 07_pipeline.md).
+  int    pv_fd = 0;
+  string pv_file;
+  initial if ($value$plusargs("PIPEVIEW=%s", pv_file)) pv_fd = $fopen(pv_file, "w");
+  always @(negedge clk)
+    if (pv_fd != 0 && !rst)
+      $fdisplay(pv_fd, "%04h %0d  %0d %04h %04h  %0d %04h %04h  %0d %04h %04h  %0d %04h %04h",
+                imem_addr, dut.redirect,
+                dut.d_valid, dut.d_pc, dut.d_ir, dut.e_valid, dut.e_pc, dut.e_ir,
+                dut.m_valid, dut.m_pc, dut.m_ir, dut.w_valid, dut.w_pc, dut.w_ir);
 `else
   logic [15:0] mem_addr, mem_wdata, mem_rdata;
   logic        mem_we;
@@ -122,9 +136,12 @@ module tb_program;
     repeat (2) @(posedge clk);
     #1 rst = 0;
 
+    // One iteration per clock cycle, sampled mid-cycle. Stop in the cycle
+    // HALT retires, before its own R7 write lands on the next edge.
     cycles = 0; instret = 0; done = 0;
     while (!done && cycles < maxcyc) begin
-      @(negedge clk);                         // sample the cycle's retire signals
+      @(negedge clk);
+      cycles++;
       if (rt_valid) begin
         if (rt_ir == 16'h9025) done = 1;     // HALT: stop, don't log
         else begin
@@ -134,8 +151,6 @@ module tb_program;
           instret++;
         end
       end
-      cycles++;
-      @(posedge clk);
     end
     $fclose(fd);
     if (!done) $display("TIMEOUT after %0d cycles", cycles);

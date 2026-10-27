@@ -5,12 +5,19 @@ One page per RTL module: what it does, its schematic symbol, every parameter and
 ```
 basys3_top .............................. FPGA wrapper (Basys3 board)
 ├── debounce           (db_rst, db_step)  button synchronizer + debouncer
-├── adam16_core        (u_cpu)            the processor
-│   ├── adam16_control_fsm  (u_ctrl)      14-state controller
-│   └── adam16_datapath     (u_dp)        PC, IR, MAR, MDR, flags, muxes
-│       ├── adam16_regfile  (rf)          8 x 16 register file
-│       └── adam16_alu      (alu0)        16-operation ALU
-└── adam16_sram        (imem)             64K x 16 synchronous memory
+├── PIPELINED = 0:
+│   ├── adam16_core    (u_cpu)            multicycle processor
+│   │   ├── adam16_control_fsm (u_ctrl)   14-state controller
+│   │   └── adam16_datapath    (u_dp)     PC, IR, MAR, MDR, flags, muxes
+│   │       ├── adam16_regfile (rf)       8 x 16 register file, BYPASS = 0
+│   │       └── adam16_alu     (alu0)     16-operation ALU
+│   └── adam16_sram    (mem)              64K x 16 single-port memory
+└── PIPELINED = 1:
+    ├── adam16_pipe_core (u_cpu)          5-stage pipelined processor
+    │   ├── adam16_pipe_decode (dec)      ID-stage decoder
+    │   ├── adam16_regfile     (rf)       8 x 16 register file, BYPASS = 1
+    │   └── adam16_alu         (alu)      16-operation ALU
+    └── adam16_dpram   (mem)              64K x 16 dual-port memory
 
 adam16_isa  (package)                     opcode / funct enums, decode(), sign/zero extend
 ```
@@ -22,6 +29,9 @@ adam16_isa  (package)                     opcode / funct enums, decode(), sign/z
 | `adam16_control_fsm` | `rtl/adam16_control_fsm.sv` | yes | 7 / 15 | [adam16_control_fsm](adam16_control_fsm.md) |
 | `adam16_core` | `rtl/adam16_core.sv` | yes | 4 / 9 | [adam16_core](adam16_core.md) |
 | `adam16_datapath` | `rtl/adam16_datapath.sv` | yes | 18 / 8 | [adam16_datapath](adam16_datapath.md) |
+| `adam16_dpram` | `rtl/adam16_dpram.sv` | yes | 6 / 2 | [adam16_dpram](adam16_dpram.md) |
+| `adam16_pipe_core` | `rtl/adam16_pipe_core.sv` | yes | 5 / 10 | [adam16_pipe_core](adam16_pipe_core.md) |
+| `adam16_pipe_decode` | `rtl/adam16_pipe_decode.sv` | no | 1 / 13 | [adam16_pipe_decode](adam16_pipe_decode.md) |
 | `adam16_regfile` | `rtl/adam16_regfile.sv` | yes | 8 / 2 | [adam16_regfile](adam16_regfile.md) |
 | `adam16_sram` | `rtl/adam16_sram.sv` | yes | 5 / 1 | [adam16_sram](adam16_sram.md) |
 | `basys3_top` | `rtl/basys3_top.sv` | yes | 4 / 1 | [basys3_top](basys3_top.md) |
