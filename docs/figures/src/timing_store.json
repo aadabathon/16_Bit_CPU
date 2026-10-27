@@ -8,7 +8,8 @@
     { "name": "mem_addr",   "wave": "==...=.=", "data": ["0008","0009 (PC)","0010 (EA)","000A"], "node": ".a...c.." },
     { "name": "mem_rdata",  "wave": "=.=...x=", "data": ["D3FA","5606 = ST R3,#6","000F"], "node": "..b...de" },
     { "name": "mem_we",     "wave": "0....10." },
-    { "name": "mem_wdata",  "wave": "=..=....", "data": ["R1 = 0010","R3 = 000F"] }
+    { "name": "ra1_sel",    "wave": "=....==.", "data": ["00 (IR[5:3])","01","00"] },
+    { "name": "mem_wdata",  "wave": "=....==.", "data": ["0000","R3 = 000F","0000"] }
   ],
   {},
   [ "fetch",
@@ -23,6 +24,6 @@
   ],
   "edge": ["a~>b 1-cycle SRAM read", "c~>d old", "d~>e new"],
   "head": { "text": "ST R3, #6 at PC = 0x0009 (sum_array, after the loop): 6 cycles" },
-  "foot": { "text": "From RTL simulation. mem_wdata = regfile port 2 every cycle; used only while mem_we = 1." },
+  "foot": { "text": "From RTL simulation. mem_wdata = regfile port 1; ra1_sel aims it at the store source in MEM_WR0." },
   "config": { "hscale": 2 }
 }

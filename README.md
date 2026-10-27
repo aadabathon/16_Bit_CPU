@@ -1,53 +1,87 @@
-# cpu16
+# adam16
 
-A 16-bit soft-core processor written in SystemVerilog. Loosely inspired by LC-3 with several intentional departures: two ALU opcode groups giving 16 distinct ALU operations, flags not set by load instructions, and a TRAP mechanism for software-defined system calls. The design targets synchronous single-port SRAM and is controlled by a multi-cycle FSM.
+[![CI](https://github.com/aadabathon/16_Bit_CPU/actions/workflows/ci.yml/badge.svg)](https://github.com/aadabathon/16_Bit_CPU/actions/workflows/ci.yml)
 
-**Microarchitecture documentation** (block diagrams, per-module port interfaces, control bubble diagrams, timing diagrams) lives in [`docs/`](docs/README.md). `make -C docs check` proves the docs match the RTL.
+A 16-bit processor in SystemVerilog, with two implementations of one frozen instruction set:
+
+- **`adam16_core`**: multicycle. A 14-state controller and a classic datapath on one single-port memory, 5–8 cycles per instruction.
+- **`adam16_pipe_core`**: five-stage pipeline (IF ID EX MEM WB) on one dual-port memory. Full forwarding, no stalls, one bubble per taken branch: about 1.2 cycles per instruction.
+
+The ISA is loosely based on LC-3, with deliberate departures: two ALU opcode groups giving 16 operations, a signed CMP, loads that leave the flags alone, and TRAP as a direct jump. The repository also has an assembler, an instruction-set simulator, a regression that runs every program on the ISS and both cores and compares them instruction by instruction, a Basys3 FPGA build, and Design Compiler scripts.
+
+**Documentation:** [`docs/`](docs/README.md) has block diagrams, bubble diagrams, an interface sheet for every module, the pipeline chapter and the verification plan. Most of it is generated from the RTL or checked against it by `make check`.
 
 ---
 
-## Architecture at a Glance
+## Quick start
+
+You need Icarus Verilog, Verilator, Python 3 and Graphviz. On Ubuntu: `sudo apt install iverilog verilator graphviz`.
+
+```bash
+make check                                   # everything CI runs
+
+python3 sw/asm.py sw/tests/sum_array.asm -o build/sum.mem -l build/sum.lst
+python3 sw/iss.py build/sum.mem              # instruction count and final registers
+python3 sw/regress.py sw/tests/sum_array.asm # ISS vs both cores: 191 vs 43 cycles
+```
+
+| Command | What it does |
+|---|---|
+| `make test` | Directed testbench on the multicycle core (`tb/tb_adam16.sv`, 47 checks) |
+| `make regress` | Every program in `sw/tests/` plus 200 random programs, on the ISS and both cores; retire traces compared (`SEED=`, `RANDOM_N=`, `CORES=`) |
+| `make demo` | The Basys3 demo in simulation for both cores: checks the press counts in [`demo.md`](demo.md) |
+| `make gate-rtl` | The black-box gate-level testbench, run on the RTL of both cores |
+| `make lint` | Verilator, all warnings, every top and configuration |
+| `make check` | All of the above plus the documentation checks. CI runs it on every push |
+| `make docs` | Regenerate the documentation figures and tables (the timing diagrams also need the WaveDrom CLI) |
+| `make wave` | Directed testbench with a VCD dump at `build/adam16.vcd`, for GTKWave |
+| `make fpga` | Basys3 bitstream with Vivado (`FPGA_CORE=pipe` or `multi`) |
+
+Icarus prints some `sorry: constant selects in always_* processes` notes; they are harmless, and the Makefile filters them out.
+
+---
+
+## Architecture at a glance
 
 | Property | Value |
 |---|---|
 | Data width | 16 bits |
-| Address space | 64 K words (word-addressed; each address holds one 16-bit word) |
-| Registers | R0–R7 (R7 is the link register for JSR / TRAP) |
-| Condition flags | N (negative), Z (zero), P (positive) |
-| Instruction width | 16 bits, fixed |
-| Opcode field | 4 bits |
-| Fetch latency | 3 cycles (synchronous SRAM with 1-cycle read latency) |
-| ALU / branch throughput | 5 cycles |
-| ST / STR throughput | 6 cycles |
-| LD / LDR throughput | 8 cycles |
+| Address space | 64 K words, word-addressed, instructions and data in one space |
+| Registers | R0–R7 (R7 is the link register for JSR / TRAP; R0 is an ordinary register) |
+| Condition flags | N, Z, P; exactly one is set; reset leaves Z |
+| Instructions | 16 bits, fixed fields, 4-bit opcode, 14 opcodes + 2 reserved |
 
----
-
-## Module Hierarchy
+| | `adam16_core` | `adam16_pipe_core` |
+|---|---|---|
+| Organization | multicycle FSM + datapath | 5-stage pipeline |
+| Memory | `adam16_sram`: 1 port, registered read | `adam16_dpram`: fetch port + data port, registered reads |
+| ALU, branch, jump, call, TRAP | 5 cycles | 1 cycle (+1 if it redirects) |
+| Store / load | 6 / 8 cycles | 1 cycle |
+| `sum_array` (35 instructions) | 191 cycles | 43 cycles |
+| 2000 random programs | CPI 5.55 | CPI 1.16 |
 
 ```
-cpu16_core
-├── cpu16_control_fsm   (14-state FSM; the only block that decodes the opcode)
-│   └── [imports] cpu16_isa
-└── cpu16_datapath      (PC, IR, MAR, MDR; ALU; register file wiring)
-    ├── cpu16_regfile   (8 × 16-bit, 3 read ports / 1 write port)
-    └── cpu16_alu       (combinational; two-group operation select)
-    └── [imports] cpu16_isa
+basys3_top                     FPGA wrapper: debounced buttons, single-step clock enable, LED view
+├── PIPELINED = 1 (default)
+│   ├── adam16_pipe_core       5-stage pipeline
+│   │   ├── adam16_pipe_decode    ID-stage decoder
+│   │   ├── adam16_regfile        8 x 16, 2R / 1W, write-first (BYPASS = 1)
+│   │   └── adam16_alu            16 operations
+│   └── adam16_dpram           64K x 16, dual port
+└── PIPELINED = 0
+    ├── adam16_core            multicycle
+    │   ├── adam16_control_fsm    14-state controller; the only opcode decoder
+    │   └── adam16_datapath       PC, IR, MAR, MDR, flags, muxes
+    │       ├── adam16_regfile    8 x 16, 2R / 1W (BYPASS = 0)
+    │       └── adam16_alu
+    └── adam16_sram            64K x 16, single port
 
-cpu16_isa               (package: opcode enum, dec_t struct, decode(), sext/zext helpers)
-SramSBC                 (65536 × 16-bit synchronous SRAM — used in simulation only)
+adam16_isa                     package: opcode / funct enums, decode(), sign / zero extend
 ```
 
-### Memory Interface
+![adam16_pipe_core block diagram](docs/figures/pipeline.svg)
 
-`cpu16_core` drives a simple synchronous bus. Connect it to any SRAM that presents read data on the cycle after `mem_addr` is stable.
-
-| Signal | Direction | Width | Description |
-|---|---|---|---|
-| `mem_addr` | out | 16 | Address driven by the MAR register |
-| `mem_rdata` | in | 16 | Read data (must be stable one cycle after address) |
-| `mem_wdata` | out | 16 | Write data (store source register) |
-| `mem_we` | out | 1 | Write enable |
+Both cores have a clock enable (`ce`), a synchronous active-high reset, and the same debug outputs. The pipeline is described in [docs/07_pipeline.md](docs/07_pipeline.md), the multicycle core in [docs/02_datapath.md](docs/02_datapath.md) and [docs/03_control.md](docs/03_control.md).
 
 ---
 
@@ -99,7 +133,7 @@ All ALU0 operations write condition flags {N, Z, P}.
 
 ### ALU Group 1 — opcode `0001`
 
-All ALU1 operations that produce a result write condition flags. CMP writes flags only (no register writeback).
+All ALU1 operations that produce a result write condition flags. CMP writes flags only (no register writeback). It is a true signed comparison, so it is correct even where `SR1 − SR2` would overflow (e.g. `0x7FFF` vs `0x8000` gives P).
 
 | Mnemonic | funct | Operation |
 |---|---|---|
@@ -110,7 +144,7 @@ All ALU1 operations that produce a result write condition flags. CMP writes flag
 | `LSL1 DR, SR1` | `100` | DR ← SR1 << 1 |
 | `LSR1 DR, SR1` | `101` | DR ← SR1 >> 1 (logical, fills 0) |
 | `ASR1 DR, SR1` | `110` | DR ← SR1 >>> 1 (arithmetic, fills MSB) |
-| `CMP  SR1, SR2` | `111` | flags ← sign(SR1 − SR2) ; no writeback |
+| `CMP  SR1, SR2` | `111` | signed compare: N if SR1 < SR2, Z if equal, P if SR1 > SR2 ; no writeback |
 
 ### Immediate Instructions
 
@@ -144,7 +178,7 @@ All ALU1 operations that produce a result write condition flags. CMP writes flag
 | `RET`         | `1000` | PC ← R7 |
 | `TRAP tvect12`| `1001` | R7 ← PC† ; PC ← ZEXT(tvect12) |
 
-> **TRAP note:** TRAP is a *direct* jump — the vector is the handler address itself, not an index into a vector table as in LC-3. Handlers therefore live in `0x0000–0x0FFF`. `TRAP x025` is the HALT convention used by the testbench.
+> **TRAP note:** TRAP is a *direct* jump — the vector is the handler address itself, not an index into a vector table as in LC-3. Handlers therefore live in `0x0000–0x0FFF`. `TRAP x025` is the HALT convention: the testbenches, the ISS and the assembler's `HALT` use it, but the hardware just jumps to `0x0025`.
 
 **BRx condition codes** — IR[11:9] selects which flags trigger the branch:
 
@@ -157,192 +191,92 @@ All ALU1 operations that produce a result write condition flags. CMP writes flag
 | `BRnp` | `101` | N = 1 or P = 1 (result ≠ 0) |
 | `BRzp` | `011` | Z = 1 or P = 1 (result ≥ 0) |
 | `BR` / `BRnzp` | `111` | always (unconditional) |
+| `NOP` | `000` | never (the assembler's `NOP`, `0xD000`) |
 
 Reset leaves the flags at **Z = 1** (N = P = 0), so exactly one flag is always set and `BRnzp` is unconditional even before the first flag-setting instruction.
 
 ### Undefined Opcodes
 
-Opcodes `1110` and `1111` are reserved. The FSM silently returns to fetch on encountering them (equivalent to a NOP).
+Opcodes `1110` and `1111` are reserved. Both cores treat them as no-ops.
 
 ---
 
-## Microarchitecture
+## Software
 
-### FSM State Diagram
-
-Every instruction begins at **S\_IF0**. The fetch phase takes exactly 3 cycles to absorb the synchronous SRAM read latency. The full control-signal table is in [docs/03_control.md](docs/03_control.md).
-
-![Control FSM](docs/figures/fsm_overview.svg)
-
-Detailed *condition / output* bubble diagrams for every arc: [docs/03_control.md](docs/03_control.md#bubble-diagrams). Port interfaces for every module: [docs/interfaces](docs/interfaces/README.md).
-
-| Instruction class | Total cycles |
+| Tool | What it does |
 |---|---|
-| ALU, ADDI, ANDI, LEA, BRx, JMP, JSR, TRAP | **5** |
-| ST / STR | **6** |
-| LD / LDR | **8** |
+| [`sw/asm.py`](sw/asm.py) | Two-pass assembler: labels, `.org`, `.word`, `.space`, `HALT`, `NOP`, PC-relative label operands, range checks. Writes a `$readmemh` image and a listing |
+| [`sw/iss.py`](sw/iss.py) | Instruction-set simulator: the golden model. Writes a retire trace in the same format as the RTL testbench |
+| [`sw/regress.py`](sw/regress.py) | Assembles, runs the ISS, checks each test's `;!` expectations, runs both cores, compares traces and final registers |
+| [`sw/randprog.py`](sw/randprog.py) | Random programs that always halt, dense with pipeline hazards |
+| [`sw/tests/`](sw/tests) | Directed programs: every operation, branch mask, call form, memory mode, signed CMP, hazard patterns, squashing |
 
-### Datapath Highlights
+The assembler's syntax is in the docstring at the top of `sw/asm.py`. An example, the program the FPGA demo runs:
 
-See [docs/02_datapath.md](docs/02_datapath.md) for the full diagram and every select code.
+```asm
+; sum_array: sum mem[0x000B..0x000F] = 1+2+3+4+5 = 15, store the result at 0x0010.
+;! R3 == 15
+;! M[0x0010] == 15
 
-- **No opcode decode in the datapath**: it only slices fixed IR fields; every opcode-dependent choice is a select from the FSM.
-- **3-read-port register file**: SR1 / BaseR is always IR[8:6]; SR2 is IR[5:3]; the third port supplies store data (IR[11:9]) or R7 (RET, `ra2_sel = 1`).
-- **PC mux** (6 sources, `pc_src_sel[2:0]`): PC+1, PC+SEXT(off9), PC+SEXT(off11), BaseR, R7, ZEXT(tvect12).
-- **ALU** (`alu_op[3:0] = {group, funct}`): A = SR1/BaseR or PC; B = SR2, SEXT(imm6), ZEXT(imm6), SEXT(off9), SEXT(off6) or 0.
-- **Writeback mux** (3 sources): ALU result, MDR (loads), PC (JSR / TRAP link address saved to R7).
-- Condition flags are written from the writeback data bus, so `flag_we` is combinationally valid in the same cycle as the writeback.
+        LEA  R1, data       ; R1 = 0x000B
+        ADDI R2, R0, 5
+        MOV  R3, R0         ; R3 = 0
+loop:   LDR  R4, R1, 0
+        ADD  R3, R3, R4
+        INC  R1, R1
+        DEC  R2, R2
+        CMP  R2, R0
+        BRp  loop
+        ST   R3, result
+        HALT
+data:   .word 1, 2, 3, 4, 5
+result: .space 1
+```
 
 ---
 
-## File Structure
+## Verification
+
+`make check` runs it all, and CI runs `make check` on every push. Details are in [docs/08_verification.md](docs/08_verification.md).
+
+- **Differential:** the ISS and both cores run the same programs, and every retired instruction must match: PC, instruction, register write, memory write, flags. 10 directed programs and 200 random ones per run. 2000 random programs pass.
+- **Exhaustive conformance:** the multicycle controller against the spec its bubble diagrams are drawn from (8192 instruction / flag cases, every cycle), and the pipeline decoder against its spec (all 65536 instruction words).
+- **Directed:** 47 checks in `tb/tb_adam16.sv`; the board demo in `tb/tb_basys3.sv`; a black-box testbench for netlists, `tb/tb_adam16_gate.sv`, proven on the RTL.
+- **Lint:** Verilator `-Wall` on every top and configuration, with no warnings.
+
+Planted bugs (missing forwarding paths, no squash, wrong forwarding priority, a broken shifter, …) were each caught by the regression.
+
+---
+
+## FPGA and ASIC
+
+- **Basys3:** `make fpga` (or `vivado -mode batch -source fpga/build.tcl`) builds the bitstream without a project. One 100 MHz clock; the step button is a clock enable. Walkthrough: [`demo.md`](demo.md).
+- **ASIC:** `scripts/adam16.dc` synthesizes either core with Design Compiler (`ADAM16_TOP=adam16_pipe_core`, library path from `ADAM16_LIBDIR`), and `scripts/adam16_sim.do` runs the netlist in Questa with the black-box testbench. The memory stays outside the core.
+
+Neither flow runs in CI ([known issues](docs/06_known_issues.md#3-synthesis-was-not-run-here)).
+
+---
+
+## Repository layout
 
 ```
 16_Bit_CPU/
-├── rtl/
-│   ├── cpu16_isa.sv          — ISA package: opcode enum, dec_t, decode(), sext/zext helpers
-│   ├── cpu16_alu.sv          — Combinational ALU (ALU0 and ALU1 groups, pure logic)
-│   ├── cpu16_regfile.sv      — 8 × 16-bit register file (3R async / 1W sync)
-│   ├── cpu16_datapath.sv     — PC, IR, MAR, MDR, flags; ALU and regfile interconnect
-│   ├── cpu16_control_fsm.sv  — 14-state FSM; all decode and control signal generation
-│   ├── cpu16_core.sv         — Top-level: wires control and datapath together
-│   ├── Sram.sv               — SramSBC: synchronous 65536 × 16-bit memory
-│   ├── basys3_top.sv         — Basys3 wrapper: single-step clock, LED debug view
-│   └── debounce.sv           — Button synchronizer + debouncer
-├── tb/
-│   ├── tb_cpu16.sv           — Directed RTL testbench: 16 test programs
-│   ├── tb_cpu16_gate.sv      — Gate-level (post-synthesis) testbench
-│   └── tb_control_fsm_spec.sv — Control FSM vs. its documented spec (make -C docs check)
-├── docs/                     — Microarchitecture docs: interfaces/, bubble diagrams, figures, tools/
-├── fpga/                     — Vivado project, constraints, memory image
-├── scripts/                  — Design Compiler and gate-level sim scripts
-├── InstructionSet.txt        — Informal ISA specification notes
-└── demo.md                   — Basys3 hands-on demo walkthrough
+├── rtl/                     SystemVerilog: both cores, memories, Basys3 wrapper
+├── tb/                      Testbenches: directed, program runner, conformance, board, gate level
+├── sw/                      Assembler, ISS, regression, random programs, test programs
+├── docs/                    Documentation, figures, and the tools that generate and check them
+├── fpga/                    build.tcl, constraints, the demo's memory image
+├── scripts/                 Design Compiler and gate-level simulation scripts
+├── .github/workflows/ci.yml CI: make check
+├── Makefile
+├── InstructionSet.txt       The ISA as originally specified
+├── demo.md                  Basys3 walkthrough
+├── ROADMAP.md               What was planned, and what was done
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+└── LICENSE                  MIT
 ```
 
----
+## License
 
-## Running the Testbench
-
-### Icarus Verilog (iverilog)
-
-From the repository root:
-
-```bash
-mkdir -p build
-iverilog -g2012 -o build/cpu16_tb \
-    rtl/cpu16_isa.sv rtl/cpu16_alu.sv rtl/cpu16_regfile.sv \
-    rtl/cpu16_datapath.sv rtl/cpu16_control_fsm.sv rtl/cpu16_core.sv \
-    rtl/Sram.sv tb/tb_cpu16.sv
-
-vvp build/cpu16_tb
-```
-
-Icarus prints a number of `sorry: constant selects in always_* processes` and `unique ... ignored` notes; they are harmless.
-
-To capture a VCD waveform for GTKWave:
-
-```bash
-vvp build/cpu16_tb +VCD=build/cpu16.vcd
-gtkwave build/cpu16.vcd
-```
-
-### Expected Output
-
-```
-================================================
- CPU16 testbench
-================================================
-
-[T1] addi_add
-    PASS  R1                             0x0005
-    PASS  R2                             0x0007
-    PASS  R3 = R1+R2                     0x000c
-...
-[T16] alu_remaining
-    PASS  R1 = -6                        0xfffa
-    PASS  R2 = 0-R1                      0x0006
-    PASS  R3 = R1>>1 (logical)           0x7ffd
-    PASS  R4 = R1>>>1 (arith)            0xfffd
-    PASS  R5 = R2                        0x0006
-
-================================================
- Summary: 46/46 checks passed   (16 tests, 553 cycles)
- ALL TESTS PASSED
-================================================
-```
-
----
-
-## Example Program: Array Sum
-
-This program sums five values stored in memory and writes the result back. It exercises LEA (address computation), LDR (base+offset load), ALU1 (INC / DEC), CMP + BRp (conditional loop), and ST (PC-relative store).
-
-### Assembly
-
-```
-; sum_array — sum mem[0x000B..0x000F], store result at mem[0x0010]
-;
-; Register map:
-;   R0 = 0 (always zero after reset)
-;   R1 = array pointer  (walks 0x000B → 0x0010)
-;   R2 = iteration counter (counts down from 5)
-;   R3 = running accumulator
-;   R4 = scratch (current element)
-
-        LEA  R1, +10       ; 0x0000 — R1 = PC†(1) + 10 = 0x000B  (array base)
-        ADDI R2, R0,  5    ; 0x0001 — R2 = 5  (element count)
-        MOV  R3, R0        ; 0x0002 — R3 = 0  (clear accumulator)
-LOOP:
-        LDR  R4, R1,  0    ; 0x0003 — R4 = mem[R1 + 0]
-        ADD  R3, R3, R4    ; 0x0004 — R3 += R4
-        INC  R1, R1        ; 0x0005 — R1++
-        DEC  R2, R2        ; 0x0006 — R2--
-        CMP  R2, R0        ; 0x0007 — flags ← sign(R2 − 0)
-        BRp  LOOP          ; 0x0008 — if R2 > 0, jump to LOOP
-        ST   R3, +6        ; 0x0009 — mem[PC†(0xA) + 6] = mem[0x0010] = R3
-        TRAP 0x025         ; 0x000A — halt
-; Data (one word each):
-        DW   0x0001        ; 0x000B
-        DW   0x0002        ; 0x000C
-        DW   0x0003        ; 0x000D
-        DW   0x0004        ; 0x000E
-        DW   0x0005        ; 0x000F
-```
-
-### Machine Code
-
-| Address | Encoding | Instruction | Notes |
-|---|---|---|---|
-| `0x0000` | `0xC20A` | `LEA  R1, +10`    | 1100\_001\_000001010 |
-| `0x0001` | `0x2405` | `ADDI R2, R0, 5`  | 0010\_010\_000\_000101 |
-| `0x0002` | `0x0606` | `MOV  R3, R0`     | 0000\_011\_000\_000\_110 |
-| `0x0003` | `0xA840` | `LDR  R4, R1, 0`  | 1010\_100\_001\_000000 |
-| `0x0004` | `0x06E0` | `ADD  R3, R3, R4` | 0000\_011\_011\_100\_000 |
-| `0x0005` | `0x1242` | `INC  R1, R1`     | 0001\_001\_001\_000\_010 |
-| `0x0006` | `0x1483` | `DEC  R2, R2`     | 0001\_010\_010\_000\_011 |
-| `0x0007` | `0x1087` | `CMP  R2, R0`     | 0001\_000\_010\_000\_111 |
-| `0x0008` | `0xD3FA` | `BRp  −6`         | 1101\_001\_111111010; target = 0x0009 + (−6) = 0x0003 |
-| `0x0009` | `0x5606` | `ST   R3, +6`     | 0101\_011\_000000110; target = 0x000A + 6 = 0x0010 |
-| `0x000A` | `0x9025` | `TRAP 0x025`      | halt |
-| `0x000B` | `0x0001` | *(data)* | |
-| `0x000C` | `0x0002` | *(data)* | |
-| `0x000D` | `0x0003` | *(data)* | |
-| `0x000E` | `0x0004` | *(data)* | |
-| `0x000F` | `0x0005` | *(data)* | |
-
-### Execution Trace
-
-| Cycle | R1 | R2 | R3 | Action |
-|---|---|---|---|---|
-| init | 0x000B | 5 | 0 | after LEA / ADDI / MOV |
-| iter 1 | 0x000C | 4 | 1 | loaded 1, accumulated |
-| iter 2 | 0x000D | 3 | 3 | loaded 2, accumulated |
-| iter 3 | 0x000E | 2 | 6 | loaded 3, accumulated |
-| iter 4 | 0x000F | 1 | 10 | loaded 4, accumulated |
-| iter 5 | 0x0010 | 0 | **15** | loaded 5; CMP sets Z, BRp not taken |
-| done | — | — | **15** | ST writes 0x000F to mem[0x0010] |
-
-### Running This Example
-
-The example is already included as **T12** in `tb/tb_cpu16.sv`, and as a memory image in `fpga/mem/cpu16_sum_array.mem`. Run the testbench with the commands above. To load the program onto a different simulator, initialize memory with the encoding table above (16 words starting at address `0x0000`).
+MIT. See [LICENSE](LICENSE).

@@ -7,16 +7,20 @@ module debounce #(
   output logic btn_pulse   // 1-cycle pulse on debounced rising edge
 );
 
-  logic [1:0] sync;
-  logic [$clog2(CYCLES+1)-1:0] cnt;
-  logic stable, stable_d;
+  localparam int CW = $clog2(CYCLES+1);   // counter width: holds 0..CYCLES
+
+  // Power-up values (FPGA flops honour them); there is no reset input.
+  logic [1:0]    sync     = 2'b00;
+  logic [CW-1:0] cnt      = '0;
+  logic          stable   = 1'b0;
+  logic          stable_d = 1'b0;
 
   always_ff @(posedge clk) sync <= {sync[0], btn_in};
 
   always_ff @(posedge clk) begin
     if (sync[1] != stable) begin
       cnt <= cnt + 1'b1;
-      if (cnt == CYCLES) begin
+      if (cnt == CW'(CYCLES)) begin
         stable <= sync[1];
         cnt    <= '0;
       end

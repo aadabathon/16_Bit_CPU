@@ -1,9 +1,9 @@
-"""cpu16_control_fsm specification.
+"""adam16_control_fsm specification.
 
 This file is the single source of truth for the control state machine's
 documentation. From it, gen_fsm.py draws every control bubble diagram and
 writes test vectors that tb/tb_control_fsm_spec.sv replays against the RTL,
-so the diagrams are checked against rtl/cpu16_control_fsm.sv cycle by cycle.
+so the diagrams are checked against rtl/adam16_control_fsm.sv cycle by cycle.
 
 When you change the FSM RTL, change this file to match, then run
 `make -C docs` (redraw) and `make -C docs check` (prove RTL == spec).
@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from typing import Callable, Optional
 
 # --------------------------------------------------------------------------
-# Encodings (mirror rtl/cpu16_isa.sv)
+# Encodings (mirror rtl/adam16_isa.sv)
 # --------------------------------------------------------------------------
 OP = dict(ALU0=0x0, ALU1=0x1, ADDI=0x2, ANDI=0x3, LD=0x4, ST=0x5, JMP=0x6,
           JSR=0x7, RET=0x8, TRAP=0x9, LDR=0xA, STR=0xB, LEA=0xC, BR=0xD,
@@ -74,7 +74,7 @@ INPUT_NOTES = [
 OUTPUTS = [
     ("pc_we", 1), ("ir_we", 1), ("mar_we", 1), ("mdr_we", 1),
     ("reg_we", 1), ("flag_we", 1), ("mem_we", 1),
-    ("reg_dst", 3), ("ra2_sel", 1), ("wb_sel", 2), ("alu_op", 4),
+    ("reg_dst", 3), ("ra1_sel", 2), ("wb_sel", 2), ("alu_op", 4),
     ("alu_a_sel", 2), ("alu_b_sel", 3), ("pc_src_sel", 3), ("mar_src_sel", 2),
 ]
 WIDTH = dict(OUTPUTS)
@@ -87,9 +87,9 @@ CODE_NAMES = {
     "alu_a_sel": {0: "rd0", 1: "PC"},
     "alu_b_sel": {0: "rd1", 1: "sext6", 2: "zext6", 3: "sext9", 4: "sext6", 7: "0"},
     "wb_sel": {0: "alu_y", 1: "MDR", 2: "PC"},
-    "ra2_sel": {0: "IR[11:9]", 1: "R7"},
+    "ra1_sel": {0: "IR[5:3]", 1: "IR[11:9]", 2: "R7"},
     "reg_dst": {7: "R7"},
-    "alu_op": {0: "ADD", 3: "AND", 15: "SUB"},
+    "alu_op": {0: "ADD", 3: "AND", 15: "CMP"},
 }
 
 
@@ -199,16 +199,16 @@ ARCS = [
 
     # ---- ALU class --------------------------------------------------------
     Arc("S_EX_ALU", "S_IF0", alu("ALU0", "ADD", "SUB", "AND", "OR", "XOR", "MOV"),
-        {**WRITE_DR, "alu_op": ALU_OP_0, "alu_a_sel": 0, "alu_b_sel": 0}),
+        {**WRITE_DR, "alu_op": ALU_OP_0, "alu_a_sel": 0, "alu_b_sel": 0, "ra1_sel": 0}),
     Arc("S_EX_ALU", "S_IF0", alu("ALU0", "NOT", "NEG"),
         {**WRITE_DR, "alu_op": ALU_OP_0, "alu_a_sel": 0, "alu_b_sel": 7}),
     Arc("S_EX_ALU", "S_IF0", alu("ALU1", "NAND", "NOR"),
-        {**WRITE_DR, "alu_op": ALU_OP_1, "alu_a_sel": 0, "alu_b_sel": 0}),
+        {**WRITE_DR, "alu_op": ALU_OP_1, "alu_a_sel": 0, "alu_b_sel": 0, "ra1_sel": 0}),
     Arc("S_EX_ALU", "S_IF0", alu("ALU1", "INC", "DEC", "LSL1", "LSR1", "ASR1"),
         {**WRITE_DR, "alu_op": ALU_OP_1, "alu_a_sel": 0, "alu_b_sel": 7}),
     Arc("S_EX_ALU", "S_IF0", alu("ALU1", "CMP"),
         {"flag_we": 1, "reg_dst": DR, "wb_sel": 0, "alu_op": 15, "alu_a_sel": 0,
-         "alu_b_sel": 0}),
+         "alu_b_sel": 0, "ra1_sel": 0}),
     Arc("S_EX_ALU", "S_IF0", op_in("ADDI"),
         {**WRITE_DR, "alu_op": 0, "alu_a_sel": 0, "alu_b_sel": 1}),
     Arc("S_EX_ALU", "S_IF0", op_in("ANDI"),
@@ -225,13 +225,13 @@ ARCS = [
     Arc("S_MEM_RD0", "S_MEM_RD1"),
     Arc("S_MEM_RD1", "S_WB_LD", out={"mdr_we": 1}),
     Arc("S_WB_LD", "S_IF0", out={"reg_we": 1, "reg_dst": DR, "wb_sel": 1}),
-    Arc("S_MEM_WR0", "S_IF0", out={"mem_we": 1, "ra2_sel": 0}),
+    Arc("S_MEM_WR0", "S_IF0", out={"mem_we": 1, "ra1_sel": 1}),
 
     # ---- control flow -----------------------------------------------------
     Arc("S_EX_BR", "S_IF0", TAKE, {"pc_we": 1, "pc_src_sel": 1}),
     Arc("S_EX_BR", "S_IF0", NOT_TAKE, {}),
     Arc("S_EX_JMP", "S_IF0", op_in("JMP"), {"pc_we": 1, "pc_src_sel": 3}),
-    Arc("S_EX_JMP", "S_IF0", op_in("RET"), {"pc_we": 1, "ra2_sel": 1, "pc_src_sel": 4}),
+    Arc("S_EX_JMP", "S_IF0", op_in("RET"), {"pc_we": 1, "ra1_sel": 2, "pc_src_sel": 4}),
     Arc("S_EX_JSR", "S_IF0", J0, {**LINK_R7, "pc_src_sel": 2}),
     Arc("S_EX_JSR", "S_IF0", J1, {**LINK_R7, "pc_src_sel": 3}),
     Arc("S_EX_TRAP", "S_IF0", out={**LINK_R7, "pc_src_sel": 5}),

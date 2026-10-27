@@ -14,7 +14,7 @@ Instruction Set: 3-bit register address. In general we have : ALU [15:12] + DR [
 0001 + DR + SR1 + XXX + 100 // LSL1: DR <- SR1 << 1
 0001 + DR + SR1 + XXX + 101 // LSR1: DR <- SR1 >> 1             (fill 0)
 0001 + DR + SR1 + XXX + 110 // ASR1: DR <- SR1 >>> 1            (fill MSB)
-0001 + XXX+ SR1 + SR2 + 111 // CMP : flags <- SR1 - SR2 ; D_we = 0
+0001 + XXX+ SR1 + SR2 + 111 // CMP : signed compare; N if SR1 < SR2, Z if SR1 == SR2, P if SR1 > SR2 ; D_we = 0
 0010 + DR + SR1 + imm6      // ADDI: DR <- SR1 + SEXT(imm6)
 0011 + DR + SR1 + imm6      // ANDI: DR <- SR1 & ZEXT(imm6)
 0100 + DR + Offset9         // LD  : DR <- mem[inc(PC) + SEXT(Offset9)]

@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="760" viewBox="0 0 1480 760">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1e293b"/></marker><marker id="arrc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c2410c"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<text x="30.0" y="30.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#64748b" style="">adam16_pipe_core</text>
+<text x="30.0" y="48.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#64748b" style="">five stages, no stalls; a taken branch or a jump costs one bubble</text>
+<text x="146.0" y="78.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#1e293b" style="">IF</text>
+<text x="422.0" y="78.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#1e293b" style="">ID</text>
+<text x="821.0" y="78.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#1e293b" style="">EX</text>
+<text x="1172.0" y="78.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#1e293b" style="">MEM</text>
+<text x="1372.0" y="78.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#1e293b" style="">WB</text>
+<rect x="262.0" y="92.0" width="22.0" height="508.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
+<polygon points="266.0,600.0 273.0,592.0 280.0,600.0" fill="none" stroke="#1e293b" stroke-width="1.4"/>
+<text x="273.0" y="86.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#64748b" style="">IF/ID</text>
+<rect x="560.0" y="92.0" width="22.0" height="508.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
+<polygon points="564.0,600.0 571.0,592.0 578.0,600.0" fill="none" stroke="#1e293b" stroke-width="1.4"/>
+<text x="571.0" y="86.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#64748b" style="">ID/EX</text>
+<rect x="1060.0" y="92.0" width="22.0" height="508.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
+<polygon points="1064.0,600.0 1071.0,592.0 1078.0,600.0" fill="none" stroke="#1e293b" stroke-width="1.4"/>
+<text x="1071.0" y="86.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#64748b" style="">EX/MEM</text>
+<rect x="1262.0" y="92.0" width="22.0" height="508.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
+<polygon points="1266.0,600.0 1273.0,592.0 1280.0,600.0" fill="none" stroke="#1e293b" stroke-width="1.4"/>
+<text x="1273.0" y="86.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#64748b" style="">MEM/WB</text>
+<rect x="110.0" y="650.0" width="1060.0" height="80.0" rx="4" fill="#fefce8" stroke="#1e293b" stroke-width="1.4"/>
+<text x="640.0" y="684.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1e293b" style="">adam16_dpram  64K x 16, two registered read ports</text>
+<text x="640.0" y="702.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#64748b" style="">port A: fetch    port B: data (read, write)</text>
+<rect x="248.0" y="656.0" width="50.0" height="24.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
+<text x="273.0" y="672.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="">A rdata</text>
+<rect x="1046.0" y="656.0" width="50.0" height="24.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
+<text x="1071.0" y="672.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="">B rdata</text>
+<rect x="48.0" y="300.0" width="74.0" height="40.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
+<polygon points="78.0,340.0 85.0,332.0 92.0,340.0" fill="none" stroke="#1e293b" stroke-width="1.4"/>
+<text x="85.0" y="319.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1e293b" style="">f_pc</text>
+<text x="85.0" y="331.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">rst 0000</text>
+<polygon points="170.0,286.0 200.0,300.4 200.0,351.6 170.0,366.0" fill="#f1f5f9" stroke="#1e293b" stroke-width="1.4"/>
+<text x="174.0" y="309.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">0</text>
+<text x="174.0" y="349.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">1</text>
+<polyline points="122.0,320.0 170.0,306.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="166.0" y="349.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">target</text>
+<polyline points="185.0,382.8 185.0,360.8" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="185.0" y="393.8" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">redirect</text>
+<polyline points="200.0,326.0 226.0,326.0 226.0,650.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="232.0" y="520.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">imem_addr</text>
+<circle cx="226.0" cy="326.0" r="3.2" fill="#1e293b"/>
+<rect x="66.0" y="200.0" width="40.0" height="26.0" rx="0" fill="#ffffff" stroke="#1e293b" stroke-width="1.4"/>
+<text x="86.0" y="218.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#1e293b" style="">+1</text>
+<polyline points="226.0,326.0 226.0,213.0 106.0,213.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="66.0,213.0 40.0,213.0 40.0,320.0 48.0,320.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<circle cx="226.0" cy="213.0" r="3.2" fill="#1e293b"/>
+<polyline points="226.0,213.0 226.0,140.0 262.0,140.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="244.0" y="134.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">d_pc</text>
+<polyline points="273.0,656.0 273.0,612.0 300.0,612.0 300.0,200.0 318.0,200.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="306.0" y="590.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">instruction</text>
+<rect x="318.0" y="150.0" width="150.0" height="90.0" rx="0" fill="#ffffff" stroke="#1e293b" stroke-width="1.4"/>
+<text x="393.0" y="180.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#1e293b" style="">adam16_pipe_decode</text>
+<text x="393.0" y="198.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">ra0 ra1 rd, controls,</text>
+<text x="393.0" y="211.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">imm (16 b)</text>
+<polyline points="468.0,170.0 560.0,170.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="512.0" y="164.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">ctrl, imm, rd</text>
+<polyline points="284.0,140.0 560.0,140.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="512.0" y="134.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">d_pc</text>
+<rect x="330.0" y="290.0" width="130.0" height="220.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
+<text x="395.0" y="315.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#1e293b" style="">adam16_regfile</text>
+<text x="395.0" y="331.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">8 x 16, 2R / 1W</text>
+<text x="395.0" y="344.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">write-first</text>
+<polyline points="360.0,240.0 360.0,290.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="366.0" y="268.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">ra0, ra1</text>
+<text x="454.0" y="383.5" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="">rd0</text>
+<polyline points="460.0,380.0 560.0,380.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="512.0" y="374.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">e_rs0</text>
+<text x="454.0" y="487.5" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="">rd1</text>
+<polyline points="460.0,484.0 560.0,484.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="512.0" y="478.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">e_rs1</text>
+<text x="402.0" y="532.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#1e293b" style="">wa, wd, we</text>
+<polyline points="395.0,566.0 395.0,512.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="395.0" y="581.5" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">w_rd, w_value</text>
+<polygon points="640.0,366.0 672.0,381.1 672.0,434.9 640.0,450.0" fill="#f1f5f9" stroke="#1e293b" stroke-width="1.4"/>
+<text x="644.0" y="383.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<text x="644.0" y="411.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<text x="644.0" y="439.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<polygon points="640.0,470.0 672.0,485.1 672.0,538.9 640.0,554.0" fill="#f1f5f9" stroke="#1e293b" stroke-width="1.4"/>
+<text x="644.0" y="487.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<text x="644.0" y="515.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<text x="644.0" y="543.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<polyline points="582.0,380.0 640.0,380.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="636.0" y="411.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">m_value</text>
+<text x="636.0" y="439.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">w_value</text>
+<polyline points="582.0,484.0 640.0,484.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="636.0" y="515.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">m_value</text>
+<text x="636.0" y="543.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">w_value</text>
+<text x="656.0" y="360.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#c2410c" style="">forward</text>
+<polyline points="656.0,452.4 656.0,444.4" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="656.0" y="463.4" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style=""></text>
+<polyline points="656.0,556.4 656.0,548.4" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="656.0" y="567.4" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style=""></text>
+<text x="598.0" y="580.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#c2410c" style="">forward select: MEM, else WB, if its rd == ra</text>
+<polygon points="740.0,270.0 770.0,286.0 770.0,344.0 740.0,360.0" fill="#f1f5f9" stroke="#1e293b" stroke-width="1.4"/>
+<text x="744.0" y="288.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<text x="744.0" y="318.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<text x="744.0" y="348.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<polyline points="672.0,408.0 700.0,408.0 700.0,285.0 740.0,285.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="686.0" y="402.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">e_a</text>
+<text x="736.0" y="318.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">PC+1</text>
+<text x="736.0" y="348.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">0</text>
+<polyline points="755.0,366.0 755.0,354.0" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="755.0" y="377.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">a_sel</text>
+<polygon points="740.0,440.0 770.0,451.5 770.0,492.5 740.0,504.0" fill="#f1f5f9" stroke="#1e293b" stroke-width="1.4"/>
+<text x="744.0" y="459.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<text x="744.0" y="491.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<polyline points="672.0,512.0 710.0,512.0 710.0,456.0 740.0,456.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<circle cx="710.0" cy="512.0" r="3.2" fill="#1e293b"/>
+<text x="690.0" y="506.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">e_b</text>
+<text x="736.0" y="491.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">imm</text>
+<polyline points="755.0,512.2 755.0,500.2" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="755.0" y="523.2" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">b_imm</text>
+<polygon points="820.0,280.0 890.0,330.0 890.0,460.0 820.0,510.0 820.0,415.0 834.0,395.0 820.0,375.0" fill="#ffffff" stroke="#1e293b" stroke-width="1.4"/>
+<text x="860.0" y="400.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1e293b" style="">ALU</text>
+<polyline points="770.0,315.0 820.0,315.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="770.0,472.0 820.0,472.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="855.0,517.0 855.0,497.0" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="855.0" y="528.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">alu_op</text>
+<text x="855.0" y="546.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">alu_y is the result,</text>
+<text x="855.0" y="559.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">the data address and</text>
+<text x="855.0" y="572.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">the branch / jump target</text>
+<polygon points="960.0,380.0 988.0,390.8 988.0,429.2 960.0,440.0" fill="#f1f5f9" stroke="#1e293b" stroke-width="1.4"/>
+<text x="964.0" y="398.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<text x="964.0" y="428.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<polyline points="890.0,395.0 960.0,395.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="898.0" y="389.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">alu_y</text>
+<text x="956.0" y="428.5" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">PC+1</text>
+<polyline points="974.0,448.6 974.0,436.6" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="974.0" y="459.6" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">wb_sel</text>
+<polyline points="988.0,410.0 1060.0,410.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="1040.0" y="404.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">m_result</text>
+<circle cx="912.0" cy="395.0" r="3.2" fill="#1e293b"/>
+<polyline points="912.0,395.0 912.0,650.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="918.0" y="612.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">dmem_addr</text>
+<polyline points="710.0,512.0 710.0,600.0 880.0,600.0 880.0,650.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="874.0" y="594.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">dmem_wdata</text>
+<polyline points="1010.0,624.0 1010.0,648.0" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="1010.0" y="620.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">dmem_we</text>
+<polyline points="912.0,395.0 912.0,262.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round"/>
+<text x="916.0" y="259.5" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">target</text>
+<rect x="790.0" y="150.0" width="70.0" height="40.0" rx="0" fill="#dbeafe" stroke="#1e293b" stroke-width="1.4"/>
+<polygon points="818.0,190.0 825.0,182.0 832.0,190.0" fill="none" stroke="#1e293b" stroke-width="1.4"/>
+<text x="825.0" y="169.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1e293b" style="">N Z P</text>
+<text x="825.0" y="181.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">rst 010</text>
+<text x="825.0" y="214.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">&lt;= flags of alu_y</text>
+<text x="825.0" y="228.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">when flag_we</text>
+<rect x="900.0" y="130.0" width="130.0" height="56.0" rx="0" fill="#ffffff" stroke="#1e293b" stroke-width="1.4"/>
+<text x="965.0" y="152.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#1e293b" style="">branch unit</text>
+<text x="965.0" y="170.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">jump | (br_mask &amp; NZP)</text>
+<polyline points="860.0,170.0 900.0,170.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="965.0,206.0 965.0,188.0" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="965.0" y="217.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">br_mask, jump</text>
+<polyline points="965.0,130.0 965.0,104.0" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="958.0" y="112.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#c2410c" style="">redirect: IF fetches target now; the word in ID is squashed</text>
+<polygon points="1140.0,395.0 1170.0,405.8 1170.0,444.2 1140.0,455.0" fill="#f1f5f9" stroke="#1e293b" stroke-width="1.4"/>
+<text x="1144.0" y="413.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<text x="1144.0" y="443.5" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style=""></text>
+<polyline points="1082.0,410.0 1140.0,410.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<polyline points="1071.0,656.0 1071.0,620.0 1110.0,620.0 1110.0,440.0 1140.0,440.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<text x="1116.0" y="560.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">dmem_rdata</text>
+<polyline points="1155.0,463.6 1155.0,451.6" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linejoin="round" stroke-dasharray="4,3" marker-end="url(#arrc)"/>
+<text x="1155.0" y="474.6" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#c2410c" style="">load</text>
+<polyline points="1170.0,425.0 1262.0,425.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<circle cx="1210.0" cy="425.0" r="3.2" fill="#1e293b"/>
+<polyline points="1210.0,425.0 1210.0,262.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round"/>
+<text x="1214.0" y="259.5" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">m_value</text>
+<text x="1100.0" y="236.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">both forwarded to EX:</text>
+<polyline points="1284.0,425.0 1400.0,425.0 1400.0,470.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arr)"/>
+<circle cx="1340.0" cy="425.0" r="3.2" fill="#1e293b"/>
+<polyline points="1340.0,425.0 1340.0,262.0" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round"/>
+<text x="1344.0" y="259.5" text-anchor="start" font-family="Menlo, Consolas, monospace" font-size="10.5" font-weight="normal" fill="#1e293b" style="font-style:italic;">w_value</text>
+<rect x="1352.0" y="470.0" width="96.0" height="54.0" rx="0" fill="#ffffff" stroke="#1e293b" stroke-width="1.4"/>
+<text x="1400.0" y="492.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#1e293b" style="">R[w_rd] &lt;=</text>
+<text x="1400.0" y="508.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#1e293b" style="">w_value</text>
+<text x="1400.0" y="546.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">(the regfile's</text>
+<text x="1400.0" y="560.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9.5" font-weight="normal" fill="#64748b" style="">write port)</text>
+</svg>

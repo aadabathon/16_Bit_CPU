@@ -1,86 +1,63 @@
-# Demoing the CPU16 on Basys3
+# Demoing adam16 on the Basys3
 
-This walks through a live hardware demo of `basys3_top`, using the preloaded
-program in `fpga/mem/cpu16_sum_array.mem` (same program as
-`tb_cpu16.sv:test_sum_array()`), which sums the five words at
-`mem[0x000B..0x000F]` (1+2+3+4+5) and stores the result (15) in `R3` and
-`mem[0x0010]`.
+The board runs `fpga/mem/adam16_sum_array.mem` (source: `sw/tests/sum_array.asm`). The program sums the five words at `0x000B..0x000F` (1 + 2 + 3 + 4 + 5) into `R3` and stores the result, 15, at `0x0010`. You step it one clock cycle per button press and watch it on the LEDs.
 
-## 1. Program the board
+Every press count on this page is checked in simulation by `make demo` (`tb/tb_basys3.sv`), for both cores.
 
-1. In Vivado, generate the bitstream against `basys3_top` (top module set,
-   `debounce.sv` and `basys3_top.sv` added to `sources_1`).
-2. Open **Hardware Manager** → **Open Target** → **Auto Connect** (board
-   connected via USB, powered on).
-3. **Program Device**, select the generated `.bit`, program.
-4. The board is now idle, sitting in `S_IF0`, waiting on `btnU`. Nothing
-   will happen on its own — that's expected, this design has no free-run
-   clock.
+## 1. Build and program
+
+```bash
+make fpga                    # pipelined core   -> build/fpga/pipe/basys3_top.bit
+make fpga FPGA_CORE=multi    # multicycle core  -> build/fpga/multi/basys3_top.bit
+```
+
+(`make fpga` runs `vivado -mode batch -source fpga/build.tcl`; no Vivado project is needed.) Then in Vivado's **Hardware Manager**: **Open Target → Auto Connect**, **Program Device**, and pick the `.bit`.
+
+Nothing moves on its own after programming. The core advances only when you press step.
 
 ## 2. Controls
 
 | Control | Function |
 |---|---|
-| `btnC` | Reset. Clears PC/IR/MAR/MDR/flags and forces one clock edge, so the reset value actually latches. |
-| `btnU` | Step. Advances the CPU (and memory) by exactly one clock edge. |
-| `sw[1:0]` | Selects what the 16 LEDs display (see below). `sw[15:2]` unused. |
-| `led[15:0]` | Shows the selected debug word. |
+| `btnC` | Reset, while held. The core restarts from address 0 with every register cleared |
+| `btnU` | Step: exactly one clock cycle of the core and its memory per press (debounced, 2 ms) |
+| `sw[1:0]` | What the 16 LEDs show (below). `sw[15:2]` are unused |
 
-`sw[1:0]` view select:
+| `sw[1:0]` | Multicycle core (`FPGA_CORE=multi`) | Pipelined core (default) |
+|---|---|---|
+| `00` | PC | PC of the instruction retiring this cycle |
+| `01` | IR | that instruction (`D000`, a NOP, while WB is empty) |
+| `10` | ALU output (meaningful in an execute state) | its result |
+| `11` | flags `{N,Z,P}` | flags after it |
 
-| `sw[1:0]` | LEDs show |
-|---|---|
-| `00` | Program Counter (`PC`) |
-| `01` | Instruction Register (`IR`) — the raw fetched opcode |
-| `10` | ALU result (combinational — only meaningful during an execute state) |
-| `11` | Flags, packed as `{13'b0, N, Z, P}` |
+Press `btnC` before you start. In the tables below, "press *n*" means *n* presses of `btnU` after reset.
 
-Press `btnC` once before starting. Each `btnU` press is debounced (~2ms),
-so one physical press = one step, no double-stepping.
+## 3a. Pipelined core
 
-## 3. What "one step" actually means
+**One press is one clock cycle.** Five instructions are in flight, and the LEDs show the one leaving the pipeline (WB). The first instruction comes out at press 4. After that one instruction comes out per press, except for one empty cycle after each taken branch (the bubble).
 
-**A step is one clock edge, not one instruction.** The CPU is a multi-cycle
-design — each instruction takes 5 to 8 steps to complete, moving through
-internal states (fetch → decode → execute). Concretely, per instruction
-type:
+Set `sw = 10` and press to these counts to watch the running sum appear as `ADD R3, R3, R4` retires:
 
-| Instruction type | Steps to complete |
-|---|---|
-| ALU / immediate / LEA / branch / JMP / JSR / TRAP | 5 |
-| ST / STR | 6 |
-| LD / LDR | 8 |
+| Press | LEDs (`sw = 10`) | |
+|---|---|---|
+| 4 | `0x000B` | `LEA R1` retires: the address of the array |
+| 8 | 1 | first `ADD` |
+| 15 | 3 | |
+| 22 | 6 | |
+| 29 | 10 | |
+| 36 | 15 | last `ADD` |
+| 38 | `sw = 11` shows `010` (Z) | `DEC R2` reached 0 |
+| 42 | `sw = 01` shows `9025` | `HALT` retires: the program is done |
 
-Within any instruction, **the 3rd press latches its opcode into IR** — from
-then until 2 presses into the *next* instruction, `sw=01` shows that
-instruction's raw encoding. This is the most reliable way to know where you
-are if you lose count: switch to IR view and compare against the program
-listing (§5) instead of counting blind.
+Each pass of the loop takes 7 presses: six instructions plus one bubble after `BRp`. With `sw = 01` you can see the bubble as `D000`. [Chapter 7](docs/07_pipeline.md#cycle-by-cycle-sum_array) has the whole run as a table, one row per press.
 
-For ALU-type instructions specifically, **the 4th press lands the FSM in
-its execute state** — `sw=10` (ALU result) is valid from that press until
-the 5th press commits it to the register file and moves on.
+## 3b. Multicycle core
 
-## 4. The demo script
+**One press is one clock cycle, and an instruction takes several.** Each instruction walks the controller's states: 5 presses for ALU, branch, jump, call and TRAP instructions, 6 for a store, 8 for a load. The third press of an instruction latches it into IR, so `sw = 01` shows the instruction being executed.
 
-### Prologue (15 presses)
+The prologue (`LEA`, `ADDI`, `MOV`) takes 15 presses. Each pass of the loop takes 33. Set `sw = 10` (ALU output) and press to these counts to catch each new sum while the `ADD` is in its execute state:
 
-Press `btnC`, then `btnU` 15 times. This runs:
-- `LEA R1, +10` → `R1 = 0x000B` (base of the data array)
-- `ADDI R2, R0, 5` → `R2 = 5` (loop counter)
-- `MOV R3, R0` → `R3 = 0` (accumulator)
-
-You're now sitting at the top of the loop (about to fetch `LDR R4, R1, 0`).
-
-### The payoff: watch the sum accumulate
-
-The loop body is `LDR R4,R1,0 / ADD R3,R3,R4 / INC R1,R1 / DEC R2,R2 / CMP
-R2,R0 / BRp LOOP` — 33 presses per full pass, 5 passes total. Set `sw=10`
-(ALU result) and press `btnU` to the following cumulative counts to catch
-the accumulator mid-loop, right after it computes the new sum (before it's
-written back):
-
-| Press # (from reset) | Sum shown on LEDs |
+| Press | LEDs (`sw = 10`) |
 |---|---|
 | 27 | 1 |
 | 60 | 3 |
@@ -88,55 +65,32 @@ written back):
 | 126 | 10 |
 | 159 | 15 |
 
-That's the visual proof it works: `1 → 3 → 6 → 10 → 15`, the running sum of
-1+2+3+4+5, live on the LEDs.
+Then:
 
-(If you'd rather just watch continuously: press `btnU` steadily and glance
-at `sw=10` periodically — the ALU result will visibly hold at each new sum
-value for a few presses before the CPU moves off to the next loop
-housekeeping instruction.)
+- Press 180: the fifth `BRp` falls through (`R2 = 0`).
+- Press 186: `ST R3` has written 15 to `0x0010`.
+- Press 189: `sw = 01` shows `9025`, the `HALT` (`TRAP x025`).
+- Press 191: the TRAP has executed, and `sw = 00` shows PC = `0x0025`.
 
-### Finish (up to press 191)
-
-- Press 180: fifth pass exits the loop (`CMP` sees `R2=0`, `BRp` falls
-  through).
-- Press 186: `ST R3, +6` completes — `mem[0x0010]` now holds 15. (Not
-  directly visible on LEDs — see §6.)
-- Press 189: `sw=01` (IR) reads `9025` — the `TRAP` opcode is fetched.
-- Press 191: `TRAP` commits (`R7 <- PC`, `PC <- 0x0025`).
-
-## 5. Program listing (for cross-checking IR)
+## 4. Program listing
 
 | Addr | Hex | Instruction |
 |---|---|---|
-| 0x0000 | `C20A` | `LEA  R1, +10` |
-| 0x0001 | `2405` | `ADDI R2, R0, 5` |
-| 0x0002 | `0606` | `MOV  R3, R0` |
-| 0x0003 | `A840` | `LDR  R4, R1, 0`  *(loop top)* |
-| 0x0004 | `06E0` | `ADD  R3, R3, R4` |
-| 0x0005 | `1242` | `INC  R1, R1` |
-| 0x0006 | `1483` | `DEC  R2, R2` |
-| 0x0007 | `1087` | `CMP  R2, R0` |
-| 0x0008 | `D3FA` | `BRp  LOOP` (-6 → 0x0003) |
-| 0x0009 | `5606` | `ST   R3, +6` → `mem[0x0010]` |
-| 0x000A | `9025` | `TRAP 0x025` |
-| 0x000B..0x000F | `0001..0005` | data: `1,2,3,4,5` |
+| `0x0000` | `C20A` | `LEA  R1, 0x000B` |
+| `0x0001` | `2405` | `ADDI R2, R0, 5` |
+| `0x0002` | `0606` | `MOV  R3, R0` |
+| `0x0003` | `A840` | `LDR  R4, R1, 0` (loop) |
+| `0x0004` | `06E0` | `ADD  R3, R3, R4` |
+| `0x0005` | `1242` | `INC  R1, R1` |
+| `0x0006` | `1483` | `DEC  R2, R2` |
+| `0x0007` | `1087` | `CMP  R2, R0` |
+| `0x0008` | `D3FA` | `BRp  0x0003` |
+| `0x0009` | `5606` | `ST   R3, 0x0010` |
+| `0x000A` | `9025` | `HALT` (`TRAP x025`) |
+| `0x000B–0x000F` | `0001–0005` | data: 1, 2, 3, 4, 5 |
 
-## 6. Known limitations of this demo
+## 5. Limitations
 
-- **No hardware halt.** After `TRAP`, the CPU jumps to `PC=0x0025`, which is
-  empty (zeroed) memory — it'll just keep fetching harmless `ADD`
-  no-ops forever. There's no indicator that the program is "done" beyond
-  recognizing `IR=9025` yourself. Press `btnC` to restart the demo.
-- **No register or memory-content probe.** The debug mux only exposes
-  PC/IR/ALU-result/flags, not register file or SRAM contents directly. The
-  accumulator trace in §4 is how you confirm `R3` is computed correctly
-  without a dedicated register view; final memory/register state can't be
-  read back from the board itself. Adding a register-select probe (e.g.
-  routing `rf.r[sw[2:0]]` out through the same LED mux) would be a natural
-  follow-up if you want post-hoc verification without re-deriving it from
-  the ALU trace.
-- **Reprogramming = only way to change the program.** The image is baked
-  into the bitstream via `$readmemh` at synthesis time
-  (`fpga/mem/cpu16_sum_array.mem`). Loading a different program means
-  editing that file and re-running synthesis/implementation/bitgen.
+- **No hardware halt.** `TRAP x025` jumps to `0x0025`, which holds zeros (`ADD R0, R0, R0`), so the core runs harmless no-ops from there on. Press `btnC` to start again.
+- **No register or memory view.** The LEDs show only the debug word. The running sum above is how you see `R3` being computed.
+- **The program is part of the bitstream.** To run another program, assemble it over the image (`python3 sw/asm.py prog.asm -o fpga/mem/adam16_sum_array.mem`) and rebuild.

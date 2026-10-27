@@ -1,72 +1,82 @@
 #==============================================================
-#  Adam16 — Design Compiler synthesis script
-#  Run from inside dc_shell:  source adam16.dc
-#  Or from bash:              dc_shell -f adam16.dc | tee synth.log
+#  adam16 — Design Compiler synthesis of one core
+#
+#  The memory stays outside the core (it becomes an SRAM macro or
+#  a separate block), so only the core is synthesized. Run from the
+#  directory that should receive reports/ and netlist/:
+#
+#    dc_shell -f <repo>/scripts/adam16.dc | tee synth.log
+#    ADAM16_TOP=adam16_pipe_core dc_shell -f <repo>/scripts/adam16.dc | tee synth.log
+#
+#  Environment (all optional):
+#    ADAM16_TOP      adam16_core (default) or adam16_pipe_core
+#    ADAM16_RTL      the rtl/ directory      (default: ../rtl next to this script)
+#    ADAM16_LIBDIR   directory of the .db    (default below)
+#    ADAM16_LIBNAME  library name = .db name (default saed32rvt_ss0p95v125c)
+#    ADAM16_PERIOD   clock period, ns        (default 3.0)
 #==============================================================
 
-#--- 0. LIBRARY SETUP -----------------------------------------
-# One name to rule them all. This is BOTH the .db filename (minus .db)
-# AND the library's internal name (confirmed via get_libs). They match
-# for this kit, which is why a single variable works everywhere below.
-set LIBNAME  saed32rvt_ss0p95v125c
-set LIBDIR   /userspace/ashebani/RTL_sandbox/libraries
-set INV_CELL INVX2                         ;# plain inverter, mid drive strength
-set INV_PIN  A                             ;# <-- verify: get_lib_pins $LIBNAME/$INV_CELL/*
+proc env_or {name default} {
+    if {[info exists ::env($name)] && $::env($name) ne ""} { return $::env($name) }
+    return $default
+}
 
+set TOP     [env_or ADAM16_TOP     adam16_core]
+set RTL     [env_or ADAM16_RTL     [file normalize [file join [file dirname [info script]] .. rtl]]]
+set LIBDIR  [env_or ADAM16_LIBDIR  /userspace/ashebani/RTL_sandbox/libraries]
+set LIBNAME [env_or ADAM16_LIBNAME saed32rvt_ss0p95v125c]
+set PERIOD  [env_or ADAM16_PERIOD  3.0]
+set INV_CELL INVX2                    ;# drive / load reference cell
+set INV_PIN  A
+
+switch $TOP {
+    adam16_core      { set FILES {adam16_isa.sv adam16_alu.sv adam16_regfile.sv
+                                  adam16_datapath.sv adam16_control_fsm.sv adam16_core.sv} }
+    adam16_pipe_core { set FILES {adam16_isa.sv adam16_alu.sv adam16_regfile.sv
+                                  adam16_pipe_decode.sv adam16_pipe_core.sv} }
+    default          { error "ADAM16_TOP must be adam16_core or adam16_pipe_core, not $TOP" }
+}
+
+#--- 0. LIBRARY -----------------------------------------------
 set target_library "$LIBDIR/$LIBNAME.db"
 set link_library   "* $target_library"
-set search_path    "$search_path ../rtl"   ;# adjust to where your .sv files live
-
-# Sanity: make sure the .db actually loads (else you map to gtech = garbage)
+set search_path    "$search_path $RTL"
 read_db "$LIBDIR/$LIBNAME.db"
 if {[llength [get_libs $LIBNAME]] == 0} {
-    echo "ERROR: library $LIBNAME did not load — check LIBDIR path"
+    error "library $LIBNAME did not load from $LIBDIR (it would map to GTECH)"
 }
 
-#--- 1. READ RTL (package FIRST) ------------------------------
-analyze -format sverilog {
-    cpu16_isa.sv
-    cpu16_regfile.sv
-    cpu16_alu.sv
-    cpu16_datapath.sv
-    cpu16_control_fsm.sv
-    Sram.sv
-    cpu16_core.sv
-}
-elaborate cpu16_core
-current_design cpu16_core
-link                                        ;# CHECK LOG: unresolved refs = stop & fix
+#--- 1. READ RTL (the package first) --------------------------
+analyze -format sverilog $FILES
+elaborate $TOP
+current_design $TOP
+link                                  ;# unresolved references: stop and fix
 
 #--- 2. CONSTRAINTS -------------------------------------------
 set inputs_no_clk [remove_from_collection [all_inputs] [get_ports clk]]
-
-create_clock -name clk -period 3.0 [get_ports clk]   ;# 3ns; tune for Fmax
+create_clock -name clk -period $PERIOD [get_ports clk]
 set_clock_uncertainty 0.15 [get_clocks clk]
-
 set_input_delay  0.5 -clock clk $inputs_no_clk
 set_output_delay 0.5 -clock clk [all_outputs]
-
-# drive / load — now using the real library + cell + pin
 set_driving_cell -lib_cell $INV_CELL $inputs_no_clk
 set_load [expr {5 * [load_of $LIBNAME/$INV_CELL/$INV_PIN]}] [all_outputs]
-
-check_timing                                ;# flags unconstrained endpoints
+check_timing
 
 #--- 3. COMPILE -----------------------------------------------
 compile_ultra
 
 #--- 4. REPORTS -----------------------------------------------
-report_timing -max_paths 5 -delay_type max   > reports/timing_setup.rpt
-report_timing -delay_type min                > reports/timing_hold.rpt
-report_area                                  > reports/area.rpt
-report_qor                                   > reports/qor.rpt
-report_constraint -all_violators             > reports/violators.rpt
-check_design                                 > reports/check.rpt
+file mkdir reports netlist
+report_timing -max_paths 5 -delay_type max > reports/${TOP}_timing_setup.rpt
+report_timing -delay_type min              > reports/${TOP}_timing_hold.rpt
+report_area                                > reports/${TOP}_area.rpt
+report_qor                                 > reports/${TOP}_qor.rpt
+report_constraint -all_violators           > reports/${TOP}_violators.rpt
+check_design                               > reports/${TOP}_check.rpt
 
-#--- 5. WRITE OUTPUTS (ICC2 handoff) --------------------------
-write -format verilog -hierarchy -output netlist/cpu16_core.mapped.v
-write_sdc                                       netlist/cpu16_core.mapped.sdc
-write -format ddc -hierarchy -output            netlist/cpu16_core.ddc
+#--- 5. OUTPUTS (place-and-route handoff) ---------------------
+write -format verilog -hierarchy -output netlist/${TOP}.mapped.v
+write_sdc                                netlist/${TOP}.mapped.sdc
+write -format ddc -hierarchy -output     netlist/${TOP}.ddc
 
-echo "=== synthesis complete — check reports/qor.rpt for slack & area ==="
-
+echo "=== $TOP: synthesis complete, see reports/${TOP}_qor.rpt ==="

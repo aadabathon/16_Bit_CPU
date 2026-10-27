@@ -1,6 +1,7 @@
 """Check that every relative link and image in the markdown resolves.
 
-Covers README.md and everything under docs/. A link to a heading
+Covers the top-level README, ROADMAP, demo, CONTRIBUTING and CHANGELOG, and
+everything under docs/. A link to a heading
 (file.md#anchor) must match a heading in the target file, using GitHub's
 anchor rules (lower-case, punctuation dropped, spaces to hyphens).
 
@@ -32,7 +33,8 @@ def anchors(path):
 
 
 def main():
-    files = [os.path.join(ROOT, "README.md")]
+    files = [os.path.join(ROOT, f) for f in
+             ("README.md", "ROADMAP.md", "demo.md", "CONTRIBUTING.md", "CHANGELOG.md")]
     for d, _, fs in os.walk(os.path.join(ROOT, "docs")):
         files += [os.path.join(d, f) for f in fs if f.endswith(".md")]
     bad, n = [], 0

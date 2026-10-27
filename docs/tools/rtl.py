@@ -55,9 +55,15 @@ class Module:
         return next(p for p in self.ports if p.name == name)
 
 
+COMMENT = "__comment__"
+
+
 def _strip_comments(text):
-    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
-    return re.sub(r"//[^\n]*", "", text)
+    """Replace comments with a placeholder so comment-only lines (e.g. lint
+    pragmas) are not mistaken for the blank lines that separate port groups."""
+    text = re.sub(r"/\*.*?\*/", lambda m: "\n".join(f" {COMMENT}" for _ in m.group(0).split("\n")),
+                  text, flags=re.S)
+    return re.sub(r"//[^\n]*", f" {COMMENT}", text)
 
 
 def _matching(text, i):
@@ -79,7 +85,7 @@ def _matching(text, i):
 
 PORT_RE = re.compile(r"^\s*(input|output|inout)\s+(?:logic|wire|reg)?\s*"
                      r"(?:\[\s*(\d+)\s*:\s*(\d+)\s*\])?\s*(\w+)")
-PARAM_RE = re.compile(r"parameter\s+(?:(\w+)\s+)?(\w+)\s*=\s*([^,]+)")
+PARAM_RE = re.compile(r"parameter\s+(?:(\w+)\s+)?(\w+)\s*=\s*([^,\n]+)")
 
 
 def parse_file(path):
@@ -96,7 +102,8 @@ def parse_file(path):
             j = text.index("(", i)
             k = _matching(text, j)
             for pm in PARAM_RE.finditer(text[j + 1:k]):
-                mod.params.append(Param(pm.group(2), pm.group(1) or "", pm.group(3).strip()))
+                default = pm.group(3).replace(COMMENT, "").strip()
+                mod.params.append(Param(pm.group(2), pm.group(1) or "", default))
             i = k + 1
         j = text.index("(", i)
         k = _matching(text, j)
@@ -122,15 +129,27 @@ def parse_file(path):
     return mods
 
 
+def _block(body, start):
+    """Text of the always block starting at body[start]: up to the `end` that
+    closes its first `begin`, or up to the first ';' for a single statement."""
+    semi = body.find(";", start)
+    first = re.compile(r"\bbegin\b").search(body, start)
+    if not first or (semi != -1 and first.start() > semi):
+        return body[start: semi + 1 if semi != -1 else len(body)]
+    depth = 0
+    for t in re.finditer(r"\b(begin|end)\b", body[first.start():]):
+        depth += 1 if t.group(1) == "begin" else -1
+        if depth == 0:
+            return body[start: first.start() + t.end()]
+    return body[start:]
+
+
 def _parse_body(mod, body):
     for am in re.finditer(r"\bassign\s+(\w+)\s*=\s*([^;]+);", body):
         mod.assigns[am.group(1)] = " ".join(am.group(2).split())
     for kind, target in (("always_comb", mod.comb_nets), ("always_ff", mod.reg_nets)):
         for bm in re.finditer(rf"\b{kind}\b", body):
-            # the block runs to the next always/assign/instance-ish keyword; good enough here
-            nxt = re.search(r"\b(always_comb|always_ff|assign|endmodule)\b|\w+\s+\w+\s*\(\s*\.",
-                            body[bm.end():])
-            block = body[bm.end(): bm.end() + (nxt.start() if nxt else len(body))]
+            block = _block(body, bm.end())
             mod.blocks.append((kind, block))
             for lhs in re.findall(r"(\w+)(?:\[[^\]]*\])?\s*<?=(?!=)", block):
                 target.add(lhs)
