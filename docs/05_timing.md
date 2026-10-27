@@ -1,6 +1,6 @@
 # 5. Execution timing
 
-adam16 is a **multi-cycle** machine, not a pipelined one. Exactly one instruction is in flight at a time, and it walks the FSM from `S_IF0` back to `S_IF0`. This page covers what that costs and where the cycles go. The last section collects notes for a pipelined successor.
+This chapter covers the multicycle core, `adam16_core`. Exactly one instruction is in flight at a time, and it walks the FSM from `S_IF0` back to `S_IF0`. It covers what that costs and where the cycles go. The last section compares the pipelined core, `adam16_pipe_core` ([chapter 7](07_pipeline.md)).
 
 ## Cycles per instruction class
 
@@ -53,13 +53,18 @@ With all three: ALU-class instructions take 3 cycles, stores 3 and loads 4. `sum
 
 Beyond that the memory itself is the limit. With one single-port memory and one instruction at a time, fetch and execute can't overlap. Making them overlap is exactly what pipelining does.
 
-## Toward a pipeline
+## The pipelined core
 
-These notes cover what this ISA and this microarchitecture imply for a classic five-stage pipeline (IF, ID, EX, MEM, WB). They are a starting point for discussion, not a design.
+`adam16_pipe_core` overlaps fetch, decode, execute, memory and write-back ([chapter 7](07_pipeline.md)). Every instruction takes one cycle, plus one after a taken branch or a jump, and nothing stalls. Measured in simulation (`make regress`):
 
-- **Memory is a structural hazard.** IF and MEM both need memory in the same cycle whenever a load or store is in MEM. The Basys3 block RAM is true dual-port, so one port can fetch instructions while the other serves data, and it stays one unified memory.
-- **The register-file bypass becomes necessary.** WB writes while ID reads, often the same register. The current register file returns the old value, so it needs write-first behaviour (or an explicit bypass). Two read ports are enough, and that is what the register file now has.
-- **Data hazards.** Back-to-back ALU dependences need forwarding from EX/MEM and MEM/WB into the ALU inputs. A load followed by an instruction that uses its result needs at least one stall cycle.
-- **The flags are a hidden register.** `CMP` followed immediately by `BRx` is the common pattern, and the branch needs the newest N/Z/P. The flags must be forwarded just like data. It helps that loads and LEA *don't* write flags: fewer instructions write them.
-- **Control hazards.** BR, JMP, JSR/JSRR, RET and TRAP all redirect PC. Resolved in EX, each costs two bubbles unless the pipeline predicts not-taken and flushes on a miss. JSR and TRAP also write R7, which is an ordinary register dependence for a later `RET`.
-- **Decode is easy.** The fields sit in fixed places (SR1/BaseR always in `[8:6]`, SR2 in `[5:3]`), so ID can read the register file before it has finished decoding the opcode. This is the usual RISC property, and the ISA already has it.
+| Program | Instructions | Multicycle cycles | Pipelined cycles | Speed-up |
+|---|---|---|---|---|
+| `sum_array` | 35 | 191 | 43 | 4.4 × |
+| directed tests (`sw/tests/*.asm`, 10 programs) | 218 | 1165 | 294 | 4.0 × |
+| 2000 random programs | 409 722 | 2 275 451 | 477 105 | 4.8 × |
+
+Instruction counts include the final HALT. Cycle counts run from reset until HALT retires, so the pipeline's numbers include its four-cycle fill for each program, which weighs heavily in the short directed tests.
+
+For `sum_array` the 43 cycles are 4 to fill the pipeline, 35 retiring instructions, and 4 bubbles after the four taken `BRp`. The load-use pair in the loop (`LDR R4` → `ADD R3, R3, R4`) costs nothing, because the load's data is forwarded from MEM. The [cycle-by-cycle table](07_pipeline.md#cycle-by-cycle-sum_array) shows every stage of every cycle.
+
+The three single-cycle savings above (A, B, C) remain unimplemented for the multicycle core, which is kept as the simple, easy-to-follow version.

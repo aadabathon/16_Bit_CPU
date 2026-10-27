@@ -1,8 +1,10 @@
 # 2. Datapath
 
+This chapter, like chapters 3 to 5, describes the multicycle core, `adam16_core`. The pipelined core is in [chapter 7](07_pipeline.md).
+
 ![adam16_datapath block diagram](figures/datapath.svg)
 
-How to read the diagram: wires connect only at dots. An *italic* name at a mux input connects to the net with the same name (`PC`, `rd0`, `rd2`, `sext9`, …). Dashed orange lines are control inputs from the FSM, and solid orange arrows are status outputs back to it.
+How to read the diagram: wires connect only at dots. An *italic* name at a mux input connects to the net with the same name (`PC`, `rd0`, `rd1`, `sext9`, …). Dashed orange lines are control inputs from the FSM, and solid orange arrows are status outputs back to it.
 
 ## Storage elements
 

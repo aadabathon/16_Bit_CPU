@@ -1,5 +1,6 @@
-# Runs on every push and pull request: RTL testbench, Verilator lint, and the
-# documentation checks (port tables, generated blocks, FSM spec vs RTL, links).
+# Runs on every push and pull request: the directed testbench, the ISS-vs-RTL
+# regression on both cores (with random programs), the board demo, the
+# black-box testbench, Verilator lint, and the documentation checks.
 name: CI
 
 on:

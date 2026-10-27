@@ -1,6 +1,6 @@
 # 4. Memory interface
 
-The core talks to one synchronous, single-port memory that holds both instructions and data, so it makes at most one access per cycle. The signals are listed in [port interfaces](interfaces/adam16_core.md#ports).
+The multicycle core talks to one synchronous, single-port memory that holds both instructions and data, so it makes at most one access per cycle. (The pipelined core has a fetch port and a data port on one dual-port memory: [chapter 7](07_pipeline.md#memory).) The signals are listed in [port interfaces](interfaces/adam16_core.md#ports).
 
 ## Protocol
 
