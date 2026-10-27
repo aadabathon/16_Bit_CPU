@@ -47,7 +47,11 @@ module cpu16_control_fsm (
 
   state_t state, state_n;
 
+  // decode() fills every field; the controller reads only op, dr, funct,
+  // nzp_mask and jsr_is_reg.
+  /* verilator lint_off UNUSEDSIGNAL */
   dec_t d;
+  /* verilator lint_on UNUSEDSIGNAL */
   logic take_br;
   logic is_cmp;
 

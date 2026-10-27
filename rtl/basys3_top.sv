@@ -5,15 +5,17 @@ module basys3_top (
   input  logic        clk,       // onboard 100 MHz oscillator
   input  logic        btn_rst,   // btnC
   input  logic        btn_step,  // btnU
-  input  logic [15:0] sw,
+  /* verilator lint_off UNUSEDSIGNAL */
+  input  logic [15:0] sw,        // only sw[1:0] (LED view select) is used
+  /* verilator lint_on UNUSEDSIGNAL */
   output logic [15:0] led
 );
 
   logic rst_clean, rst_pulse;
-  logic step_clean, step_pulse;
+  logic step_pulse;
 
   debounce db_rst  (.clk(clk), .btn_in(btn_rst),  .btn_clean(rst_clean),  .btn_pulse(rst_pulse));
-  debounce db_step (.clk(clk), .btn_in(btn_step), .btn_clean(step_clean), .btn_pulse(step_pulse));
+  debounce db_step (.clk(clk), .btn_in(btn_step), .btn_clean(),           .btn_pulse(step_pulse));
 
   // The core only sees a clock edge when the user presses step (or reset,
   // so the reset value is guaranteed to actually latch on that edge).

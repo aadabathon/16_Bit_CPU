@@ -55,9 +55,15 @@ class Module:
         return next(p for p in self.ports if p.name == name)
 
 
+COMMENT = "__comment__"
+
+
 def _strip_comments(text):
-    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
-    return re.sub(r"//[^\n]*", "", text)
+    """Replace comments with a placeholder so comment-only lines (e.g. lint
+    pragmas) are not mistaken for the blank lines that separate port groups."""
+    text = re.sub(r"/\*.*?\*/", lambda m: "\n".join(f" {COMMENT}" for _ in m.group(0).split("\n")),
+                  text, flags=re.S)
+    return re.sub(r"//[^\n]*", f" {COMMENT}", text)
 
 
 def _matching(text, i):
@@ -79,7 +85,7 @@ def _matching(text, i):
 
 PORT_RE = re.compile(r"^\s*(input|output|inout)\s+(?:logic|wire|reg)?\s*"
                      r"(?:\[\s*(\d+)\s*:\s*(\d+)\s*\])?\s*(\w+)")
-PARAM_RE = re.compile(r"parameter\s+(?:(\w+)\s+)?(\w+)\s*=\s*([^,]+)")
+PARAM_RE = re.compile(r"parameter\s+(?:(\w+)\s+)?(\w+)\s*=\s*([^,\n]+)")
 
 
 def parse_file(path):
@@ -96,7 +102,8 @@ def parse_file(path):
             j = text.index("(", i)
             k = _matching(text, j)
             for pm in PARAM_RE.finditer(text[j + 1:k]):
-                mod.params.append(Param(pm.group(2), pm.group(1) or "", pm.group(3).strip()))
+                default = pm.group(3).replace(COMMENT, "").strip()
+                mod.params.append(Param(pm.group(2), pm.group(1) or "", default))
             i = k + 1
         j = text.index("(", i)
         k = _matching(text, j)
