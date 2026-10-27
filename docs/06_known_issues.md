@@ -1,6 +1,6 @@
 # 6. Known issues and open questions
 
-Each entry says what happens, why, and the options for fixing it. Numbered entries are real defects or risks. The last section lists deliberate design choices that are easy to trip over.
+Each entry says what happens, why, and the options for fixing it. The plan for fixing them is in [ROADMAP.md](../ROADMAP.md#phase-1-finish-and-release-v1-multicycle). Numbered entries are real defects or risks. The last section lists deliberate design choices that are easy to trip over.
 
 ## 1. CMP gives the wrong answer when the subtraction overflows
 
@@ -42,8 +42,6 @@ Port 1's address could be muxed between `IR[5:3]`, `IR[11:9]` and `3'b111`, and 
 ## 4. Repository housekeeping
 
 - `rtl/basys3_top.sv:45` loads the memory image from an absolute Windows path (`C:/Users/adams/...`). A relative path, or a path set from the Vivado project, would work on any machine.
-- Two editor swap files are committed: `.newfile.txt.swp` and `.Sram.sv.swp`.
-- `basys3_top` connects `db_step.btn_clean` to a net, `step_clean`, that nothing reads. The generated [connection table](interfaces/basys3_top.md#connections) flags it. It is harmless (synthesis removes it), but the connection could simply be left open.
 - `tb/tb_cpu16_gate.sv` (the gate-level testbench) treats any TRAP as a halt, while `tb/tb_cpu16.sv` now halts only on `TRAP x025`. All the gate-level programs use only `TRAP x025`, so its results don't change. It hasn't been re-run since the control refactor, because that needs the SAED32 cell library.
 
 ## Design choices to be aware of
